@@ -201,7 +201,7 @@ export function apiGetSettings(): Promise<StoreSettings> {
     taxEnabled: s.taxEnabled, taxPct: s.taxPct,
     receiptHeader: s.receiptHeader, receiptFooter: s.receiptFooter, paper: s.paper, timezone: s.timezone,
     businessType: '', email: '', city: '', province: '', currency: 'IDR', hours: [],
-    receiptShowLogo: true, receiptShowCashier: true, receiptShowMethod: true,
+    receiptShowCashier: true, receiptShowMethod: true,
     receiptShowTax: true, receiptShowDiscount: true, receiptShowNote: true,
     taxName: '', taxInclusive: false, taxRounding: 'none', taxApplyTo: 'all',
   })

@@ -215,15 +215,15 @@ export interface StoreSettings {
   // Extended (kontrak docs/API-CONTRACT-SETTINGS-EXTENDED.md, live backend
   // 11 Sep commit 605550d). Opsional agar respons backend lama + adapter
   // offline (tanpa key baru) tetap kompatibel; deteksi dukungan via
-  // `'businessType' in settings`. logoUrl & passcodeUpdatedAt sengaja
-  // tidak ada (dibatalkan/ditunda di sisi backend).
+  // `'businessType' in settings`. logoUrl, receiptShowLogo &
+  // passcodeUpdatedAt sengaja tidak ada (fitur logo dibatalkan,
+  // passcodeUpdatedAt ditunda di sisi backend).
   businessType?: string
   email?: string
   city?: string
   province?: string
   currency?: string
   hours?: StoreHours[]
-  receiptShowLogo?: boolean
   receiptShowCashier?: boolean
   receiptShowMethod?: boolean
   receiptShowTax?: boolean
