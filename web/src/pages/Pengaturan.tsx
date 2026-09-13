@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useState, type ReactNode, type SelectHTMLAttributes } from 'react'
 import { Link, useNavigate } from 'react-router'
 import {
-  Check, Eye, EyeOff, ImagePlus, Info, KeyRound, Lock, LogOut, Mail, MapPin, Phone, Printer, ShieldCheck, Users,
+  Check, ChevronDown, Eye, EyeOff, ImagePlus, Info, KeyRound, Lock, LogOut, Mail, MapPin, Phone, Printer, ShieldCheck, Users,
 } from 'lucide-react'
 import {
   ApiError, apiGetSettings, apiListTransactions, apiListUsers, apiLogout, apiResetPassword, apiSendPasswordResetOtp, apiSetPasscode, apiUpdateSettings,
@@ -23,13 +23,31 @@ const TABS = [
 type TabId = (typeof TABS)[number]['id']
 
 const TIMEZONES = [
-  { value: 'Asia/Jakarta', label: 'WIB — Jakarta (UTC+7)' },
-  { value: 'Asia/Makassar', label: 'WITA — Makassar (UTC+8)' },
-  { value: 'Asia/Jayapura', label: 'WIT — Jayapura (UTC+9)' },
+  { value: 'Asia/Jakarta', label: 'WIB (UTC+7)' },
+  { value: 'Asia/Makassar', label: 'WITA (UTC+8)' },
+  { value: 'Asia/Jayapura', label: 'WIT (UTC+9)' },
 ]
+
+// Label ramah untuk nilai IANA (dipakai di badge preview); fallback ke nilai mentah.
+function tzLabel(v: string) {
+  return TIMEZONES.find((t) => t.value === v)?.label ?? v
+}
 
 const INPUT_CLS = 'w-full rounded-md border border-border bg-paper px-3.5 py-2.5 text-[15px] text-fg placeholder:text-fog focus:border-jet focus:outline-2 focus:outline-accent-soft disabled:opacity-60'
 const LABEL_CLS = 'flex flex-col gap-1.5 text-[13px] font-medium text-steel'
+const SELECT_CLS = 'w-full cursor-pointer appearance-none rounded-md border border-border bg-paper py-2.5 pr-10 pl-3.5 text-[15px] text-fg transition-colors hover:border-jet focus:border-jet focus:outline-2 focus:outline-accent-soft disabled:cursor-not-allowed disabled:opacity-60'
+
+// Dropdown konsisten: chevron kustom + tinggi sejajar input, bukan tampilan default browser.
+function Select({ children, ...rest }: { children: ReactNode } & SelectHTMLAttributes<HTMLSelectElement>) {
+  return (
+    <span className="relative block">
+      <select {...rest} className={SELECT_CLS}>
+        {children}
+      </select>
+      <ChevronDown className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-fog" aria-hidden="true" />
+    </span>
+  )
+}
 
 // Settings extended (kontrak docs/API-CONTRACT-SETTINGS-EXTENDED.md, live
 // backend 11 Sep): opsi + rumus pajak server (inclusive + rounding).
@@ -579,17 +597,17 @@ export default function Pengaturan() {
               {hasExt ? (
                 <label className={LABEL_CLS}>
                   Jenis Usaha *
-                  <select value={form.businessType ?? ''} onChange={(e) => setV('businessType', e.target.value)} className={INPUT_CLS}>
+                  <Select value={form.businessType ?? ''} onChange={(e) => setV('businessType', e.target.value)}>
                     {BUSINESS_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
-                  </select>
+                  </Select>
                 </label>
               ) : (
               <Soon>
                 <label className={LABEL_CLS}>
                   Jenis Usaha *
-                  <select disabled className={INPUT_CLS} value="" onChange={() => {}}>
+                  <Select disabled value="" onChange={() => {}}>
                     <option value="">Menunggu backend</option>
-                  </select>
+                  </Select>
                 </label>
               </Soon>
               )}
@@ -633,9 +651,9 @@ export default function Pengaturan() {
               <Soon>
                 <label className={LABEL_CLS}>
                   Provinsi
-                  <select disabled className={INPUT_CLS} value="" onChange={() => {}}>
+                  <Select disabled value="" onChange={() => {}}>
                     <option value="">Menunggu backend</option>
-                  </select>
+                  </Select>
                 </label>
               </Soon>
               )}
@@ -648,18 +666,18 @@ export default function Pengaturan() {
               <Soon>
                 <label className={LABEL_CLS}>
                   Mata Uang
-                  <select disabled className={INPUT_CLS} value="IDR" onChange={() => {}}>
+                  <Select disabled value="IDR" onChange={() => {}}>
                     <option value="IDR">Rupiah (IDR)</option>
-                  </select>
+                  </Select>
                 </label>
               </Soon>
               )}
               <label className={LABEL_CLS}>
                 Timezone
-                <select value={form.timezone} onChange={(e) => set('timezone')(e.target.value)} className={INPUT_CLS}>
+                <Select value={form.timezone} onChange={(e) => set('timezone')(e.target.value)}>
                   {!TIMEZONES.some((t) => t.value === form.timezone) && <option value={form.timezone}>{form.timezone}</option>}
                   {TIMEZONES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
-                </select>
+                </Select>
               </label>
             </div>
             <div className="mt-5">
@@ -742,7 +760,7 @@ export default function Pengaturan() {
                 <p className="flex items-start gap-2 text-muted"><MapPin className="mt-0.5 size-3.5 shrink-0" /><span>{[form.address, form.city, form.province].filter(Boolean).join(', ') || '—'}</span></p>
               </div>
               <div className="mt-3 flex flex-wrap gap-1.5">
-                <Pill tone="muted">{form.timezone}</Pill>
+                <Pill tone="muted">{tzLabel(form.timezone)}</Pill>
                 {!!form.businessType && <Pill tone="muted">{BUSINESS_TYPES.find((t) => t.value === form.businessType)?.label ?? form.businessType}</Pill>}
                 {!!form.currency && <Pill tone="muted">{form.currency}</Pill>}
               </div>
@@ -805,10 +823,10 @@ export default function Pengaturan() {
               </div>
               <label className={LABEL_CLS}>
                 Lebar Kertas
-                <select value={form.paper} onChange={(e) => set('paper')(e.target.value)} className={INPUT_CLS}>
+                <Select value={form.paper} onChange={(e) => set('paper')(e.target.value)}>
                   <option value="58mm">58 mm (Thermal)</option>
                   <option value="80mm">80 mm (Thermal)</option>
-                </select>
+                </Select>
               </label>
               <label className={LABEL_CLS}>
                 Pesan Footer
@@ -915,36 +933,36 @@ export default function Pengaturan() {
                 {hasExt ? (
                 <label className={LABEL_CLS}>
                   Pembulatan Pajak
-                  <select value={form.taxRounding ?? 'none'} onChange={(e) => setV('taxRounding', e.target.value)} className={INPUT_CLS}>
+                  <Select value={form.taxRounding ?? 'none'} onChange={(e) => setV('taxRounding', e.target.value)}>
                     <option value="none">Normal (setengah ke atas)</option>
                     <option value="down">Ke bawah (floor)</option>
                     <option value="up">Ke atas (ceil)</option>
-                  </select>
+                  </Select>
                 </label>
                 ) : (
                 <Soon>
                   <label className={LABEL_CLS}>
                     Pembulatan Pajak
-                    <select disabled className={INPUT_CLS} value="" onChange={() => {}}>
+                    <Select disabled value="" onChange={() => {}}>
                       <option value="">Menunggu backend</option>
-                    </select>
+                    </Select>
                   </label>
                 </Soon>
                 )}
                 {hasExt ? (
                 <label className={LABEL_CLS}>
                   Terapkan Pajak Pada
-                  <select value={form.taxApplyTo ?? 'all'} onChange={(e) => setV('taxApplyTo', e.target.value)} className={INPUT_CLS}>
+                  <Select value={form.taxApplyTo ?? 'all'} onChange={(e) => setV('taxApplyTo', e.target.value)}>
                     <option value="all">Semua produk</option>
-                  </select>
+                  </Select>
                 </label>
                 ) : (
                 <Soon>
                   <label className={LABEL_CLS}>
                     Terapkan Pajak Pada
-                    <select disabled className={INPUT_CLS} value="" onChange={() => {}}>
+                    <Select disabled value="" onChange={() => {}}>
                       <option value="">Menunggu backend</option>
-                    </select>
+                    </Select>
                   </label>
                 </Soon>
                 )}
