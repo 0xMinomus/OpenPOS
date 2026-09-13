@@ -190,11 +190,11 @@ export default function Pengaturan() {
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
 
-  // Passcode (tab Akun → Keamanan): ubah milik sendiri + reset milik kasir.
-  const [pcTarget, setPcTarget] = useState<User | null>(null)
+  // Passcode (tab Akun → Keamanan): kelola passcode admin + semua kasir.
+  const [manageOpen, setManageOpen] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null)
   const [pcVal, setPcVal] = useState('')
   const [pcBusy, setPcBusy] = useState(false)
-  const [resetOpen, setResetOpen] = useState(false)
   const [confirmResetId, setConfirmResetId] = useState<string | null>(null)
 
   // Ganti kata sandi (section khusus di tab Akun): kata sandi baru +
@@ -266,8 +266,8 @@ export default function Pengaturan() {
     try {
       await apiSetPasscode(u.id, pcVal, u.role)
       accountList.mutate(users.map((x) => (x.id === u.id ? { ...x, has_passcode: true } : x)))
-      setPcTarget(null); setPcVal('')
-      setMsg(`Passcode ${u.name} diperbarui.`)
+      setEditingId(null); setPcVal('')
+      setMsg(`Passcode ${u.name} disimpan.`)
     } catch (e) {
       setErr(e instanceof Error ? e.message : 'Gagal menyimpan passcode.')
     } finally {
@@ -347,6 +347,7 @@ export default function Pengaturan() {
   const s = session
   const me = users.find((u) => u.id === s?.id) ?? null
   const cashiers = users.filter((u) => u.role === 'cashier')
+  const manageUsers = me ? [me, ...cashiers.filter((c) => c.id !== me.id)] : [...cashiers]
   const taxed = todayTrx.data?.items.filter((t) => t.tax > 0).length ?? 0
   const trxTotal = todayTrx.data?.total ?? 0
 
@@ -528,11 +529,8 @@ export default function Pengaturan() {
                 </div>
               </div>
               <div className="mt-4 flex flex-wrap gap-2">
-                <Button onClick={() => { if (me) { setPcTarget(me); setPcVal(''); setErr('') } }} disabled={!me}>
-                  <KeyRound className="size-4" /> Ubah Passcode
-                </Button>
-                <Button variant="ghost" onClick={() => { setResetOpen(true); setConfirmResetId(null); setErr('') }}>
-                  Reset Passcode Kasir
+                <Button onClick={() => { setManageOpen(true); setEditingId(null); setPcVal(''); setConfirmResetId(null); setErr('') }}>
+                  <KeyRound className="size-4" /> Manage Passcode
                 </Button>
               </div>
               <div className="mt-4 flex items-start gap-2 rounded-lg bg-surface px-3.5 py-3 text-[13px] text-muted">
@@ -1039,45 +1037,61 @@ export default function Pengaturan() {
         </div>
       )}
 
-      <Modal open={pcTarget != null} title="Ubah Passcode" onClose={() => { setPcTarget(null); setPcVal('') }}>
-        <p className="mb-3 text-sm text-muted">Passcode 5 angka untuk <strong className="text-fg">{pcTarget?.name}</strong>.</p>
-        <input
-          value={pcVal}
-          onChange={(e) => setPcVal(e.target.value.replace(/\D/g, '').slice(0, 5))}
-          inputMode="numeric"
-          placeholder="•••••"
-          aria-label="Passcode baru"
-          className="w-full rounded-md border border-border bg-paper px-3.5 py-3 text-center font-mono text-lg tracking-[0.5em] focus:border-jet focus:outline-none"
-        />
-        <div className="mt-4 flex flex-wrap gap-2">
-          <Button onClick={() => pcTarget && savePc(pcTarget)} disabled={pcBusy || pcVal.length !== 5} className="flex-1">{pcBusy ? '…' : 'Simpan passcode'}</Button>
-          <Button variant="ghost" onClick={() => { setPcTarget(null); setPcVal('') }}>Batal</Button>
-        </div>
-      </Modal>
-
-      <Modal open={resetOpen} title="Reset Passcode Kasir" onClose={() => { setResetOpen(false); setConfirmResetId(null) }}>
-        <p className="mb-3 text-sm text-muted">Pilih kasir yang passcodenya akan dinonaktifkan.</p>
-        <div className="space-y-2">
-          {cashiers.map((u) => (
-            <div key={u.id} className="flex flex-wrap items-center gap-2 rounded-lg border border-dove px-3.5 py-2.5">
-              <span className="min-w-0 flex-1 truncate text-sm font-medium text-fg">{u.name}</span>
-              <Pill tone={u.has_passcode ? 'ok' : 'muted'}>{u.has_passcode ? 'Aktif' : 'Mati'}</Pill>
-              {confirmResetId === u.id ? (
-                <>
-                  <button onClick={() => clearPc(u)} disabled={pcBusy} className="text-[13px] font-medium text-ember hover:underline disabled:opacity-40">
-                    {pcBusy ? '…' : 'Yakin, nonaktifkan'}
-                  </button>
-                  <button onClick={() => setConfirmResetId(null)} className="text-[13px] text-muted hover:underline">Batal</button>
-                </>
-              ) : (
-                <button onClick={() => setConfirmResetId(u.id)} disabled={!u.has_passcode || pcBusy} className="text-[13px] font-medium text-jet hover:underline disabled:opacity-40">
-                  Reset
-                </button>
-              )}
-            </div>
-          ))}
-          {cashiers.length === 0 && <p className="text-sm text-fog">Belum ada akun kasir.</p>}
-        </div>
+      <Modal open={manageOpen} title="Manage Passcode" onClose={() => { setManageOpen(false); setEditingId(null); setPcVal(''); setConfirmResetId(null) }}>
+        <p className="mb-3 text-sm text-muted">Atur passcode 5 angka untuk admin dan setiap kasir. Akun tanpa passcode bisa langsung dipakai tanpa PIN.</p>
+        {accountList.loading && manageUsers.length === 0 ? (
+          <p className="py-4 text-center text-sm text-fog">Memuat daftar akun…</p>
+        ) : manageUsers.length === 0 ? (
+          <p className="py-4 text-center text-sm text-fog">{accountList.err || 'Daftar akun tidak tersedia.'}</p>
+        ) : (
+          <div className="space-y-2">
+            {manageUsers.map((u) => (
+              <div key={u.id} className="rounded-lg border border-dove px-3.5 py-2.5">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="min-w-0 flex-1 truncate text-sm font-medium text-fg">
+                    {u.name} <span className="font-normal text-fog">· {u.role === 'admin' ? 'Admin' : 'Kasir'}</span>
+                  </span>
+                  <Pill tone={u.has_passcode ? 'ok' : 'muted'}>{u.has_passcode ? 'Aktif' : 'Mati'}</Pill>
+                  {editingId === u.id ? (
+                    <button onClick={() => { setEditingId(null); setPcVal('') }} className="text-[13px] text-muted hover:underline">Batal</button>
+                  ) : (
+                    <button onClick={() => { setEditingId(u.id); setPcVal(''); setConfirmResetId(null); setErr('') }} disabled={pcBusy} className="text-[13px] font-medium text-jet hover:underline disabled:opacity-40">
+                      {u.has_passcode ? 'Ubah' : 'Tambah'}
+                    </button>
+                  )}
+                  {u.has_passcode && editingId !== u.id && (
+                    confirmResetId === u.id ? (
+                      <>
+                        <button onClick={() => clearPc(u)} disabled={pcBusy} className="text-[13px] font-medium text-ember hover:underline disabled:opacity-40">
+                          {pcBusy ? '…' : 'Yakin, hapus'}
+                        </button>
+                        <button onClick={() => setConfirmResetId(null)} className="text-[13px] text-muted hover:underline">Batal</button>
+                      </>
+                    ) : (
+                      <button onClick={() => setConfirmResetId(u.id)} disabled={pcBusy} className="text-[13px] font-medium text-ember hover:underline disabled:opacity-40">
+                        Hapus
+                      </button>
+                    )
+                  )}
+                </div>
+                {editingId === u.id && (
+                  <div className="mt-2.5 flex flex-wrap gap-2">
+                    <input
+                      value={pcVal}
+                      onChange={(e) => setPcVal(e.target.value.replace(/\D/g, '').slice(0, 5))}
+                      inputMode="numeric"
+                      placeholder="•••••"
+                      aria-label={`Passcode baru untuk ${u.name}`}
+                      autoFocus
+                      className="min-w-0 flex-1 rounded-md border border-border bg-paper px-3 py-2.5 text-center font-mono text-lg tracking-[0.5em] focus:border-jet focus:outline-none"
+                    />
+                    <Button onClick={() => savePc(u)} disabled={pcBusy || pcVal.length !== 5}>{pcBusy ? '…' : 'Simpan'}</Button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </Modal>
 
       <Modal open={printTest} title="Cetak Uji Coba" onClose={() => setPrintTest(false)}>
