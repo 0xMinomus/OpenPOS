@@ -663,17 +663,6 @@ export default function Pengaturan() {
               </label>
             </div>
             <div className="mt-5">
-              <p className="text-[13px] font-medium text-steel">Logo Toko</p>
-              <div className="mt-1.5 flex items-center gap-3 rounded-xl border border-dashed border-dove p-4 opacity-80">
-                <span className="grid size-12 shrink-0 place-items-center rounded-lg bg-surface text-fog"><ImagePlus className="size-5" /></span>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm text-muted">Belum ada logo toko</p>
-                  <p className="text-xs text-fog">PNG, JPG maks. 2MB · Segera hadir — menunggu backend.</p>
-                </div>
-                <Button variant="ghost" disabled>Pilih Gambar</Button>
-              </div>
-            </div>
-            <div className="mt-5">
               <div className="mb-1 flex items-center gap-2">
                 <p className="text-[13px] font-medium text-steel">Jam Operasional</p>
                 {!hasExt && <Pill tone="muted">Segera</Pill>}
@@ -784,7 +773,6 @@ export default function Pengaturan() {
                 {hasExt ? (
                 <div className="divide-y divide-dove rounded-xl border border-dove px-4">
                   {([
-                    ['Tampilkan Logo Toko', 'receiptShowLogo'],
                     ['Tampilkan Nama Kasir', 'receiptShowCashier'],
                     ['Tampilkan Metode Pembayaran', 'receiptShowMethod'],
                     ['Tampilkan Pajak', 'receiptShowTax'],
@@ -803,7 +791,7 @@ export default function Pengaturan() {
                 </div>
                 ) : (
                 <div className="divide-y divide-dove rounded-xl border border-dove px-4 opacity-80">
-                  {['Tampilkan Logo Toko', 'Tampilkan Nama Kasir', 'Tampilkan Metode Pembayaran', 'Tampilkan Pajak', 'Tampilkan Diskon', 'Tampilkan QRIS / Catatan'].map((l) => (
+                  {['Tampilkan Nama Kasir', 'Tampilkan Metode Pembayaran', 'Tampilkan Pajak', 'Tampilkan Diskon', 'Tampilkan QRIS / Catatan'].map((l) => (
                     <label key={l} className="flex cursor-not-allowed items-center justify-between gap-3 py-2.5 text-sm text-fg">
                       {l}
                       <span className="flex items-center gap-2">
