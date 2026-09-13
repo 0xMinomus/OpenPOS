@@ -382,30 +382,64 @@ export default function Pengaturan() {
       <>
         <PageHead title="Pengaturan" sub="Kelola akun, toko, struk, pajak, dan keamanan." />
         {loadErr ? (
-          <div className="max-w-2xl rounded-2xl bg-cream p-6 text-center">
+          <div className="max-w-2xl rounded-2xl bg-cream p-4 text-center sm:p-6">
             <p className="text-sm text-ember">Gagal memuat pengaturan.</p>
             <p className="mt-1 text-[13px] text-muted">Coba muat ulang halaman.</p>
             <Button className="mt-4" onClick={retry}>Coba Lagi</Button>
           </div>
         ) : (
           <>
-            <div className="mb-5 flex gap-2" aria-hidden="true">
-              {[0, 1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-9 w-20 rounded-full" />
+            <div className="mb-5 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" aria-hidden="true">
+              {['w-[76px]', 'w-[72px]', 'w-[76px]', 'w-[72px]'].map((w, i) => (
+                <Skeleton key={i} className={`h-9 shrink-0 rounded-full ${w}`} />
               ))}
             </div>
-            <div className="max-w-2xl rounded-2xl bg-cream p-6" aria-busy="true" aria-label="Memuat pengaturan">
-              <div className="flex items-center gap-3">
-                <Skeleton className="size-11 rounded-full" />
-                <div className="flex-1 space-y-2">
-                  <Skeleton className="h-4 w-32" />
-                  <Skeleton className="h-3 w-48" />
+            <div className="grid items-start gap-4 lg:grid-cols-2" aria-busy="true" aria-label="Memuat pengaturan">
+              <div className="rounded-2xl bg-cream p-4 sm:p-6">
+                <div className="flex flex-wrap items-center gap-3">
+                  <Skeleton className="size-11 shrink-0 rounded-full" />
+                  <div className="min-w-0 flex-1 basis-32 space-y-2">
+                    <Skeleton className="h-4 w-32 max-w-full" />
+                    <Skeleton className="h-3 w-48 max-w-full" />
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    <Skeleton className="h-5 w-14 rounded-full" />
+                    <Skeleton className="h-5 w-20 rounded-full" />
+                  </div>
                 </div>
-                <Skeleton className="h-5 w-14 rounded-full" />
+                <div className="mt-4 divide-y divide-dove border-t border-dove">
+                  {[0, 1, 2].map((i) => (
+                    <div key={i} className="flex items-center justify-between gap-3 py-2.5">
+                      <Skeleton className="h-3.5 w-24" />
+                      <Skeleton className="h-3.5 w-28" />
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+                  <Skeleton className="h-12 w-full rounded-full sm:w-40" />
+                  <Skeleton className="h-12 w-full rounded-full sm:w-28" />
+                </div>
               </div>
-              <div className="mt-5 flex gap-2">
-                <Skeleton className="h-12 w-32 rounded-full" />
-                <Skeleton className="h-12 w-24 rounded-full" />
+              <div className="rounded-2xl bg-cream p-4 sm:p-6">
+                <div className="flex items-center gap-2">
+                  <Skeleton className="size-4 shrink-0 rounded" />
+                  <div className="min-w-0 flex-1 space-y-1.5">
+                    <Skeleton className="h-4 w-44 max-w-full" />
+                    <Skeleton className="h-3 w-56 max-w-full" />
+                  </div>
+                </div>
+                <div className="mt-4 divide-y divide-dove rounded-xl border border-dove px-4">
+                  {[0, 1].map((i) => (
+                    <div key={i} className="flex items-center justify-between gap-3 py-3">
+                      <Skeleton className="h-3.5 w-28" />
+                      <Skeleton className="h-5 w-16 rounded-full" />
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+                  <Skeleton className="h-12 w-full rounded-full sm:w-40" />
+                  <Skeleton className="h-12 w-full rounded-full sm:w-44" />
+                </div>
               </div>
             </div>
           </>
