@@ -188,30 +188,50 @@ export default function OfflinePengaturan() {
       <>
         <PageHead title="Pengaturan" sub="Kelola akun, toko, struk, dan pajak." />
         {loadErr ? (
-          <div className="max-w-2xl rounded-2xl bg-cream p-6 text-center">
+          <div className="max-w-2xl rounded-2xl bg-cream p-4 text-center sm:p-6">
             <p className="text-sm text-ember">Gagal memuat pengaturan.</p>
             <p className="mt-1 text-[13px] text-muted">Coba muat ulang halaman.</p>
             <Button className="mt-4" onClick={retry}>Coba Lagi</Button>
           </div>
         ) : (
           <>
-            <div className="mb-5 flex gap-2" aria-hidden="true">
-              {[0, 1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-9 w-20 rounded-full" />
+            <div className="mb-5 flex gap-2 overflow-x-auto" aria-hidden="true">
+              {['w-[76px]', 'w-[72px]', 'w-[76px]', 'w-[72px]'].map((w, i) => (
+                <Skeleton key={i} className={`h-9 shrink-0 rounded-full ${w}`} />
               ))}
             </div>
-            <div className="max-w-2xl rounded-2xl bg-cream p-6" aria-busy="true" aria-label="Memuat pengaturan">
-              <div className="flex items-center gap-3">
-                <Skeleton className="size-11 rounded-full" />
-                <div className="flex-1 space-y-2">
-                  <Skeleton className="h-4 w-32" />
-                  <Skeleton className="h-3 w-48" />
-                </div>
-                <Skeleton className="h-5 w-14 rounded-full" />
+            <div className="max-w-2xl rounded-2xl bg-cream p-4 sm:p-6" aria-busy="true" aria-label="Memuat pengaturan">
+              <div className="space-y-1.5">
+                <Skeleton className="h-3 w-20" />
+                <Skeleton className="h-4 w-36" />
+                <Skeleton className="h-3 w-48 max-w-full" />
               </div>
-              <div className="mt-5 flex gap-2">
-                <Skeleton className="h-12 w-32 rounded-full" />
-                <Skeleton className="h-12 w-24 rounded-full" />
+              <div className="mt-4 flex items-center gap-3">
+                <Skeleton className="size-11 shrink-0 rounded-full" />
+                <div className="min-w-0 flex-1 space-y-2">
+                  <Skeleton className="h-4 w-32 max-w-full" />
+                  <Skeleton className="h-3 w-40 max-w-full" />
+                </div>
+                <Skeleton className="h-5 w-14 shrink-0 rounded-full" />
+              </div>
+              <div className="mt-4 divide-y divide-dove border-t border-dove">
+                {[0, 1].map((i) => (
+                  <div key={i} className="flex items-center justify-between gap-3 py-2.5">
+                    <Skeleton className="h-3.5 w-20" />
+                    <Skeleton className="h-3.5 w-32" />
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                {[0, 1].map((i) => (
+                  <div key={i} className="space-y-1.5">
+                    <Skeleton className="h-3 w-24" />
+                    <Skeleton className="h-[46px] w-full rounded-md" />
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4">
+                <Skeleton className="h-12 w-full rounded-full sm:w-28" />
               </div>
             </div>
           </>
