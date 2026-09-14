@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ComponentType } from 'react'
 import { Link, Outlet, useLocation } from 'react-router'
 import { LayoutDashboard, Store, Package, Boxes, ReceiptText, BarChart3, Settings, Archive } from 'lucide-react'
 import { useLocalDB, createAccount, hasAccount } from '../../lib/localdb'
@@ -6,16 +6,22 @@ import { setSession, useDB, useTheme } from '../../lib/store'
 import { Button, Input, Logo } from '../../lib/ui'
 import { Sun, Moon } from 'lucide-react'
 
-const MENU = [
-  { label: 'Dashboard', to: '/', icon: LayoutDashboard },
-  { label: 'POS Kasir', to: '/pos', icon: Store },
-  { label: 'Produk', to: '/produk', icon: Package },
-  { label: 'Stok', to: '/stok', icon: Boxes },
-  { label: 'Transaksi', to: '/transaksi', icon: ReceiptText },
-  { label: 'Laporan', to: '/laporan', icon: BarChart3 },
-  { label: 'Pengaturan', to: '/pengaturan', icon: Settings },
-  { label: 'Backup', to: '/backup', icon: Archive },
+const MENU: { label: string; to: string; icon: ComponentType<{ className?: string }>; group: 'UTAMA' | 'MANAJEMEN' | 'PENGATURAN' }[] = [
+  { label: 'Dashboard', to: '/', icon: LayoutDashboard, group: 'UTAMA' },
+  { label: 'POS Kasir', to: '/pos', icon: Store, group: 'UTAMA' },
+  { label: 'Produk', to: '/produk', icon: Package, group: 'MANAJEMEN' },
+  { label: 'Stok', to: '/stok', icon: Boxes, group: 'MANAJEMEN' },
+  { label: 'Transaksi', to: '/transaksi', icon: ReceiptText, group: 'MANAJEMEN' },
+  { label: 'Laporan', to: '/laporan', icon: BarChart3, group: 'MANAJEMEN' },
+  { label: 'Pengaturan', to: '/pengaturan', icon: Settings, group: 'PENGATURAN' },
+  { label: 'Backup', to: '/backup', icon: Archive, group: 'PENGATURAN' },
 ]
+
+const GROUP_ORDER = ['UTAMA', 'MANAJEMEN', 'PENGATURAN'] as const
+
+function isMenuActive(pathname: string, to: string) {
+  return pathname === to || (to !== '/' && pathname.startsWith(to))
+}
 
 export default function OfflineShell() {
   const db = useLocalDB()
@@ -41,29 +47,56 @@ export default function OfflineShell() {
 
   return (
     <div className="flex min-h-screen bg-background">
-      <aside className="flex w-60 shrink-0 flex-col border-r bg-sidebar">
-        <div className="flex items-center gap-2.5 px-5 py-5">
-          <Logo className="h-7 w-auto" />
-          <span className="truncate text-xs text-sidebar-foreground">{db.settings.storeName}</span>
+      <aside className="flex w-60 shrink-0 flex-col border-r border-sidebar-border bg-sidebar">
+        <div className="flex h-12 items-center gap-2.5 px-4 pt-4">
+          <Logo className="h-8 w-auto shrink-0" />
+          <span className="grid min-w-0 flex-1 text-left leading-tight">
+            <span className="truncate text-sm font-semibold text-sidebar-foreground">{db.settings.storeName || 'Toko Saya'}</span>
+          </span>
         </div>
-        <nav className="flex-1 space-y-0.5 px-3" aria-label="Menu">
-          {MENU.map((m) => {
-            const active = loc.pathname === m.to || (m.to !== '/' && loc.pathname.startsWith(m.to))
-            return (
-              <Link
-                key={m.to}
-                to={m.to}
-                className={`flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors ${active ? 'bg-sidebar-accent font-medium text-sidebar-accent-foreground' : 'text-sidebar-foreground hover:bg-sidebar-accent/60'}`}
-              >
-                <m.icon className="size-4" />
-                {m.label}
-              </Link>
-            )
-          })}
+        <nav className="flex flex-1 flex-col gap-6 overflow-y-auto px-4 py-4" aria-label="Navigasi utama">
+          {GROUP_ORDER.map((g) => (
+            <div key={g}>
+              <p className="mb-2 flex items-center gap-2.5 px-3 text-[11px] font-medium tracking-[0.12em] text-muted-foreground uppercase">
+                {g}
+                {g !== 'UTAMA' && <span aria-hidden="true" className="h-px flex-1 bg-sidebar-border" />}
+              </p>
+              <ul className="flex flex-col gap-1">
+                {MENU.filter((m) => m.group === g).map((m) => {
+                  const active = isMenuActive(loc.pathname, m.to)
+                  return (
+                    <li key={m.to}>
+                      <Link
+                        to={m.to}
+                        aria-current={active ? 'page' : undefined}
+                        className={`relative flex h-11 items-center gap-3 rounded-[10px] px-3.5 text-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring ${active
+                          ? 'bg-sidebar-accent font-medium text-sidebar-accent-foreground'
+                          : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                          }`}
+                      >
+                        {active && (
+                          <span aria-hidden="true" className="absolute top-1/2 left-0 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-[var(--t-jet)]" />
+                        )}
+                        <m.icon className="size-[18px] shrink-0" />
+                        <span className="truncate">{m.label}</span>
+                      </Link>
+                    </li>
+                  )
+                })}
+              </ul>
+            </div>
+          ))}
         </nav>
-        <div className="border-t px-5 py-4 text-xs text-muted-foreground">
-          <p className="truncate font-medium text-foreground">{db.settings.ownerName}</p>
-          <p className="truncate">Pemilik toko</p>
+        <div className="px-4 pb-4">
+          <div className="flex w-full items-center gap-2.5 rounded-xl border border-sidebar-border bg-background p-2.5 text-left text-sm">
+            <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-sidebar-accent text-sm font-semibold text-sidebar-accent-foreground" aria-hidden="true">
+              {(db.settings.ownerName || '?').charAt(0).toUpperCase()}
+            </span>
+            <span className="grid min-w-0 flex-1 text-left leading-tight">
+              <span className="truncate font-medium text-sidebar-foreground">{db.settings.ownerName || '—'}</span>
+              <span className="truncate text-xs text-muted-foreground">Pemilik toko</span>
+            </span>
+          </div>
         </div>
       </aside>
 
@@ -90,7 +123,7 @@ export default function OfflineShell() {
             )}
           </div>
         </header>
-        <main className="flex-1 space-y-6 p-4 lg:p-6">
+        <main className="w-full min-w-0 flex-1 space-y-4 overflow-x-clip p-4 sm:space-y-6 lg:p-6">
           <Outlet />
         </main>
       </div>
