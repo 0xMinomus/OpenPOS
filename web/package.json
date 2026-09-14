@@ -14,7 +14,8 @@
     "preview": "vite preview",
     "electron:smoke": "electron electron/main.cjs --smoke",
     "build:offline": "vite build --config vite.offline.config.ts",
-    "electron:build": "npm run build && npm run build:offline && electron-builder --win nsis"
+    "electron:build": "npm run build && npm run build:offline && electron-builder --win nsis",
+    "mobile:sync": "npm run build:offline && node -e \"require('fs').copyFileSync('dist-offline/offline.html','dist-offline/index.html')\" && cap sync android"
   },
   "build": {
     "appId": "com.openpos.offline",
@@ -52,9 +53,11 @@
       "en-US"
     ]
   },
-  "dependencies": {},
   "devDependencies": {
     "@base-ui/react": "^1.7.0",
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/cli": "^8.5.2",
+    "@capacitor/core": "^8.5.2",
     "@fontsource/poppins": "^5.3.0",
     "@tailwindcss/vite": "^4.3.3",
     "@types/node": "^24.13.3",
