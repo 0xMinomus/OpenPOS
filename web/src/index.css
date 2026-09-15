@@ -434,8 +434,17 @@ p, h1, h2, h3, h4, li, span, a, td, th { overflow-wrap: anywhere; }
   }
   body {
     @apply bg-background text-foreground;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
   }
   html {
     @apply font-sans;
+    -webkit-tap-highlight-color: transparent;
   }
 }

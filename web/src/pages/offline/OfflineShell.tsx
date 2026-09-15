@@ -55,8 +55,8 @@ export default function OfflineShell() {
       {navOpen && (
         <div className="fixed inset-0 z-30 bg-black/50 md:hidden" onClick={() => setNavOpen(false)} aria-hidden="true" />
       )}
-      <aside className={`fixed inset-y-0 left-0 z-40 flex w-72 shrink-0 flex-col border-r border-sidebar-border bg-sidebar transition-transform duration-200 ease-out md:static md:z-auto md:w-60 md:translate-x-0 ${navOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="flex h-12 items-center gap-2.5 px-4 pt-4">
+      <aside className={`fixed inset-y-0 left-0 z-40 flex w-72 shrink-0 flex-col border-r border-sidebar-border bg-sidebar pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] transition-transform duration-200 ease-out md:static md:z-auto md:w-60 md:translate-x-0 md:pt-0 md:pb-0 ${navOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="flex h-12 items-center gap-2.5 px-4 pt-4 md:pt-2">
           <Logo className="h-8 w-auto shrink-0" />
           <span className="grid min-w-0 flex-1 text-left leading-tight">
             <span className="truncate text-sm font-semibold text-sidebar-foreground">{db.settings.storeName || 'Toko Saya'}</span>
@@ -116,7 +116,7 @@ export default function OfflineShell() {
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex h-14 items-center justify-between gap-3 border-b bg-background px-4 lg:px-6">
+        <header className="flex h-[calc(3.5rem+env(safe-area-inset-top))] items-end justify-between gap-3 border-b bg-background px-4 pb-3 pt-[env(safe-area-inset-top)] lg:px-6">
           <div className="flex min-w-0 items-center gap-1.5">
             <button
               onClick={() => setNavOpen(true)}

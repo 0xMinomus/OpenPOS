@@ -179,7 +179,7 @@ export default function AppShell() {
       </Sidebar>
 
       <SidebarInset>
-        <header className="flex h-14 items-center gap-3 border-b bg-background px-4 lg:px-6">
+        <header className="flex h-[calc(3.5rem+env(safe-area-inset-top))] items-end gap-3 border-b bg-background px-4 pb-3 pt-[env(safe-area-inset-top)] lg:px-6">
           <SidebarTrigger />
           <Separator orientation="vertical" className="h-5" />
           <button
