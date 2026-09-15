@@ -57,7 +57,7 @@ const iconTint = {
 function Kpi({ label, value, sub, icon: Icon, tint }: { label: string; value: string; sub: string; icon: React.ComponentType<{ className?: string }>; tint: { color: string; bg: string } }) {
   return (
     <Card>
-      <CardContent className="relative min-h-32 p-5">
+      <CardContent className="relative min-h-28 p-4 sm:min-h-32 sm:p-5">
         <span className={`absolute right-5 top-5 grid size-9 place-items-center rounded-lg ${tint.bg}`}>
           <Icon className={`size-4.5 ${tint.color}`} />
         </span>
@@ -139,7 +139,7 @@ function DeltaKpi({ label, value, sub, compare, invert, icon: Icon, tint }: {
   const tone = !dir ? 'text-muted-foreground' : up ? 'text-sprout' : down ? 'text-ember' : 'text-muted-foreground'
   return (
     <Card>
-      <CardContent className="relative min-h-32 p-5">
+      <CardContent className="relative min-h-28 p-4 sm:min-h-32 sm:p-5">
         <span className={`absolute right-5 top-5 grid size-9 place-items-center rounded-lg ${tint.bg}`}>
           <Icon className={`size-4.5 ${tint.color}`} />
         </span>
@@ -1008,7 +1008,7 @@ function LaporanSkeleton() {
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {[0, 1, 2, 3].map((i) => (
           <Card key={i}>
-            <CardContent className="relative min-h-32 p-5">
+      <CardContent className="relative min-h-28 p-4 sm:min-h-32 sm:p-5">
               <Skeleton className="absolute right-5 top-5 size-9 rounded-lg" />
               <div className="flex h-full flex-col justify-center space-y-2 pr-9">
                 <Skeleton className="h-4 w-24" />

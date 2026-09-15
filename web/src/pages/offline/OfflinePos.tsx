@@ -95,14 +95,14 @@ export default function Pos() {
 
   return (
     <>
-      <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
+      <div className="mb-4 flex flex-wrap items-end justify-between gap-4 sm:mb-5">
         <div>
           <h1 className="text-2xl font-normal tracking-tight sm:text-3xl">POS Kasir</h1>
           <p className="mt-1 text-sm text-muted">Cari produk, tambah ke keranjang, selesaikan pembayaran.</p>
         </div>
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
+      <div className="grid gap-4 sm:gap-5 lg:grid-cols-[1fr_320px]">
         <section>
           <input
             value={q}

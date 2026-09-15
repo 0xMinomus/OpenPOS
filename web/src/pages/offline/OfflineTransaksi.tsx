@@ -119,7 +119,7 @@ export default function Transaksi() {
       <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
         {cards.map((c) => (
           <Card key={c.label}>
-            <CardContent className="p-5">
+            <CardContent className="p-4 sm:p-5">
               <div className="flex items-center justify-between gap-3">
                 <span className="text-[13px] font-medium text-muted-foreground">{c.label}</span>
                 <span className={`grid size-9 shrink-0 place-items-center rounded-lg ${c.tint}`}>

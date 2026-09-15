@@ -156,7 +156,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Ringkasan toko</h1>
@@ -358,7 +358,7 @@ function RecentTable({ items, showCashier }: { items: Trx[]; showCashier: boolea
 
 function DashboardSkeleton({ admin }: { admin: boolean }) {
   return (
-    <div className="space-y-6" aria-busy="true" aria-label="Memuat dashboard">
+    <div className="space-y-4 sm:space-y-6" aria-busy="true" aria-label="Memuat dashboard">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="space-y-2">
           <Skeleton className="h-8 w-56" />
