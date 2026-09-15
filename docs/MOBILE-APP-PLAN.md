@@ -94,7 +94,7 @@ dist-offline/ ───┤
 
 | Fase | Isi | Keluar |
 |---|---|---|
-| 0 (0,5 hari) | Android Studio/JDK, appId, init Capacitor, APK debug jalan, 8 halaman render | ✅ APK debug terbangun 5,1 MB (`android/app/build/outputs/apk/debug/app-debug.apk`) — keystore + instal ke HP masih pending |
+| 0 (0,5 hari) | Android Studio/JDK, appId, init Capacitor, APK debug jalan, 8 halaman render | ✅ SELESAI 15 Sep 2026 — APK debug 5,1 MB terinstall di HP fisik, 8/8 halaman render terverifikasi via screenshot (Dashboard, POS, Produk, Stok, Transaksi, Laporan, Pengaturan, Backup). Keystore rilis masih pending |
 | 1 (1 hari) | Back-button, StatusBar/Splash bawaan, Share/Filesystem semua tombol unduh, abstraksi cetak + migrasi schema localdb | Jembatan platform hijau |
 | 2a (1–2 hari) | Pairing BLE + ESC/POS + cetak POS & uji + fallback share; butuh printer fisik | Struk keluar (printer BLE) |
 | 2b (time-box 2 hari) | Plugin SPP custom minimal, hanya bila perlu (printer SPP-only) | Struk keluar (printer SPP) atau diputus dengan alasan |
