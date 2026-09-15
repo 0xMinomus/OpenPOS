@@ -1,6 +1,6 @@
 import { Fragment, useState } from 'react'
 import { Link } from 'react-router'
-import { Download, Monitor, Smartphone, ShieldCheck } from 'lucide-react'
+import { Download, ShieldCheck } from 'lucide-react'
 import Navbar from './Navbar'
 import Footer from './Footer'
 
@@ -39,6 +39,13 @@ export default function Unduh() {
 
   return (
     <div className="landing-light bg-bg text-fg">
+      <style>{`
+        @keyframes ud-in { from { opacity: 0; transform: translateY(14px) scale(0.96); } to { opacity: 1; transform: none; } }
+        .ud-logo { animation: ud-in 0.52s cubic-bezier(0.2,0,0,1) both; }
+        .ud-logo--win { animation-delay: 0.06s; }
+        .ud-logo--apk { animation-delay: 0.16s; }
+        @media (prefers-reduced-motion: reduce) { .ud-logo { animation: none; } }
+      `}</style>
       <Navbar logoTone="light" />
       <main>
         <section className="pt-[clamp(48px,7vw,96px)] pb-10 text-center md:pb-12">
@@ -60,8 +67,10 @@ export default function Unduh() {
             <div className="grid gap-5 md:grid-cols-2 md:gap-6">
               <div className="rounded-2xl border border-dove bg-paper px-7 py-7 md:px-8 md:py-8">
                 <div className="flex items-center gap-3.5">
-                  <span className="grid size-10 place-items-center rounded-xl border border-dove bg-bg text-jet">
-                    <Monitor className="size-[18px]" />
+                  <span className="ud-logo ud-logo--win grid size-10 place-items-center rounded-xl border border-dove bg-bg text-jet">
+                    <svg viewBox="0 0 24 24" className="size-[18px]" fill="currentColor" aria-hidden="true">
+                      <path d="M3 3.5 12.2 2v9.4L3 12.2V3.5Zm9.6-1.4L21 1v10.2l-8.4.8V2.1ZM21 13.1V23l-8.4-1.1v-9.4l8.4.6ZM12.2 13.3v9.4L3 21.5v-8.8l9.2.6Z" />
+                    </svg>
                   </span>
                   <div className="min-w-0">
                     <h2 className="text-[15px] font-medium leading-none text-jet">OpenPOS untuk Windows</h2>
@@ -80,8 +89,10 @@ export default function Unduh() {
 
               <div className="rounded-2xl border border-dove bg-paper px-7 py-7 md:px-8 md:py-8">
                 <div className="flex items-center gap-3.5">
-                  <span className="grid size-10 place-items-center rounded-xl border border-dove bg-bg text-jet">
-                    <Smartphone className="size-[18px]" />
+                  <span className="ud-logo ud-logo--apk grid size-10 place-items-center rounded-xl border border-dove bg-bg text-jet">
+                    <svg viewBox="0 0 24 24" className="size-[18px]" fill="currentColor" aria-hidden="true">
+                      <path d="M6 18c0 .55.45 1 1 1h1v3.5a1 1 0 0 0 2 0V19h2v3.5a1 1 0 1 0 2 0V19h1c.55 0 1-.45 1-1v-7H6v7Zm10.5-11a1.25 1.25 0 1 0 0 2.5 1.25 1.25 0 0 0 0-2.5ZM8 8.25A1.25 1.25 0 1 0 8 10.75 1.25 1.25 0 0 0 8 8.25ZM4.5 8A2.5 2.5 0 0 0 2 10.5v4A2.5 2.5 0 0 0 4.5 17H6V8H4.5ZM18 8v9h1.5A2.5 2.5 0 0 0 22 14.5v-4A2.5 2.5 0 0 0 19.5 8H18ZM12 3.5 9.2 6h5.6L12 3.5ZM7 6.5 9.5 4A1 1 0 0 1 10.5 4h3a1 1 0 0 1 1 1l2.5 1.5A3.5 3.5 0 0 1 19 9.5V11H5V9.5A3.5 3.5 0 0 1 7 6.5Z" />
+                    </svg>
                   </span>
                   <div className="min-w-0">
                     <h2 className="text-[15px] font-medium leading-none text-jet">OpenPOS untuk Android</h2>
