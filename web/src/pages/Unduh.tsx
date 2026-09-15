@@ -24,14 +24,22 @@ export default function Unduh() {
     setBusy(key)
     setErr('')
     try {
-      const res = await fetch(`https://api.github.com/repos/${REPO}/releases/latest`)
+      // Cari di beberapa rilis terbaru — rilis paling baru bisa saja hanya berisi .exe.
+      const res = await fetch(`https://api.github.com/repos/${REPO}/releases?per_page=10`)
       if (!res.ok) throw new Error(String(res.status))
-      const rel = await res.json()
-      const asset = (rel.assets ?? []).find((a: { name: string }) => ext.test(a.name))
-      if (!asset?.browser_download_url) throw new Error('no-asset')
-      window.location.href = asset.browser_download_url
-    } catch {
-      setErr('Gagal mengambil versi terbaru.')
+      const rels = await res.json()
+      const list = Array.isArray(rels) ? rels : [rels]
+      let url = ''
+      for (const rel of list) {
+        const asset = (rel.assets ?? []).find((a: { name: string }) => ext.test(a.name))
+        if (asset?.browser_download_url) { url = asset.browser_download_url; break }
+      }
+      if (!url) throw new Error(key === 'apk' ? 'no-apk' : 'no-asset')
+      window.location.href = url
+    } catch (e) {
+      setErr(e instanceof Error && e.message === 'no-apk'
+        ? 'APK Android belum tersedia di halaman rilis.'
+        : 'Gagal mengambil versi terbaru.')
     } finally {
       setBusy('')
     }
