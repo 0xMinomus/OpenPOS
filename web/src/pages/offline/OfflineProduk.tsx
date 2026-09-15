@@ -236,7 +236,7 @@ export default function Produk() {
       {(err || prod.err) && <p className="mb-4 rounded-lg bg-sand px-3.5 py-2.5 text-[13px] text-ember">{err || prod.err}</p>}
 
       <div className="mb-5 grid items-start gap-4 lg:grid-cols-[280px_1fr]">
-        <aside className="min-w-0 rounded-2xl bg-cream p-5">
+        <aside className="min-w-0 rounded-2xl bg-cream p-4 sm:p-5">
           <h2 className="font-mono text-xs uppercase tracking-wider text-fog">Kategori</h2>
           <div className="mt-3 space-y-1.5">
             {!catsReady ? (
