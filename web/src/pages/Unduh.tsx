@@ -40,23 +40,31 @@ export default function Unduh() {
   return (
     <div className="landing-light bg-bg text-fg">
       <style>{`
-        @keyframes ud-in { from { opacity: 0; transform: translateY(14px) scale(0.96); } to { opacity: 1; transform: none; } }
-        .ud-logo { animation: ud-in 0.52s cubic-bezier(0.2,0,0,1) both; }
-        .ud-logo--win { animation-delay: 0.06s; }
-        .ud-logo--apk { animation-delay: 0.16s; }
-        @media (prefers-reduced-motion: reduce) { .ud-logo { animation: none; } }
+        @keyframes ud-rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+        @keyframes ud-pop { from { opacity: 0; transform: scale(0.82); } to { opacity: 1; transform: none; } }
+        .ud-reveal { opacity: 0; animation: ud-rise 0.6s cubic-bezier(0.2,0,0,1) both; }
+        .ud-1 { animation-delay: 0.05s; }
+        .ud-2 { animation-delay: 0.12s; }
+        .ud-3 { animation-delay: 0.19s; }
+        .ud-4 { animation-delay: 0.26s; }
+        .ud-5 { animation-delay: 0.33s; }
+        .ud-6 { animation-delay: 0.4s; }
+        .ud-logo { opacity: 0; animation: ud-pop 0.45s cubic-bezier(0.2,0,0,1) both; }
+        .ud-logo--win { animation-delay: 0.34s; }
+        .ud-logo--apk { animation-delay: 0.41s; }
+        @media (prefers-reduced-motion: reduce) { .ud-reveal, .ud-logo { animation: none; opacity: 1; } }
       `}</style>
       <Navbar logoTone="light" />
       <main>
         <section className="pt-[clamp(48px,7vw,96px)] pb-10 text-center md:pb-12">
           <div className="mx-auto max-w-[1120px] px-5 md:px-8">
-            <p className="font-mono text-[11px] tracking-[0.14em] text-steel uppercase">Unduh · OpenPOS</p>
-            <h1 className="mx-auto mt-5 max-w-[560px] text-[clamp(36px,5.2vw,56px)] leading-[1.06] font-medium tracking-[-0.03em] text-jet">
+            <p className="ud-reveal ud-1 font-mono text-[11px] tracking-[0.14em] text-steel uppercase">Unduh · OpenPOS</p>
+            <h1 className="ud-reveal ud-2 mx-auto mt-5 max-w-[560px] text-[clamp(36px,5.2vw,56px)] leading-[1.06] font-medium tracking-[-0.03em] text-jet">
               Unduh OpenPOS
               <br />
               untuk perangkat Anda.
             </h1>
-            <p className="mx-auto mt-5 max-w-[620px] text-[15px] leading-relaxed text-muted sm:text-[16px]">
+            <p className="ud-reveal ud-3 mx-auto mt-5 max-w-[620px] text-[15px] leading-relaxed text-muted sm:text-[16px]">
               Pasang OpenPOS di komputer kasir atau gunakan aplikasi Android untuk menjalankan bisnis Anda kapan saja. Semua data tersimpan aman di perangkat Anda.
             </p>
           </div>
@@ -65,11 +73,12 @@ export default function Unduh() {
         <section className="pb-6">
           <div className="mx-auto max-w-[1120px] px-5 md:px-8">
             <div className="grid gap-5 md:grid-cols-2 md:gap-6">
-              <div className="rounded-2xl border border-dove bg-paper px-7 py-7 md:px-8 md:py-8">
+              <div className="ud-reveal ud-4 rounded-2xl border border-dove bg-paper px-7 py-7 md:px-8 md:py-8">
                 <div className="flex items-center gap-3.5">
                   <span className="ud-logo ud-logo--win grid size-10 place-items-center rounded-xl border border-dove bg-bg text-jet">
-                    <svg viewBox="0 0 24 24" className="size-[18px]" fill="currentColor" aria-hidden="true">
-                      <path d="M3 3.5 12.2 2v9.4L3 12.2V3.5Zm9.6-1.4L21 1v10.2l-8.4.8V2.1ZM21 13.1V23l-8.4-1.1v-9.4l8.4.6ZM12.2 13.3v9.4L3 21.5v-8.8l9.2.6Z" />
+                    <svg viewBox="0 0 24 24" className="size-[18px]" fill="currentColor" aria-hidden="true" role="img">
+                      <title>Windows</title>
+                      <path d="M0,0H11.377V11.372H0ZM12.623,0H24V11.372H12.623ZM0,12.623H11.377V24H0Zm12.623,0H24V24H12.623" />
                     </svg>
                   </span>
                   <div className="min-w-0">
@@ -87,11 +96,12 @@ export default function Unduh() {
                 </button>
               </div>
 
-              <div className="rounded-2xl border border-dove bg-paper px-7 py-7 md:px-8 md:py-8">
+              <div className="ud-reveal ud-5 rounded-2xl border border-dove bg-paper px-7 py-7 md:px-8 md:py-8">
                 <div className="flex items-center gap-3.5">
                   <span className="ud-logo ud-logo--apk grid size-10 place-items-center rounded-xl border border-dove bg-bg text-jet">
-                    <svg viewBox="0 0 24 24" className="size-[18px]" fill="currentColor" aria-hidden="true">
-                      <path d="M6 18c0 .55.45 1 1 1h1v3.5a1 1 0 0 0 2 0V19h2v3.5a1 1 0 1 0 2 0V19h1c.55 0 1-.45 1-1v-7H6v7Zm10.5-11a1.25 1.25 0 1 0 0 2.5 1.25 1.25 0 0 0 0-2.5ZM8 8.25A1.25 1.25 0 1 0 8 10.75 1.25 1.25 0 0 0 8 8.25ZM4.5 8A2.5 2.5 0 0 0 2 10.5v4A2.5 2.5 0 0 0 4.5 17H6V8H4.5ZM18 8v9h1.5A2.5 2.5 0 0 0 22 14.5v-4A2.5 2.5 0 0 0 19.5 8H18ZM12 3.5 9.2 6h5.6L12 3.5ZM7 6.5 9.5 4A1 1 0 0 1 10.5 4h3a1 1 0 0 1 1 1l2.5 1.5A3.5 3.5 0 0 1 19 9.5V11H5V9.5A3.5 3.5 0 0 1 7 6.5Z" />
+                    <svg viewBox="0 0 24 24" className="size-[18px]" fill="currentColor" aria-hidden="true" role="img">
+                      <title>Android</title>
+                      <path d="M18.4395 5.5586c-.675 1.1664-1.352 2.3318-2.0274 3.498-.0366-.0155-.0742-.0286-.1113-.043-1.8249-.6957-3.484-.8-4.42-.787-1.8551.0185-3.3544.4643-4.2597.8203-.084-.1494-1.7526-3.021-2.0215-3.4864a1.1451 1.1451 0 0 0-.1406-.1914c-.3312-.364-.9054-.4859-1.379-.203-.475.282-.7136.9361-.3886 1.5019 1.9466 3.3696-.0966-.2158 1.9473 3.3593.0172.031-.4946.2642-1.3926 1.0177C2.8987 12.176.452 14.772 0 18.9902h24c-.119-1.1108-.3686-2.099-.7461-3.0683-.7438-1.9118-1.8435-3.2928-2.7402-4.1836a12.1048 12.1048 0 0 0-2.1309-1.6875c.6594-1.122 1.312-2.2559 1.9649-3.3848.2077-.3615.1886-.7956-.0079-1.1191a1.1001 1.1001 0 0 0-.8515-.5332c-.5225-.0536-.9392.3128-1.0488.5449zm-.0391 8.461c.3944.5926.324 1.3306-.1563 1.6503-.4799.3197-1.188.0985-1.582-.4941-.3944-.5927-.324-1.3307.1563-1.6504.4727-.315 1.1812-.1086 1.582.4941zM7.207 13.5273c.4803.3197.5506 1.0577.1563 1.6504-.394.5926-1.1038.8138-1.584.4941-.48-.3197-.5503-1.0577-.1563-1.6504.4008-.6021 1.1087-.8106 1.584-.4941z" />
                     </svg>
                   </span>
                   <div className="min-w-0">
@@ -116,7 +126,7 @@ export default function Unduh() {
               </p>
             )}
 
-            <p className="mt-6 flex items-center justify-center gap-2 text-center text-[13px] text-muted">
+            <p className="ud-reveal ud-6 mt-6 flex items-center justify-center gap-2 text-center text-[13px] text-muted">
               <ShieldCheck className="size-3.5 shrink-0 text-steel" />
               Aman & Terpercaya · Bebas virus · Update otomatis
             </p>
@@ -125,7 +135,7 @@ export default function Unduh() {
 
         <section className="pt-12 pb-14 md:pt-14 md:pb-16">
           <div className="mx-auto max-w-[1120px] px-5 md:px-8">
-            <div className="rounded-2xl border border-dove bg-cream px-6 py-7 md:px-8 md:py-9">
+            <div className="ud-reveal ud-6 rounded-2xl border border-dove bg-cream px-6 py-7 md:px-8 md:py-9">
               <h2 className="text-[15px] font-medium tracking-tight text-jet">Mulai dalam tiga langkah</h2>
               <div className="hidden md:grid md:grid-cols-[1fr_auto_1fr_auto_1fr] md:items-start">
                 {STEPS.map((s, idx) => (
