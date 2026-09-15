@@ -138,7 +138,6 @@ export default function OfflineShell() {
             >
               {theme === 'dark' ? <Sun className="size-4" /> : <Moon className="size-4" />}
             </button>
-            <Link to="/" className="rounded-md px-2.5 py-1.5 text-[13px] font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground">Keluar</Link>
           </div>
         </header>
         <main className="w-full min-w-0 flex-1 space-y-4 overflow-x-clip p-4 sm:space-y-6 lg:p-6">
