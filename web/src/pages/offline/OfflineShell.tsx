@@ -1,6 +1,6 @@
 import { useEffect, useState, type ComponentType } from 'react'
 import { Link, Outlet, useLocation } from 'react-router'
-import { LayoutDashboard, Store, Package, Boxes, ReceiptText, BarChart3, Settings, Archive } from 'lucide-react'
+import { LayoutDashboard, Store, Package, Boxes, ReceiptText, BarChart3, Settings, Archive, Menu, X } from 'lucide-react'
 import { useLocalDB, createAccount, hasAccount } from '../../lib/localdb'
 import { setSession, useDB, useTheme } from '../../lib/store'
 import { Button, Input, Logo } from '../../lib/ui'
@@ -28,6 +28,10 @@ export default function OfflineShell() {
   const { session } = useDB()
   const [theme, setTheme] = useTheme()
   const loc = useLocation()
+  const [navOpen, setNavOpen] = useState(false)
+
+  // Drawer mobile: tutup otomatis tiap pindah halaman.
+  useEffect(() => { setNavOpen(false) }, [loc.pathname])
 
   useEffect(() => {
     if (!hasAccount()) {
@@ -46,13 +50,24 @@ export default function OfflineShell() {
   if (!hasAccount()) return <Onboarding />
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <aside className="flex w-60 shrink-0 flex-col border-r border-sidebar-border bg-sidebar">
+    <div className="offline-app flex min-h-screen bg-background">
+      {/* Overlay drawer (mobile saja) */}
+      {navOpen && (
+        <div className="fixed inset-0 z-30 bg-black/50 md:hidden" onClick={() => setNavOpen(false)} aria-hidden="true" />
+      )}
+      <aside className={`fixed inset-y-0 left-0 z-40 flex w-72 shrink-0 flex-col border-r border-sidebar-border bg-sidebar transition-transform duration-200 ease-out md:static md:z-auto md:w-60 md:translate-x-0 ${navOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex h-12 items-center gap-2.5 px-4 pt-4">
           <Logo className="h-8 w-auto shrink-0" />
           <span className="grid min-w-0 flex-1 text-left leading-tight">
             <span className="truncate text-sm font-semibold text-sidebar-foreground">{db.settings.storeName || 'Toko Saya'}</span>
           </span>
+          <button
+            onClick={() => setNavOpen(false)}
+            aria-label="Tutup navigasi"
+            className="grid size-9 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground md:hidden"
+          >
+            <X className="size-5" />
+          </button>
         </div>
         <nav className="flex flex-1 flex-col gap-6 overflow-y-auto px-4 py-4" aria-label="Navigasi utama">
           {GROUP_ORDER.map((g) => (
@@ -102,9 +117,18 @@ export default function OfflineShell() {
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex h-14 items-center justify-between gap-3 border-b bg-background px-4 lg:px-6">
-          <div className="min-w-0">
-            <p className="truncate text-sm font-medium">{db.settings.storeName}</p>
-            <p className="font-mono text-[11px] text-muted-foreground">Mode offline · data di perangkat</p>
+          <div className="flex min-w-0 items-center gap-1.5">
+            <button
+              onClick={() => setNavOpen(true)}
+              aria-label="Buka navigasi"
+              className="grid size-10 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground md:hidden"
+            >
+              <Menu className="size-5" />
+            </button>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium">{db.settings.storeName}</p>
+              <p className="font-mono text-[11px] text-muted-foreground">Mode offline · data di perangkat</p>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -114,13 +138,7 @@ export default function OfflineShell() {
             >
               {theme === 'dark' ? <Sun className="size-4" /> : <Moon className="size-4" />}
             </button>
-            {window.offline?.isElectron ? (
-              <button onClick={() => window.offline?.close()} className="rounded-md px-2.5 py-1.5 text-[13px] font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground">
-                Tutup Aplikasi
-              </button>
-            ) : (
-              <Link to="/" className="rounded-md px-2.5 py-1.5 text-[13px] font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground">Keluar</Link>
-            )}
+            <Link to="/" className="rounded-md px-2.5 py-1.5 text-[13px] font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground">Keluar</Link>
           </div>
         </header>
         <main className="w-full min-w-0 flex-1 space-y-4 overflow-x-clip p-4 sm:space-y-6 lg:p-6">
