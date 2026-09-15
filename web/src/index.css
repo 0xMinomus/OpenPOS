@@ -273,8 +273,8 @@ p, h1, h2, h3, h4, li, span, a, td, th { overflow-wrap: anywhere; }
   .offline-app h1 { font-size: 20px; letter-spacing: -0.01em; }
   .offline-app .text-2xl { font-size: 20px; }
   .offline-app .text-3xl { font-size: 22px; }
-  .offline-app header { height: 48px; }
-  .offline-app main { padding: 12px; }
+  .offline-app header { height: auto; min-height: calc(56px + env(safe-area-inset-top, 0px)); }
+  .offline-app main { padding: 12px; padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)); }
   .offline-app .size-11 { width: 36px; height: 36px; }
   .offline-app aside nav { gap: 16px; }
   .offline-app button.rounded-full[class*='py-3'],
@@ -434,8 +434,6 @@ p, h1, h2, h3, h4, li, span, a, td, th { overflow-wrap: anywhere; }
   }
   body {
     @apply bg-background text-foreground;
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
   }
   .safe-area-top {
     padding-top: env(safe-area-inset-top);
