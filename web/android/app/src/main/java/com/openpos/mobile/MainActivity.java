@@ -29,9 +29,9 @@ public class MainActivity extends BridgeActivity {
 
             getWindow().setStatusBarColor(Color.TRANSPARENT);
             getWindow().setNavigationBarColor(Color.TRANSPARENT);
-            // Disable default dim/scrim on navigation bar for Android 10+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 getWindow().setNavigationBarContrastEnforced(false);
+                getWindow().setStatusBarContrastEnforced(false);
             }
 
             updateSystemBarAppearance();
@@ -42,6 +42,7 @@ public class MainActivity extends BridgeActivity {
             getWindow().setNavigationBarColor(Color.TRANSPARENT);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 getWindow().setNavigationBarContrastEnforced(false);
+                getWindow().setStatusBarContrastEnforced(false);
             }
 
             int flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE

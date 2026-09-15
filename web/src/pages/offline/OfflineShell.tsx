@@ -116,7 +116,7 @@ export default function OfflineShell() {
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex h-[calc(3.5rem+env(safe-area-inset-top))] items-end justify-between gap-3 border-b bg-background px-4 pb-3 pt-[env(safe-area-inset-top)] lg:px-6">
+        <header className="sticky top-0 z-20 flex min-h-[calc(3.5rem+env(safe-area-inset-top))] items-center justify-between gap-3 border-b bg-background px-4 pt-[env(safe-area-inset-top)] pb-3 lg:px-6">
           <div className="flex min-w-0 items-center gap-1.5">
             <button
               onClick={() => setNavOpen(true)}

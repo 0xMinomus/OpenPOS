@@ -12,27 +12,10 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
         <item name="android:navigationBarDividerColor">@android:color/transparent</item>
-    </style>
-
-    <!-- Light theme variant (explicit). -->
-    <style name="Theme.OpenPOS.Light" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:navigationBarColor">@android:color/transparent</item>
-        <item name="android:windowLightStatusBar">true</item>
-        <item name="android:navigationBarDividerColor">@android:color/transparent</item>
-    </style>
-
-    <!-- Dark theme variant (explicit). -->
-    <style name="Theme.OpenPOS.Dark" parent="Theme.AppCompat.NoActionBar">
-        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:navigationBarColor">@android:color/transparent</item>
-        <item name="android:windowLightStatusBar">false</item>
-        <item name="android:navigationBarDividerColor">@android:color/transparent</item>
+        <item name="android:enforceNavigationBarContrast">false</item>
+        <item name="android:enforceStatusBarContrast">false</item>
     </style>
 
     <!-- Splash theme. -->
