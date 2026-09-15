@@ -1,144 +1,166 @@
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import { Link } from 'react-router'
-import { Download, MonitorDown, HardDrive, Archive, ArrowRight, ShieldCheck } from 'lucide-react'
+import { Download, Monitor, Smartphone, ShieldCheck } from 'lucide-react'
 import Navbar from './Navbar'
+import Footer from './Footer'
 
 const REPO = '0xMinomus/OpenPOS-Test'
 const RELEASES_URL = `https://github.com/${REPO}/releases`
 
-const FEATURES = [
-  {
-    icon: MonitorDown,
-    title: 'Aplikasi desktop asli',
-    sub: 'Terpasang seperti program biasa. Buka dari desktop, tanpa browser.',
-  },
-  {
-    icon: HardDrive,
-    title: 'Data aman di perangkat',
-    sub: 'Produk dan transaksi tersimpan lokal di komputer kasir Anda.',
-  },
-  {
-    icon: Archive,
-    title: 'Backup satu file',
-    sub: 'Pindah perangkat tinggal ekspor JSON, lalu pulihkan di komputer baru.',
-  },
+const STEPS = [
+  { n: '01', t: 'Unduh installer', d: 'Pilih versi sesuai perangkat Anda.' },
+  { n: '02', t: 'Pasang & buat akun', d: 'Ikuti proses instalasi dan daftar akun.' },
+  { n: '03', t: 'Mulai gunakan', d: 'Tambahkan produk dan mulai bertransaksi.' },
 ]
 
-const STEPS = [
-  { n: '1', t: 'Unduh installer', d: 'Klik tombol, versi terbaru langsung terunduh.' },
-  { n: '2', t: 'Pasang & buat akun', d: 'Install, isi nama pemilik dan nama toko.' },
-  { n: '3', t: 'Mulai jualan', d: 'Tambah produk, layani pelanggan, cetak struk.' },
-]
+type Busy = '' | 'win' | 'apk'
 
 export default function Unduh() {
-  const [busy, setBusy] = useState(false)
-  const [dlErr, setDlErr] = useState('')
+  const [busy, setBusy] = useState<Busy>('')
+  const [err, setErr] = useState('')
 
-  async function downloadLatest() {
+  async function download(ext: RegExp, key: Busy) {
     if (busy) return
-    setBusy(true)
-    setDlErr('')
+    setBusy(key)
+    setErr('')
     try {
       const res = await fetch(`https://api.github.com/repos/${REPO}/releases/latest`)
       if (!res.ok) throw new Error(String(res.status))
       const rel = await res.json()
-      const asset = (rel.assets ?? []).find((a: { name: string }) => /\.exe$/i.test(a.name))
+      const asset = (rel.assets ?? []).find((a: { name: string }) => ext.test(a.name))
       if (!asset?.browser_download_url) throw new Error('no-asset')
       window.location.href = asset.browser_download_url
     } catch {
-      setDlErr('Gagal mengambil versi terbaru.')
+      setErr('Gagal mengambil versi terbaru.')
     } finally {
-      setBusy(false)
+      setBusy('')
     }
   }
 
   return (
     <div className="landing-light bg-bg text-fg">
-      <style>{`
-        @keyframes ud-rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
-        .ud-reveal { opacity: 0; animation: ud-rise 0.6s cubic-bezier(0.2, 0, 0, 1) both; }
-        .ud-1 { animation-delay: 0.05s; }
-        .ud-2 { animation-delay: 0.15s; }
-        .ud-3 { animation-delay: 0.25s; }
-        .ud-4 { animation-delay: 0.35s; }
-        .ud-5 { animation-delay: 0.45s; }
-        @media (prefers-reduced-motion: reduce) { .ud-reveal { animation: none; opacity: 1; } }
-      `}</style>
       <Navbar logoTone="light" />
       <main>
-        <section className="overflow-hidden pt-[clamp(40px,5vw,88px)] pb-12">
-          <div className="container mx-auto max-w-4xl px-5 text-center md:px-8">
-            <p className="ud-reveal ud-1 font-mono text-xs uppercase tracking-widest text-steel">Unduh · OpenPOS Desktop</p>
-            <h1 className="ud-reveal ud-2 mx-auto mt-4 max-w-3xl text-[clamp(32px,6vw,56px)] font-normal leading-[1.05] tracking-[-0.025em]">
-              Kasir Windows yang jalan tanpa internet.
+        <section className="pt-[clamp(48px,7vw,96px)] pb-10 text-center md:pb-12">
+          <div className="mx-auto max-w-[1120px] px-5 md:px-8">
+            <p className="font-mono text-[11px] tracking-[0.14em] text-steel uppercase">Unduh · OpenPOS</p>
+            <h1 className="mx-auto mt-5 max-w-[560px] text-[clamp(36px,5.2vw,56px)] leading-[1.06] font-medium tracking-[-0.03em] text-jet">
+              Unduh OpenPOS
+              <br />
+              untuk perangkat Anda.
             </h1>
-            <p className="ud-reveal ud-3 mx-auto mt-5 max-w-xl text-base leading-relaxed text-muted sm:text-lg">
-              Pasang OpenPOS di komputer kasir Anda. Semua data tersimpan di perangkat,
-              transaksi tetap jalan walau koneksi mati. Pindah komputer? Cukup pindahkan satu file backup.
+            <p className="mx-auto mt-5 max-w-[620px] text-[15px] leading-relaxed text-muted sm:text-[16px]">
+              Pasang OpenPOS di komputer kasir atau gunakan aplikasi Android untuk menjalankan bisnis Anda kapan saja. Semua data tersimpan aman di perangkat Anda.
             </p>
-            <div className="ud-reveal ud-4 mt-8 flex flex-wrap items-center justify-center gap-4">
-              <button
-                onClick={downloadLatest}
-                disabled={busy}
-                className="group inline-flex items-center gap-2 rounded-full bg-jet px-7 py-3.5 text-[15px] font-medium text-paper transition hover:opacity-85 active:translate-y-px disabled:opacity-60"
-              >
-                <Download className="size-4 transition-transform group-hover:translate-y-0.5" />
-                {busy ? 'Menyiapkan…' : 'Unduh untuk Windows'}
-              </button>
-              <span className="text-[13px] text-muted">Installer .exe · Windows 10/11 64-bit · versi terbaru otomatis</span>
-              {dlErr && (
-                <p className="w-full text-center text-[13px] text-ember">
-                  {dlErr}{' '}
-                  <a href={RELEASES_URL} target="_blank" rel="noreferrer" className="font-medium text-jet hover:underline">
-                    Buka halaman rilis
-                  </a>
-                  .
-                </p>
-              )}
-            </div>
           </div>
         </section>
 
-        <section className="container mx-auto max-w-5xl px-5 pb-16 md:px-8">
-          <div className="grid gap-4 sm:grid-cols-3">
-            {FEATURES.map((f, i) => (
-              <div key={f.title} className={`ud-reveal ud-${i + 2} rounded-2xl border border-dove bg-cream p-6`}>
-                <span className="grid size-10 place-items-center rounded-xl bg-jet text-paper">
-                  <f.icon className="size-5" />
-                </span>
-                <h2 className="mt-4 font-medium">{f.title}</h2>
-                <p className="mt-1.5 text-[13px] leading-relaxed text-muted">{f.sub}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="ud-reveal ud-4 mt-12 rounded-2xl border border-dove bg-cream p-6 md:p-8">
-            <h2 className="font-medium">Mulai dalam tiga langkah</h2>
-            <div className="mt-5 grid gap-6 sm:grid-cols-3">
-              {STEPS.map((s) => (
-                <div key={s.n} className="flex gap-3">
-                  <span className="grid size-8 shrink-0 place-items-center rounded-full bg-surface font-mono text-sm text-jet ring-1 ring-dove">{s.n}</span>
-                  <div>
-                    <p className="text-sm font-medium">{s.t}</p>
-                    <p className="mt-0.5 text-[13px] text-muted">{s.d}</p>
+        <section className="pb-6">
+          <div className="mx-auto max-w-[1120px] px-5 md:px-8">
+            <div className="grid gap-5 md:grid-cols-2 md:gap-6">
+              <div className="rounded-2xl border border-dove bg-paper px-7 py-7 md:px-8 md:py-8">
+                <div className="flex items-center gap-3.5">
+                  <span className="grid size-10 place-items-center rounded-xl border border-dove bg-bg text-jet">
+                    <Monitor className="size-[18px]" />
+                  </span>
+                  <div className="min-w-0">
+                    <h2 className="text-[15px] font-medium leading-none text-jet">OpenPOS untuk Windows</h2>
+                    <p className="mt-1.5 text-[13px] leading-none text-muted">Windows 10/11 (64-bit) · Installer .exe</p>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
+                <button
+                  onClick={() => download(/\.exe$/i, 'win')}
+                  disabled={!!busy}
+                  className="mt-7 flex w-full items-center justify-center gap-2 rounded-full bg-jet px-6 py-[15px] text-[14px] font-medium text-paper transition hover:bg-charcoal active:translate-y-px disabled:opacity-60"
+                >
+                  <Download className="size-4 shrink-0" />
+                  {busy === 'win' ? 'Menyiapkan…' : 'Unduh untuk Windows'}
+                </button>
+              </div>
 
-          <div className="ud-reveal ud-5 mt-12 flex flex-wrap items-center gap-3 rounded-2xl border border-dove bg-cream p-6">
-            <ShieldCheck className="size-6 shrink-0 text-sprout" />
-            <p className="flex-1 text-sm text-muted">
-              Butuh data tersinkron antar perangkat otomatis? Coba{' '}
-              <Link to="/daftar" className="inline-flex items-center gap-1 font-medium text-jet hover:underline">
-                OpenPOS Cloud <ArrowRight className="size-3.5" />
+              <div className="rounded-2xl border border-dove bg-paper px-7 py-7 md:px-8 md:py-8">
+                <div className="flex items-center gap-3.5">
+                  <span className="grid size-10 place-items-center rounded-xl border border-dove bg-bg text-jet">
+                    <Smartphone className="size-[18px]" />
+                  </span>
+                  <div className="min-w-0">
+                    <h2 className="text-[15px] font-medium leading-none text-jet">OpenPOS untuk Android</h2>
+                    <p className="mt-1.5 text-[13px] leading-none text-muted">Android 8.0+ · APK resmi</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => download(/\.apk$/i, 'apk')}
+                  disabled={!!busy}
+                  className="mt-7 flex w-full items-center justify-center gap-2 rounded-full border border-jet bg-transparent px-6 py-[15px] text-[14px] font-medium text-jet transition hover:bg-jet hover:text-paper active:translate-y-px disabled:opacity-60"
+                >
+                  <Download className="size-4 shrink-0" />
+                  {busy === 'apk' ? 'Menyiapkan…' : 'Unduh untuk Android'}
+                </button>
+              </div>
+            </div>
+
+            {err && (
+              <p className="mt-4 text-center text-[13px] text-ember">
+                {err} <a href={RELEASES_URL} target="_blank" rel="noreferrer" className="font-medium text-jet underline underline-offset-4">Buka halaman rilis</a>.
+              </p>
+            )}
+
+            <p className="mt-6 flex items-center justify-center gap-2 text-center text-[13px] text-muted">
+              <ShieldCheck className="size-3.5 shrink-0 text-steel" />
+              Aman & Terpercaya · Bebas virus · Update otomatis
+            </p>
+          </div>
+        </section>
+
+        <section className="pt-12 pb-14 md:pt-14 md:pb-16">
+          <div className="mx-auto max-w-[1120px] px-5 md:px-8">
+            <div className="rounded-2xl border border-dove bg-cream px-6 py-7 md:px-8 md:py-9">
+              <h2 className="text-[15px] font-medium tracking-tight text-jet">Mulai dalam tiga langkah</h2>
+              <div className="hidden md:grid md:grid-cols-[1fr_auto_1fr_auto_1fr] md:items-start">
+                {STEPS.map((s, idx) => (
+                  <Fragment key={s.n}>
+                    <div className="flex gap-3.5">
+                      <span className="grid size-8 shrink-0 place-items-center rounded-full border border-dove bg-paper font-mono text-[11px] font-medium tracking-wide text-steel">
+                        {s.n}
+                      </span>
+                      <div className="min-w-0 pt-0.5">
+                        <p className="text-[14px] font-medium leading-none text-jet">{s.t}</p>
+                        <p className="mt-1.5 text-[13px] leading-relaxed text-muted">{s.d}</p>
+                      </div>
+                    </div>
+                    {idx < STEPS.length - 1 && <div aria-hidden className="mx-6 w-px self-stretch bg-dove" />}
+                  </Fragment>
+                ))}
+              </div>
+              <div className="grid gap-0 md:hidden">
+                {STEPS.map((s, idx) => (
+                  <div key={s.n}>
+                    <div className="flex gap-4 py-1">
+                      <span className="grid size-8 shrink-0 place-items-center rounded-full border border-dove bg-paper font-mono text-[11px] font-medium tracking-wide text-steel">
+                        {s.n}
+                      </span>
+                      <div className="min-w-0 pt-0.5">
+                        <p className="text-[14px] font-medium leading-none text-jet">{s.t}</p>
+                        <p className="mt-1.5 text-[13px] leading-relaxed text-muted">{s.d}</p>
+                      </div>
+                    </div>
+                    {idx < STEPS.length - 1 && <div aria-hidden className="my-4 h-px bg-dove" />}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <p className="mt-5 text-center text-[13px] text-muted">
+              Butuh data tersinkron otomatis antar perangkat?{' '}
+              <Link to="/daftar" className="font-medium text-jet underline decoration-dove underline-offset-4 hover:decoration-jet">
+                Coba OpenPOS Cloud
               </Link>
-              {' '}yang berjalan di browser.
+              .
             </p>
           </div>
         </section>
       </main>
+      <Footer />
     </div>
   )
 }
