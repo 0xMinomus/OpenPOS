@@ -13,35 +13,30 @@ const STEPS = [
   { n: '03', t: 'Mulai gunakan', d: 'Tambahkan produk dan mulai bertransaksi.' },
 ]
 
-type Busy = '' | 'win' | 'apk'
-
 export default function Unduh() {
-  const [busy, setBusy] = useState<Busy>('')
-  const [err, setErr] = useState('')
+  const [busyWin, setBusyWin] = useState(false)
+  const [dlErr, setDlErr] = useState('')
 
-  async function download(ext: RegExp, key: Busy) {
-    if (busy) return
-    setBusy(key)
-    setErr('')
+  async function downloadWindows() {
+    if (busyWin) return
+    setBusyWin(true)
+    setDlErr('')
     try {
-      // Cari di beberapa rilis terbaru — rilis paling baru bisa saja hanya berisi .exe.
       const res = await fetch(`https://api.github.com/repos/${REPO}/releases?per_page=10`)
       if (!res.ok) throw new Error(String(res.status))
       const rels = await res.json()
       const list = Array.isArray(rels) ? rels : [rels]
       let url = ''
       for (const rel of list) {
-        const asset = (rel.assets ?? []).find((a: { name: string }) => ext.test(a.name))
+        const asset = (rel.assets ?? []).find((a: { name: string }) => /\.exe$/i.test(a.name))
         if (asset?.browser_download_url) { url = asset.browser_download_url; break }
       }
-      if (!url) throw new Error(key === 'apk' ? 'no-apk' : 'no-asset')
+      if (!url) throw new Error('no-asset')
       window.location.href = url
-    } catch (e) {
-      setErr(e instanceof Error && e.message === 'no-apk'
-        ? 'APK Android belum tersedia di halaman rilis.'
-        : 'Gagal mengambil versi terbaru.')
+    } catch {
+      setDlErr('Gagal mengambil versi terbaru.')
     } finally {
-      setBusy('')
+      setBusyWin(false)
     }
   }
 
@@ -95,12 +90,12 @@ export default function Unduh() {
                   </div>
                 </div>
                 <button
-                  onClick={() => download(/\.exe$/i, 'win')}
-                  disabled={!!busy}
+                  onClick={downloadWindows}
+                  disabled={busyWin}
                   className="mt-7 flex w-full items-center justify-center gap-2 rounded-full bg-jet px-6 py-[15px] text-[14px] font-medium text-paper transition hover:bg-charcoal active:translate-y-px disabled:opacity-60"
                 >
                   <Download className="size-4 shrink-0" />
-                  {busy === 'win' ? 'Menyiapkan…' : 'Unduh untuk Windows'}
+                  {busyWin ? 'Menyiapkan…' : 'Unduh untuk Windows'}
                 </button>
               </div>
 
@@ -117,20 +112,20 @@ export default function Unduh() {
                     <p className="mt-1.5 text-[13px] leading-none text-muted">Android 8.0+ · APK resmi</p>
                   </div>
                 </div>
-                <button
-                  onClick={() => download(/\.apk$/i, 'apk')}
-                  disabled={!!busy}
-                  className="mt-7 flex w-full items-center justify-center gap-2 rounded-full border border-jet bg-transparent px-6 py-[15px] text-[14px] font-medium text-jet transition hover:bg-jet hover:text-paper active:translate-y-px disabled:opacity-60"
+                <a
+                  href="/openpos.apk"
+                  download="OpenPOS.apk"
+                  className="mt-7 flex w-full items-center justify-center gap-2 rounded-full border border-jet bg-transparent px-6 py-[15px] text-[14px] font-medium text-jet transition hover:bg-jet hover:text-paper active:translate-y-px"
                 >
                   <Download className="size-4 shrink-0" />
-                  {busy === 'apk' ? 'Menyiapkan…' : 'Unduh untuk Android'}
-                </button>
+                  Unduh untuk Android
+                </a>
               </div>
             </div>
 
-            {err && (
+            {dlErr && (
               <p className="mt-4 text-center text-[13px] text-ember">
-                {err} <a href={RELEASES_URL} target="_blank" rel="noreferrer" className="font-medium text-jet underline underline-offset-4">Buka halaman rilis</a>.
+                {dlErr} <a href={RELEASES_URL} target="_blank" rel="noreferrer" className="font-medium text-jet underline underline-offset-4">Buka halaman rilis</a>.
               </p>
             )}
 
