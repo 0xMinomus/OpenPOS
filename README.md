@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="web/public/Logo-Hitam.png" alt="OpenPOS logo" width="560" />
+  <img src="web/public/openpos-wordmark.png" alt="OpenPOS logo" width="560" />
 </p>
 
 <h3 align="center">Free point-of-sale for Indonesian small businesses.</h3>
@@ -26,7 +26,7 @@
 
 OpenPOS is a free, web-based point-of-sale system built for Indonesian MSMEs (*UMKM*).
 It covers the full daily workflow of a small retail store: cashier checkout, product
-catalog, stock control, transaction history, sales reports, and staff management —
+catalog, stock control, transaction history, sales reports, and staff management,
 in Indonesian, with Rupiah formatting throughout.
 
 One codebase ships to three platforms from the `web/` workspace:
@@ -39,24 +39,24 @@ One codebase ships to three platforms from the `web/` workspace:
 
 ## Features
 
-- **Role-aware dashboard** — owners see omzet, 7-day sales chart, payment mix, and top
+- **Role-aware dashboard**, owners see omzet, 7-day sales chart, payment mix, and top
   products; cashiers see only their own numbers.
-- **Cashier POS** — server-side catalog, cart with effective stock, discounts, tax,
+- **Cashier POS**, server-side catalog, cart with effective stock, discounts, tax,
   five payment methods, exact-cash shortcut, and thermal receipts (58/80 mm).
-- **Products & categories** — full CRUD, server-side search, CSV import/export.
-- **Inventory** — current stock plus a complete adjustment history with reasons.
-- **Transactions** — search, date and payment-method filters, refunds, CSV export.
+- **Products & categories**, full CRUD, server-side search, CSV import/export.
+- **Inventory**, current stock plus a complete adjustment history with reasons.
+- **Transactions**, search, date and payment-method filters, refunds, CSV export.
   Times always come from `created_at`.
-- **Reports** — sales, product, profit, stock, and staff tabs across five periods,
+- **Reports**, sales, product, profit, stock, and staff tabs across five periods,
   with CSV export.
-- **Staff management** — PIN-protected sub-accounts, fast account switching,
+- **Staff management**, PIN-protected sub-accounts, fast account switching,
   online/offline presence via heartbeat, activity feed, and per-day top cashiers.
-- **Admin notifications** — low-stock, out-of-stock, and cashier-sale events with
+- **Admin notifications**, low-stock, out-of-stock, and cashier-sale events with
   category tabs and read tracking.
-- **Authentication** — email + password with email-OTP second factor, Google
+- **Authentication**, email + password with email-OTP second factor, Google
   sign-in, 5-digit admin/cashier passcodes, per-tab sessions with silent token
   refresh, and self-service password reset via email OTP.
-- **Store settings** — identity, hours, receipt layout, and tax (inclusive or
+- **Store settings**, identity, hours, receipt layout, and tax (inclusive or
   exclusive, configurable rounding, WIB/WITA/WIT time zones).
 
 ## Tech stack
@@ -67,7 +67,7 @@ One codebase ships to three platforms from the `web/` workspace:
 | Web tooling | Vite, React Router, oxlint |
 | Desktop | Electron + electron-builder (NSIS installer) |
 | Mobile | Capacitor 8 (Android; same offline bundle, sideloaded APK) |
-| Backend | Go (Gin + GORM), PostgreSQL (Supabase), JWT — separate repo: [adrr-dev/openPOS](https://github.com/adrr-dev/openPOS) |
+| Backend | Go (Gin + GORM), PostgreSQL (Supabase), JWT, separate repo: [adrr-dev/openPOS](https://github.com/adrr-dev/openPOS) |
 | Hosting | Vercel (frontend auto-deploys on every push to `main`) |
 
 ## Getting started
@@ -136,7 +136,7 @@ cd android
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
-Release APKs require a private keystore — back it up; losing it permanently
+Release APKs require a private keystore, back it up; losing it permanently
 breaks update continuity for installed users. See
 [`docs/MOBILE-APP-PLAN.md`](docs/MOBILE-APP-PLAN.md) for the full mobile plan
 (responsive pass, Bluetooth thermal printing, release checklist).
@@ -159,7 +159,7 @@ breaks update continuity for installed users. See
 └── PRODUCT.md              # product definition
 ```
 
-The backend is maintained separately and consumed purely as REST/JSON — this
+The backend is maintained separately and consumed purely as REST/JSON, this
 repo never talks to a database directly. New endpoint needs are specified as
 API contracts in `docs/` and handed to the backend team.
 
@@ -172,4 +172,4 @@ the real API (no local mock data for business flows), run `npx tsc -b` and
 
 ## License
 
-MIT — see [LICENSE](LICENSE). Free forever, for small businesses.
+MIT (see [LICENSE](LICENSE)). Free forever, for small businesses.
