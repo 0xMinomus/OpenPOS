@@ -4,7 +4,7 @@ import { Download, ShieldCheck } from 'lucide-react'
 import Navbar from './Navbar'
 import Footer from './Footer'
 
-const REPO = '0xMinomus/OpenPOS-Test'
+const REPO = '0xMinomus/OpenPOS'
 const RELEASES_URL = `https://github.com/${REPO}/releases`
 
 const STEPS = [

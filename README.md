@@ -81,8 +81,8 @@ One codebase ships to three platforms from the `web/` workspace:
 ### Run the web app
 
 ```bash
-git clone https://github.com/0xMinomus/OpenPOS-Test.git
-cd OpenPOS-Test/web
+git clone https://github.com/0xMinomus/OpenPOS.git
+cd OpenPOS/web
 npm install
 ```
 
@@ -123,7 +123,7 @@ npm run electron:build
 
 The installer lands in `web/release-out/`. New releases are published by
 uploading the installer to
-[GitHub Releases](https://github.com/0xMinomus/OpenPOS-Test/releases); the
+[GitHub Releases](https://github.com/0xMinomus/OpenPOS/releases); the
 Download page always picks up the latest release automatically.
 
 ### Android (offline, sideloaded APK)
