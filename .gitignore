@@ -27,3 +27,11 @@ Thumbs.db
 
 # Catatan sesi lokal - berisi kredensial, JANGAN di-push
 MEMORY.md
+
+# Internal working docs - kept locally, not part of the public repo
+docs/
+PRODUCT.md
+PROJECT.md
+updatelist9sep.MD
+opencode.json
+*.bundle
