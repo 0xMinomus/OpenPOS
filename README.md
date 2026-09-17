@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="web/public/openpos-wordmark.png" alt="OpenPOS logo" width="560" />
+  <img src="web/public/openpos-hero.jpg" alt="OpenPOS" width="720" />
 </p>
 
 <h3 align="center">Free point-of-sale for Indonesian small businesses.</h3>
