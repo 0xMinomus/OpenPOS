@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
-import { ApiError, apiGoogleLogin, apiHasActiveCashiers, apiLogin, apiSendOtp } from '../lib/api'
+import { ApiError, apiGoogleLogin, apiHasActiveCashiers, apiLogin, apiResetPassword, apiSendOtp, apiSendPasswordResetOtp } from '../lib/api'
 import { setSession, toSession } from '../lib/store'
 import { GoogleButton } from '../lib/google'
 import Navbar from './Navbar'
@@ -17,6 +17,13 @@ export default function Masuk() {
   const [cooldown, setCooldown] = useState(0)
   const [googleCred, setGoogleCred] = useState('')
   const [googlePin, setGooglePin] = useState('')
+  const [forgot, setForgot] = useState(false)
+  const [fEmail, setFEmail] = useState('')
+  const [fOtp, setFOtp] = useState('')
+  const [fPw1, setFPw1] = useState('')
+  const [fPw2, setFPw2] = useState('')
+  const [fMsg, setFMsg] = useState('')
+  const [fDone, setFDone] = useState(false)
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
 
@@ -85,8 +92,45 @@ export default function Masuk() {
     }
   }
 
-  async function submitPasscode(e: React.FormEvent) {
+  async function sendForgotOtp() {
+    const em = (fEmail || email).trim().toLowerCase()
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) return setErr('Masukkan alamat email yang valid.')
+    setFEmail(em); setErr(''); setFMsg(''); setFOtp(''); setFDone(false)
+    setBusy(true)
+    try {
+      await apiSendPasswordResetOtp(em)
+      setFMsg(`Jika ${em} terdaftar, kode OTP 6 digit terkirim ke email tersebut.`)
+      setCooldown(60)
+    } catch (x) {
+      if (x instanceof ApiError && x.status === 429) setCooldown(60)
+      setFMsg('')
+      setErr(x instanceof Error ? x.message : 'Gagal mengirim kode. Coba lagi.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function submitForgot(e: React.FormEvent) {
     e.preventDefault()
+    if (fOtp.length !== 6) return setErr('Masukkan kode OTP 6 digit.')
+    if (fPw1.length < 8) return setErr('Kata sandi baru minimal 8 karakter.')
+    if (fPw1 !== fPw2) return setErr('Konfirmasi kata sandi tidak cocok.')
+    setErr(''); setBusy(true)
+    try {
+      await apiResetPassword(fEmail, fOtp, fPw1)
+      setFDone(true)
+      setFMsg('Kata sandi berhasil diubah. Silakan masuk dengan kata sandi baru.')
+      setEmail(fEmail); setPassword('')
+    } catch (x) {
+      if (x instanceof ApiError && (x.status === 410 || x.status === 429)) setCooldown(0)
+      if (x instanceof ApiError && x.status === 400) setFOtp('')
+      setErr(x instanceof Error ? x.message : 'Gagal mengganti kata sandi.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function submitPasscode(e: React.FormEvent) {    e.preventDefault()
     setErr(''); setBusy(true)
     try {
       const r = await apiLogin(email.trim().toLowerCase(), password, { passcode })
@@ -162,7 +206,59 @@ export default function Masuk() {
             </p>
           )}
 
-          {needPasscode ? (
+          {forgot ? (
+            <form onSubmit={submitForgot} className="flex flex-col gap-4" noValidate>
+              <div className="rounded-lg bg-surface px-3.5 py-3 text-[13px] text-muted">
+                {fDone ? fMsg : (fMsg || 'Masukkan email akun. Kode OTP 6 digit dikirim ke email tersebut.')}
+                {!fDone && <span className="mt-1 block text-xs text-fog">Kode berlaku 10 menit dan hanya bisa dicoba 3 kali.</span>}
+              </div>
+              {!fMsg ? (
+                <label className="flex flex-col gap-1.5 text-[13px] font-medium text-steel">
+                  Email
+                  <input value={fEmail} onChange={(e) => setFEmail(e.target.value)} type="text" autoComplete="username" autoFocus placeholder="nama@tokosaya.com" className="rounded-md border border-border bg-paper px-3.5 py-3 text-[15px] focus:border-jet focus:outline-none" />
+                </label>
+              ) : !fDone && (
+                <>
+                  <label className="flex flex-col gap-1.5 text-[13px] font-medium text-steel">
+                    Kode OTP
+                    <input
+                      value={fOtp}
+                      onChange={(e) => setFOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                      type="text" inputMode="numeric" autoComplete="one-time-code" autoFocus
+                      placeholder="••••••"
+                      className="rounded-md border border-border bg-paper px-3.5 py-3 text-center font-mono text-xl tracking-[0.5em] focus:border-jet focus:outline-none"
+                    />
+                  </label>
+                  <label className="flex flex-col gap-1.5 text-[13px] font-medium text-steel">
+                    Kata sandi baru
+                    <input value={fPw1} onChange={(e) => setFPw1(e.target.value)} type="password" autoComplete="new-password" placeholder="Minimal 8 karakter" className="rounded-md border border-border bg-paper px-3.5 py-3 text-[15px] focus:border-jet focus:outline-none" />
+                  </label>
+                  <label className="flex flex-col gap-1.5 text-[13px] font-medium text-steel">
+                    Konfirmasi kata sandi baru
+                    <input value={fPw2} onChange={(e) => setFPw2(e.target.value)} type="password" autoComplete="new-password" placeholder="Ulangi kata sandi baru" className="rounded-md border border-border bg-paper px-3.5 py-3 text-[15px] focus:border-jet focus:outline-none" />
+                  </label>
+                </>
+              )}
+              <div className="flex gap-3">
+                <button type="button" onClick={() => { setForgot(false); setFMsg(''); setFDone(false); setErr('') }} className="flex-1 rounded-full border border-dove py-3 text-[15px] font-medium text-jet hover:border-jet">Kembali</button>
+                {!fMsg ? (
+                  <button type="button" onClick={sendForgotOtp} disabled={busy} className="flex-1 rounded-full bg-jet py-3 text-[15px] font-medium text-paper hover:opacity-85 disabled:opacity-40">{busy ? 'Mengirim…' : 'Kirim kode'}</button>
+                ) : !fDone && (
+                  <button type="submit" disabled={busy || fOtp.length !== 6 || fPw1.length < 8 || fPw1 !== fPw2} className="flex-1 rounded-full bg-jet py-3 text-[15px] font-medium text-paper hover:opacity-85 disabled:opacity-40">{busy ? 'Memproses…' : 'Ubah kata sandi'}</button>
+                )}
+              </div>
+              {fMsg && !fDone && (
+                <button
+                  type="button"
+                  onClick={sendForgotOtp}
+                  disabled={cooldown > 0 || busy}
+                  className="text-center text-[13px] text-muted hover:underline disabled:opacity-50"
+                >
+                  {cooldown > 0 ? `Kirim ulang dalam ${cooldown} detik` : 'Kirim ulang kode'}
+                </button>
+              )}
+            </form>
+          ) : needPasscode ? (
             <form onSubmit={submitPasscode} className="flex flex-col gap-4" noValidate>
               <div className="rounded-lg bg-surface px-3.5 py-3 text-[13px] text-muted">
                 Akun <strong className="text-fg">{email.trim().toLowerCase()}</strong> dilindungi passcode. Masukkan 5 angka untuk melanjutkan.
@@ -248,6 +344,9 @@ export default function Masuk() {
                 Kata sandi
                 <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" autoComplete="current-password" placeholder="••••••••" className="rounded-md border border-border bg-paper px-3.5 py-3 text-[15px] focus:border-jet focus:outline-none" />
               </label>
+              <div className="flex justify-end">
+                <button type="button" onClick={() => { setForgot(true); setFEmail(email); setErr(''); setFMsg(''); setFDone(false) }} className="text-[13px] text-muted hover:underline">Lupa password?</button>
+              </div>
               <button type="submit" disabled={busy} className="mt-1 rounded-full bg-jet py-3 text-[15px] font-medium text-paper hover:opacity-85 disabled:opacity-40">{busy ? 'Memproses…' : 'Masuk'}</button>
               </form>
             </div>
