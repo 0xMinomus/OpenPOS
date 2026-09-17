@@ -118,7 +118,7 @@ export default function Dashboard() {
                 <p className="mt-0.5 text-xs text-muted-foreground">Mulai transaksi baru untuk pelanggan.</p>
               </div>
             </div>
-            <Button size="lg" render={<Link to="/app/pos" />}>Buka POS</Button>
+            <Button size="lg" render={<Link to="/pos" />}>Buka POS</Button>
           </CardContent>
         </Card>
 
@@ -134,7 +134,7 @@ export default function Dashboard() {
               <CardTitle className="text-base">Transaksi Saya</CardTitle>
               <CardDescription>Transaksi terbaru hari ini</CardDescription>
             </div>
-            <Button variant="outline" size="sm" render={<Link to="/app/transaksi" />}>
+            <Button variant="outline" size="sm" render={<Link to="/transaksi" />}>
               Lihat semua
             </Button>
           </CardHeader>
@@ -144,7 +144,7 @@ export default function Dashboard() {
             ) : recentTrx.length === 0 ? (
               <div className="py-8 text-center">
                 <p className="text-sm text-muted-foreground">Belum ada transaksi. Mulai dari POS Kasir.</p>
-                <Button className="mt-4" render={<Link to="/app/pos" />}>Buka POS</Button>
+                <Button className="mt-4" render={<Link to="/pos" />}>Buka POS</Button>
               </div>
             ) : (
               <RecentTable items={recentTrx} showCashier={false} />
@@ -244,7 +244,7 @@ export default function Dashboard() {
               <CardTitle className="text-base">Transaksi Terbaru</CardTitle>
               <CardDescription>Transaksi terbaru hari ini</CardDescription>
             </div>
-            <Button variant="outline" size="sm" render={<Link to="/app/transaksi" />}>
+            <Button variant="outline" size="sm" render={<Link to="/transaksi" />}>
               Lihat semua
             </Button>
           </CardHeader>
@@ -267,7 +267,7 @@ export default function Dashboard() {
               <CardTitle className="text-base">Produk Terlaris</CardTitle>
               <CardDescription>Penjualan tertinggi hari ini</CardDescription>
             </div>
-            <Button variant="outline" size="sm" render={<Link to="/app/laporan" />}>
+            <Button variant="outline" size="sm" render={<Link to="/laporan" />}>
               Lihat semua
             </Button>
           </CardHeader>
@@ -299,7 +299,7 @@ export default function Dashboard() {
             <EmptyDescription>
               Buka menu POS Kasir untuk memulai transaksi pertama, atau cek produk Anda sudah siap dijual.
             </EmptyDescription>
-            <Button render={<Link to="/app/pos" />}>Buka POS Kasir</Button>
+            <Button render={<Link to="/pos" />}>Buka POS Kasir</Button>
           </EmptyContent>
         </Empty>
       )}
