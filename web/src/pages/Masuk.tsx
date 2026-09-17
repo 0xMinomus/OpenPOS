@@ -341,12 +341,12 @@ export default function Masuk() {
                 <input value={email} onChange={(e) => setEmail(e.target.value)} type="text" autoComplete="username" placeholder="nama@tokosaya.com" className="rounded-md border border-border bg-paper px-3.5 py-3 text-[15px] focus:border-jet focus:outline-none" />
               </label>
               <label className="flex flex-col gap-1.5 text-[13px] font-medium text-steel">
-                Kata sandi
+                <span className="flex items-center justify-between">
+                  Kata sandi
+                  <button type="button" onClick={() => { setForgot(true); setFEmail(email); setErr(''); setFMsg(''); setFDone(false) }} className="font-normal text-muted hover:underline">Lupa password?</button>
+                </span>
                 <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" autoComplete="current-password" placeholder="••••••••" className="rounded-md border border-border bg-paper px-3.5 py-3 text-[15px] focus:border-jet focus:outline-none" />
               </label>
-              <div className="flex justify-end">
-                <button type="button" onClick={() => { setForgot(true); setFEmail(email); setErr(''); setFMsg(''); setFDone(false) }} className="text-[13px] text-muted hover:underline">Lupa password?</button>
-              </div>
               <button type="submit" disabled={busy} className="mt-1 rounded-full bg-jet py-3 text-[15px] font-medium text-paper hover:opacity-85 disabled:opacity-40">{busy ? 'Memproses…' : 'Masuk'}</button>
               </form>
             </div>
