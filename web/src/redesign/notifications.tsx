@@ -230,8 +230,8 @@ export function NotifBell() {
     }
     const cat = categoryOf(n)
     setOpen(false)
-    if (cat === 'stok') nav('/redesign/stok')
-    else if (cat === 'transaksi') nav('/redesign/transaksi')
+    if (cat === 'stok') nav('/demo/stok')
+    else if (cat === 'transaksi') nav('/demo/transaksi')
   }
 
   async function readAll() {
@@ -404,3 +404,4 @@ function NotifItem({ n, onOpen }: { n: Notification; onOpen: () => void }) {
     </li>
   )
 }
+

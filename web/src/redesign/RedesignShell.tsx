@@ -11,37 +11,37 @@ import { NotifBell } from './notifications'
 import { Logo } from '../lib/ui'
 
 const MENU: { label: string; to: string; icon: React.ComponentType<{ className?: string }>; adminOnly?: boolean }[] = [
-  { label: 'Dashboard', to: '/redesign', icon: LayoutDashboard },
-  { label: 'POS Kasir', to: '/redesign/pos', icon: Store },
-  { label: 'Produk', to: '/redesign/produk', icon: Package, adminOnly: true },
-  { label: 'Stok', to: '/redesign/stok', icon: Boxes, adminOnly: true },
-  { label: 'Transaksi', to: '/redesign/transaksi', icon: ReceiptText },
-  { label: 'Laporan', to: '/redesign/laporan', icon: BarChart3, adminOnly: true },
-  { label: 'Karyawan', to: '/redesign/karyawan', icon: IdCard, adminOnly: true },
-  { label: 'User Management', to: '/redesign/users', icon: Users, adminOnly: true },
-  { label: 'Pengaturan', to: '/redesign/pengaturan', icon: Settings, adminOnly: true },
+  { label: 'Dashboard', to: '/demo', icon: LayoutDashboard },
+  { label: 'POS Kasir', to: '/demo/pos', icon: Store },
+  { label: 'Produk', to: '/demo/produk', icon: Package, adminOnly: true },
+  { label: 'Stok', to: '/demo/stok', icon: Boxes, adminOnly: true },
+  { label: 'Transaksi', to: '/demo/transaksi', icon: ReceiptText },
+  { label: 'Laporan', to: '/demo/laporan', icon: BarChart3, adminOnly: true },
+  { label: 'Karyawan', to: '/demo/karyawan', icon: IdCard, adminOnly: true },
+  { label: 'User Management', to: '/demo/users', icon: Users, adminOnly: true },
+  { label: 'Pengaturan', to: '/demo/pengaturan', icon: Settings, adminOnly: true },
 ]
 
 // Pengelompokan visual sidebar (admin). Murni tampilan — rute & permission tak berubah.
 const GROUP_OF: Record<string, 'UTAMA' | 'MANAJEMEN' | 'PENGATURAN'> = {
-  '/redesign': 'UTAMA',
-  '/redesign/pos': 'UTAMA',
-  '/redesign/produk': 'MANAJEMEN',
-  '/redesign/stok': 'MANAJEMEN',
-  '/redesign/transaksi': 'MANAJEMEN',
-  '/redesign/laporan': 'MANAJEMEN',
-  '/redesign/karyawan': 'PENGATURAN',
-  '/redesign/users': 'PENGATURAN',
-  '/redesign/pengaturan': 'PENGATURAN',
+  '/demo': 'UTAMA',
+  '/demo/pos': 'UTAMA',
+  '/demo/produk': 'MANAJEMEN',
+  '/demo/stok': 'MANAJEMEN',
+  '/demo/transaksi': 'MANAJEMEN',
+  '/demo/laporan': 'MANAJEMEN',
+  '/demo/karyawan': 'PENGATURAN',
+  '/demo/users': 'PENGATURAN',
+  '/demo/pengaturan': 'PENGATURAN',
 }
 const GROUP_ORDER = ['UTAMA', 'MANAJEMEN', 'PENGATURAN'] as const
 
 function isMenuActive(pathname: string, to: string) {
-  return pathname === to || (to !== '/redesign' && pathname.startsWith(to))
+  return pathname === to || (to !== '/demo' && pathname.startsWith(to))
 }
 
 // Sandbox redesign: sesi mock seeded lokal, tak menyentuh backend/token asli.
-// Keluar dari /redesign mengembalikan setSession(null) saat unmount agar
+// Keluar dari /demo mengembalikan setSession(null) saat unmount agar
 // sesi mock tak bocor ke /app.
 const MOCK_ADMIN = { id: 'preview-admin', email: 'owner@tokopreview.id', name: 'Pemilik Preview', role: 'admin' as const, store: 'Toko Preview' }
 
@@ -114,7 +114,7 @@ export default function RedesignShell() {
   return (
     <div className={`opc-shell op-classic${navOpen ? ' nav-open' : ''}${collapsed ? ' nav-collapsed' : ''}`}>
       <div className="opc-toprow">
-        <Link to="/redesign" className="opc-brand" aria-label="Toko Preview — Dashboard">
+        <Link to="/demo" className="opc-brand" aria-label="Toko Preview — Dashboard">
           <Logo tone="dark" className="h-[26px] w-auto shrink-0" />
           <span>{s.store || 'Toko Preview'}</span>
         </Link>
@@ -224,7 +224,7 @@ function UserMenu() {
     setBusy(true)
     await apiLogout()
     setSession(null)
-    nav('/redesign', { replace: true })
+    nav('/demo', { replace: true })
   }
 
   async function pick(u: User) {
@@ -235,7 +235,7 @@ function UserMenu() {
       const r = await apiSwitchAccount(u.id, undefined, u.role)
       setSession(toSession(r.user))
       resetMenu()
-      nav('/redesign')
+      nav('/demo')
     } catch (x) {
       if (x instanceof ApiError && x.code === 'passcode_required') {
         setPending(u)
@@ -256,7 +256,7 @@ function UserMenu() {
       const r = await apiSwitchAccount(pending.id, passcode, pending.role)
       setSession(toSession(r.user))
       resetMenu()
-      nav('/redesign')
+      nav('/demo')
     } catch (x) {
       setErr(x instanceof Error ? x.message : 'Passcode salah. Coba lagi.')
       setPasscode('')
@@ -369,3 +369,4 @@ function UserMenu() {
     </div>
   )
 }
+

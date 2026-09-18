@@ -640,7 +640,7 @@ export default function Users() {
                 ))}
               </ul>
               <div className="mt-3 text-right">
-                <Link to="/redesign/karyawan" className="text-[13px] font-medium text-fg hover:underline">
+                <Link to="/demo/karyawan" className="text-[13px] font-medium text-fg hover:underline">
                   Lihat Semua →
                 </Link>
               </div>
@@ -709,3 +709,4 @@ export default function Users() {
     </>
   )
 }
+

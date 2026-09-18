@@ -543,7 +543,7 @@ export default function Laporan() {
                 <ChartCard
                   title="Transaksi Terbaru"
                   sub="10 transaksi terakhir periode ini"
-                  action={<Link to="/redesign/transaksi" className="shrink-0 text-[13px] font-medium text-jet hover:underline">Lihat semua →</Link>}
+                  action={<Link to="/demo/transaksi" className="shrink-0 text-[13px] font-medium text-jet hover:underline">Lihat semua →</Link>}
                 >
                   <div className="overflow-x-auto">
                     {data.transactions.length === 0 ? (
@@ -955,7 +955,7 @@ export default function Laporan() {
                 <ChartCard
                   title="Produk Stok Menipis"
                   sub="Habis dulu, lalu stok terkecil"
-                  action={<Link to="/redesign/stok" className="shrink-0 text-[13px] font-medium text-jet hover:underline">Lihat semua →</Link>}
+                  action={<Link to="/demo/stok" className="shrink-0 text-[13px] font-medium text-jet hover:underline">Lihat semua →</Link>}
                 >
                   <div className="overflow-x-auto">
                     {lowStock.length === 0 ? (
@@ -985,7 +985,7 @@ export default function Laporan() {
                 <ChartCard
                   title="Pergerakan Stok Terbaru"
                   sub="5 terbaru · semua periode"
-                  action={<Link to="/redesign/stok?tab=riwayat" className="shrink-0 text-[13px] font-medium text-jet hover:underline">Lihat semua →</Link>}
+                  action={<Link to="/demo/stok?tab=riwayat" className="shrink-0 text-[13px] font-medium text-jet hover:underline">Lihat semua →</Link>}
                 >
                   {(movRep.data ?? []).length === 0 ? (
                     <p className="py-10 text-center text-sm text-fog">{!movRep.loading && movRep.data ? 'Belum ada pergerakan stok.' : 'Memuat…'}</p>

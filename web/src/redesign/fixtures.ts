@@ -1,4 +1,4 @@
-// Seed data sandbox /redesign. Bentuk meniru respons backend asli
+// Seed data sandbox /demo. Bentuk meniru respons backend asli
 // (snake_case, pagination {items,total,page,limit}) agar salinan halaman
 // cloud jalan tanpa ubah selain import. Tanggal relatif ke hari ini supaya
 // chart 7 hari + KPI selalu terlihat hidup.

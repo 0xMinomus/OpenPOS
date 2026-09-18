@@ -207,7 +207,7 @@ export default function Karyawan() {
         <Empty
           title="Belum ada data performa"
           sub="Data performa kasir akan muncul setelah transaksi dilakukan."
-          action={<Link to="/redesign/pos" className="inline-flex items-center justify-center gap-2 rounded-full border border-jet bg-jet px-6 py-3 text-[15px] font-medium text-paper transition hover:opacity-85">Buka POS Kasir</Link>}
+          action={<Link to="/demo/pos" className="inline-flex items-center justify-center gap-2 rounded-full border border-jet bg-jet px-6 py-3 text-[15px] font-medium text-paper transition hover:opacity-85">Buka POS Kasir</Link>}
         />
       ) : (
         <div className={switching ? 'pointer-events-none opacity-60 transition-opacity' : undefined} aria-busy={switching || undefined}>
@@ -387,7 +387,7 @@ export default function Karyawan() {
                     <p className="text-base font-semibold">Transaksi Terbaru</p>
                     <p className="mt-0.5 text-[13px] text-muted-foreground">8 terakhir periode ini</p>
                   </div>
-                  <Link to="/redesign/transaksi" className="shrink-0 text-[13px] font-medium text-jet hover:underline">Lihat semua →</Link>
+                  <Link to="/demo/transaksi" className="shrink-0 text-[13px] font-medium text-jet hover:underline">Lihat semua →</Link>
                 </div>
                 {recent.length === 0 ? (
                   <p className="py-10 text-center text-sm text-muted-foreground">Tidak ada data.</p>
@@ -481,3 +481,4 @@ function StatCard({ label, value, sub, icon: Icon }: {
     </Card>
   )
 }
+

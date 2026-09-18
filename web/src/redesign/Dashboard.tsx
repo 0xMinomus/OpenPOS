@@ -76,15 +76,15 @@ export default function Dashboard() {
   const topProducts = isAdmin ? admin.top_products.slice(0, 5) : []
 
   const kpis = [
-    { label: 'Omzet Hari Ini', value: fmtRp(today.omzet), icon: ShoppingBag, href: '/redesign/laporan' },
-    { label: 'Transaksi Hari Ini', value: String(today.trx_count), icon: ReceiptText, href: '/redesign/transaksi' },
-    { label: 'Produk Terjual', value: String(today.items_sold), icon: Package, href: '/redesign/laporan' },
+    { label: 'Omzet Hari Ini', value: fmtRp(today.omzet), icon: ShoppingBag, href: '/demo/laporan' },
+    { label: 'Transaksi Hari Ini', value: String(today.trx_count), icon: ReceiptText, href: '/demo/transaksi' },
+    { label: 'Produk Terjual', value: String(today.items_sold), icon: Package, href: '/demo/laporan' },
     ...(isAdmin
       ? [{
           label: 'Stok Menipis',
           value: String(admin.today.low_stock ?? 0),
           icon: TriangleAlert,
-          href: '/redesign/stok',
+          href: '/demo/stok',
         }]
       : []),
   ]
@@ -117,7 +117,7 @@ export default function Dashboard() {
                 <p className="mt-0.5 text-xs text-muted-foreground">Mulai transaksi baru untuk pelanggan.</p>
               </div>
             </div>
-            <Button size="lg" render={<Link to="/redesign/pos" />}>Buka POS</Button>
+            <Button size="lg" render={<Link to="/demo/pos" />}>Buka POS</Button>
           </CardContent>
         </Card>
 
@@ -136,7 +136,7 @@ export default function Dashboard() {
                 <CardDescription>Transaksi terbaru hari ini</CardDescription>
               </div>
             </div>
-            <Link to="/redesign/transaksi" className="opc-btn-sm">
+            <Link to="/demo/transaksi" className="opc-btn-sm">
               Lihat semua
             </Link>
           </CardHeader>
@@ -146,7 +146,7 @@ export default function Dashboard() {
             ) : recentTrx.length === 0 ? (
               <div className="py-8 text-center">
                 <p className="text-sm text-muted-foreground">Belum ada transaksi. Mulai dari POS Kasir.</p>
-                <Button className="mt-4" render={<Link to="/redesign/pos" />}>Buka POS</Button>
+                <Button className="mt-4" render={<Link to="/demo/pos" />}>Buka POS</Button>
               </div>
             ) : (
               <RecentTable items={recentTrx} showCashier={false} />
@@ -269,7 +269,7 @@ export default function Dashboard() {
                 <CardDescription>Transaksi terbaru hari ini</CardDescription>
               </div>
             </div>
-            <Link to="/redesign/transaksi" className="opc-btn-sm">
+            <Link to="/demo/transaksi" className="opc-btn-sm">
               Lihat semua
             </Link>
           </CardHeader>
@@ -295,7 +295,7 @@ export default function Dashboard() {
                 <CardDescription>Penjualan tertinggi hari ini</CardDescription>
               </div>
             </div>
-            <Link to="/redesign/laporan" className="opc-btn-sm">
+            <Link to="/demo/laporan" className="opc-btn-sm">
               Lihat semua
             </Link>
           </CardHeader>
@@ -327,7 +327,7 @@ export default function Dashboard() {
             <EmptyDescription>
               Buka menu POS Kasir untuk memulai transaksi pertama, atau cek produk Anda sudah siap dijual.
             </EmptyDescription>
-            <Button render={<Link to="/redesign/pos" />}>Buka POS Kasir</Button>
+            <Button render={<Link to="/demo/pos" />}>Buka POS Kasir</Button>
           </EmptyContent>
         </Empty>
       )}
@@ -548,3 +548,4 @@ function TrxBadge({ status }: { status: string }) {
   const b = map[status] ?? { label: status, className: 'bg-muted text-muted-foreground' }
   return <Badge className={b.className}>{b.label}</Badge>
 }
+
