@@ -100,14 +100,19 @@ export default function Transaksi() {
 
   const isAdmin = s.role === 'admin'
   const cards = [
-    { label: 'Total Transaksi', value: sum ? String(sum.n) : null, icon: ReceiptText, tint: 'text-[var(--chart-1)] bg-[color-mix(in_oklch,var(--chart-1)_12%,transparent)]' },
-    { label: 'Total Penjualan', value: sum ? fmtRp(sum.omzet) : null, icon: Banknote, tint: 'text-[var(--t-sprout)] bg-[color-mix(in_oklch,var(--t-sprout)_12%,transparent)]' },
-    { label: 'Transaksi Hari Ini', value: dash.data ? String(dash.data.today.trx_count) : null, icon: CalendarDays, tint: 'text-[var(--chart-2)] bg-[color-mix(in_oklch,var(--chart-2)_12%,transparent)]' },
-    { label: 'Rata-rata Transaksi', value: sum ? fmtRp(sum.avg) : null, icon: Sigma, tint: 'text-[var(--chart-3)] bg-[color-mix(in_oklch,var(--chart-3)_14%,transparent)]' },
+    { label: 'Total Transaksi', value: sum ? String(sum.n) : null, icon: ReceiptText },
+    { label: 'Total Penjualan', value: sum ? fmtRp(sum.omzet) : null, icon: Banknote },
+    { label: 'Transaksi Hari Ini', value: dash.data ? String(dash.data.today.trx_count) : null, icon: CalendarDays },
+    { label: 'Rata-rata Transaksi', value: sum ? fmtRp(sum.avg) : null, icon: Sigma },
   ]
 
   return (
     <>
+      <nav className="opc-crumb mb-3" aria-label="Breadcrumb">
+        <span>Home</span>
+        <span aria-hidden="true">›</span>
+        <span aria-current="page" className="text-foreground">Transaksi</span>
+      </nav>
       <PageHead
         title="Transaksi"
         sub={s.role === 'cashier' ? 'Transaksi yang Anda buat sendiri.' : 'Kelola dan pantau seluruh transaksi penjualan.'}
@@ -122,7 +127,7 @@ export default function Transaksi() {
             <CardContent className="p-5">
               <div className="flex items-center justify-between gap-3">
                 <span className="text-[13px] font-medium text-muted-foreground">{c.label}</span>
-                <span className={`grid size-9 shrink-0 place-items-center rounded-lg ${c.tint}`}>
+                <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-surface text-steel">
                   <c.icon className="size-4.5" />
                 </span>
               </div>

@@ -99,16 +99,21 @@ export default function Stok() {
   }
 
   const stats = [
-    { label: 'Total Produk', value: counts.total, icon: Package, tint: 'text-[var(--chart-1)] bg-[color-mix(in_oklch,var(--chart-1)_12%,transparent)]' },
-    { label: 'Stok Aman', value: counts.aman, icon: CircleCheck, tint: 'text-[var(--t-sprout)] bg-[color-mix(in_oklch,var(--t-sprout)_12%,transparent)]' },
-    { label: 'Stok Menipis', value: counts.menipis, icon: TriangleAlert, tint: 'text-[var(--t-sunbeam)] bg-[color-mix(in_oklch,var(--t-sunbeam)_14%,transparent)]' },
-    { label: 'Stok Habis', value: counts.habis, icon: OctagonX, tint: 'text-[var(--t-ember)] bg-[color-mix(in_oklch,var(--t-ember)_12%,transparent)]' },
+    { label: 'Total Produk', value: counts.total, icon: Package },
+    { label: 'Stok Aman', value: counts.aman, icon: CircleCheck },
+    { label: 'Stok Menipis', value: counts.menipis, icon: TriangleAlert },
+    { label: 'Stok Habis', value: counts.habis, icon: OctagonX },
   ]
 
   const catLabel = !catFilter ? 'Semua kategori' : catFilter === NONE ? 'Tanpa kategori' : cats.find((c) => c.id === catFilter)?.name ?? 'Semua kategori'
 
   return (
     <>
+      <nav className="opc-crumb mb-3" aria-label="Breadcrumb">
+        <span>Home</span>
+        <span aria-hidden="true">›</span>
+        <span aria-current="page" className="text-foreground">Stok</span>
+      </nav>
       <PageHead title="Stok" sub="Pantau ketersediaan dan pergerakan stok barang." />
 
       {(err || prod.err) && <p className="mb-4 rounded-lg bg-sand px-3.5 py-2.5 text-[13px] text-ember">{err || prod.err}</p>}
@@ -132,7 +137,7 @@ export default function Stok() {
               <CardContent className="p-4 sm:p-5">
                 <div className="flex items-center justify-between gap-2 sm:gap-3">
                   <span className="min-w-0 text-[13px] font-medium leading-snug text-muted-foreground">{s.label}</span>
-                  <span className={`grid size-9 shrink-0 place-items-center rounded-lg ${s.tint}`}>
+                  <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-surface text-steel">
                     <s.icon className="size-4.5" />
                   </span>
                 </div>

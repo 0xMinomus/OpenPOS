@@ -1,7 +1,7 @@
 // Produk — Operate surface. Katalog + filter kategori + CRUD + CSV.
 // Token font/warna milik sistem (tidak ada token baru di file ini).
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Download, FolderPlus, Plus, Search, Upload } from 'lucide-react'
+import { Download, FolderPlus, Pencil, Plus, Power, Search, Trash2, Upload } from 'lucide-react'
 import { apiCreateCategory, apiCreateProduct, apiDeleteCategory, apiDeleteProduct, apiListCategories, apiListProducts, apiSetProductActive, apiUpdateProduct, fetchAll, type Category, type Product } from './mock-api'
 import { useCache } from '../lib/cache'
 import { exportCSV, fmtRp, useDB } from '../lib/store'
@@ -213,6 +213,11 @@ export default function Produk() {
 
   return (
     <>
+      <nav className="opc-crumb mb-3" aria-label="Breadcrumb">
+        <span>Home</span>
+        <span aria-hidden="true">›</span>
+        <span aria-current="page" className="text-foreground">Produk</span>
+      </nav>
       <PageHead
         title="Produk"
         sub={
@@ -312,10 +317,10 @@ export default function Produk() {
                       <Td right><StockCell stock={p.stock} unit={p.unit} /></Td>
                       <Td><Pill tone={p.active ? 'ok' : 'muted'}>{p.active ? 'Aktif' : 'Nonaktif'}</Pill></Td>
                       <Td>
-                        <div className="flex justify-end gap-2.5 text-[13px]">
-                          <button className="font-medium text-jet hover:underline" onClick={() => setEditing({ id: p.id, name: p.name, sku: p.sku, barcode: p.barcode, categoryId: p.category_id ?? '', buyPrice: String(p.buy_price), sellPrice: String(p.sell_price), stock: String(p.stock), unit: p.unit })}>Ubah</button>
-                          <button className="text-muted hover:underline" onClick={() => toggleActive(p)}>{p.active ? 'Nonaktifkan' : 'Aktifkan'}</button>
-                          <button className="text-ember hover:underline" onClick={() => setDeleteFor(p)}>Hapus</button>
+                        <div className="flex items-center justify-end gap-1">
+                          <button title="Ubah" aria-label={`Ubah ${p.name}`} className="grid size-8 place-items-center rounded-md text-steel transition hover:bg-surface hover:text-fg" onClick={() => setEditing({ id: p.id, name: p.name, sku: p.sku, barcode: p.barcode, categoryId: p.category_id ?? '', buyPrice: String(p.buy_price), sellPrice: String(p.sell_price), stock: String(p.stock), unit: p.unit })}><Pencil className="size-4" /></button>
+                          <button title={p.active ? 'Nonaktifkan' : 'Aktifkan'} aria-label={`${p.active ? 'Nonaktifkan' : 'Aktifkan'} ${p.name}`} className="grid size-8 place-items-center rounded-md text-steel transition hover:bg-surface hover:text-fg" onClick={() => toggleActive(p)}><Power className="size-4" /></button>
+                          <button title="Hapus" aria-label={`Hapus ${p.name}`} className="grid size-8 place-items-center rounded-md text-steel transition hover:bg-surface hover:text-ember" onClick={() => setDeleteFor(p)}><Trash2 className="size-4" /></button>
                         </div>
                       </Td>
                     </tr>
