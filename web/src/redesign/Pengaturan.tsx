@@ -381,6 +381,11 @@ export default function Pengaturan() {
   if (!form) {
     return (
       <>
+        <nav className="opc-crumb mb-3" aria-label="Breadcrumb">
+          <span>Home</span>
+          <span aria-hidden="true">›</span>
+          <span aria-current="page" className="text-foreground">Pengaturan</span>
+        </nav>
         <PageHead title="Pengaturan" sub="Kelola akun, toko, struk, pajak, dan keamanan." />
         {loadErr ? (
           <div className="max-w-2xl rounded-2xl bg-cream p-4 text-center sm:p-6">
@@ -451,6 +456,11 @@ export default function Pengaturan() {
 
   return (
     <>
+      <nav className="opc-crumb mb-3" aria-label="Breadcrumb">
+        <span>Home</span>
+        <span aria-hidden="true">›</span>
+        <span aria-current="page" className="text-foreground">Pengaturan</span>
+      </nav>
       <PageHead title="Pengaturan" sub="Kelola akun, toko, struk, pajak, dan keamanan." />
 
       {err && <p className="mb-4 rounded-lg bg-sand px-3.5 py-2.5 text-[13px] text-ember" role="alert">{err}</p>}

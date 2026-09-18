@@ -142,6 +142,11 @@ export default function Karyawan() {
 
   if (err && !data) return (
     <>
+      <nav className="opc-crumb mb-3" aria-label="Breadcrumb">
+        <span>Home</span>
+        <span aria-hidden="true">›</span>
+        <span aria-current="page" className="text-foreground">Karyawan</span>
+      </nav>
       <PageHead title="Karyawan" sub="Pantau performa kasir dan kontribusi penjualan setiap karyawan." />
       <p className="rounded-lg bg-sand px-3.5 py-2.5 text-[13px] text-ember">{err}</p>
     </>
@@ -152,6 +157,11 @@ export default function Karyawan() {
 
   return (
     <>
+      <nav className="opc-crumb mb-3" aria-label="Breadcrumb">
+        <span>Home</span>
+        <span aria-hidden="true">›</span>
+        <span aria-current="page" className="text-foreground">Karyawan</span>
+      </nav>
       <PageHead
         title="Karyawan"
         sub="Pantau performa kasir dan kontribusi penjualan setiap karyawan."
@@ -206,10 +216,10 @@ export default function Karyawan() {
           )}
 
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <StatCard label="Total Penjualan" value={fmtRp(totalOmzet)} icon={Banknote} tint="text-[var(--chart-1)] bg-[color-mix(in_oklch,var(--chart-1)_12%,transparent)]" />
-            <StatCard label="Total Transaksi" value={String(totalTrx)} icon={ReceiptText} tint="text-[var(--chart-2)] bg-[color-mix(in_oklch,var(--chart-2)_12%,transparent)]" />
-            <StatCard label="Kasir Aktif" value={String(activeCount)} sub={`dari ${stats.length} kasir`} icon={UsersRound} tint="text-[var(--chart-3)] bg-[color-mix(in_oklch,var(--chart-3)_14%,transparent)]" />
-            <StatCard label="Kasir Terbaik" value={best ? best.name : '—'} sub={best ? fmtRp(best.omzet) : 'belum ada transaksi'} icon={Trophy} tint="text-[var(--chart-5)] bg-[color-mix(in_oklch,var(--chart-5)_12%,transparent)]" />
+            <StatCard label="Total Penjualan" value={fmtRp(totalOmzet)} icon={Banknote} />
+            <StatCard label="Total Transaksi" value={String(totalTrx)} icon={ReceiptText} />
+            <StatCard label="Kasir Aktif" value={String(activeCount)} sub={`dari ${stats.length} kasir`} icon={UsersRound} />
+            <StatCard label="Kasir Terbaik" value={best ? best.name : '—'} sub={best ? fmtRp(best.omzet) : 'belum ada transaksi'} icon={Trophy} />
           </div>
 
           <div className="mt-5 grid gap-4 lg:grid-cols-[2fr_1fr]">
@@ -448,19 +458,18 @@ export default function Karyawan() {
   )
 }
 
-function StatCard({ label, value, sub, icon: Icon, tint }: {
+function StatCard({ label, value, sub, icon: Icon }: {
   label: string
   value: string
   sub?: string
   icon: React.ComponentType<{ className?: string }>
-  tint: string
 }) {
   return (
     <Card>
       <CardContent className="p-5">
         <div className="flex items-center justify-between gap-3">
           <span className="text-[13px] font-medium text-muted-foreground">{label}</span>
-          <span className={`grid size-9 shrink-0 place-items-center rounded-lg ${tint}`}>
+          <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-surface text-steel">
             <Icon className="size-4.5" />
           </span>
         </div>

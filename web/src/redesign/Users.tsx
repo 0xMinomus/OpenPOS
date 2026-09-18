@@ -364,11 +364,11 @@ export default function Users() {
   }
 
   const cards = [
-    { icon: UsersRound, box: 'bg-sand text-steel', label: 'Total Pengguna', value: String(total), sub: 'Semua akun terdaftar' },
-    { icon: UserRound, box: 'bg-sand text-steel', label: 'Kasir Aktif', value: String(activeCashiers), sub: `Dari ${cashiers.length} akun kasir` },
-    { icon: ShieldCheck, box: 'bg-success-bg text-sprout', label: 'Admin', value: String(admins), sub: 'Akun dengan akses penuh' },
+    { icon: UsersRound, box: 'bg-surface text-steel', label: 'Total Pengguna', value: String(total), sub: 'Semua akun terdaftar' },
+    { icon: UserRound, box: 'bg-surface text-steel', label: 'Kasir Aktif', value: String(activeCashiers), sub: `Dari ${cashiers.length} akun kasir` },
+    { icon: ShieldCheck, box: 'bg-surface text-steel', label: 'Admin', value: String(admins), sub: 'Akun dengan akses penuh' },
     {
-      icon: UserX, box: inactive > 0 ? 'bg-ember/10 text-ember' : 'bg-sand text-steel',
+      icon: UserX, box: 'bg-surface text-steel',
       label: 'Akun Nonaktif', value: String(inactive),
       sub: inactive > 0 ? `${inactive} akun perlu perhatian` : 'Tidak ada akun nonaktif',
     },
@@ -376,6 +376,11 @@ export default function Users() {
 
   return (
     <>
+      <nav className="opc-crumb mb-3" aria-label="Breadcrumb">
+        <span>Home</span>
+        <span aria-hidden="true">›</span>
+        <span aria-current="page" className="text-foreground">User Management</span>
+      </nav>
       <PageHead
         title="User Management"
         sub="Kelola akun admin dan kasir, status akun, serta akses pengguna."
