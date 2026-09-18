@@ -97,7 +97,7 @@ export default function Landing() {
             </div>
           </div>
 
-          <div className="hero-visual container relative mx-auto mt-10 max-w-7xl px-5 md:mt-18 md:px-8">
+          <div className="hero-visual relative mx-auto mt-10 w-full px-3 md:mt-18 md:px-6">
             <div
               className="pointer-events-none absolute -top-24 -right-16 z-0 h-90 w-90 rounded-full blur-6xl sm:-top-28 sm:-right-18 sm:h-130 sm:w-130"
               style={{ background: 'radial-gradient(circle at 32% 32%, #ffa888 0%, color-mix(in oklch, #ff8868 55%, transparent) 42%, transparent 70%)' }}
@@ -119,7 +119,7 @@ export default function Landing() {
                 src="/demo?embed=1"
                 title="Demo interaktif OpenPOS"
                 loading="lazy"
-                className="block h-[720px] w-full border-0 bg-white md:h-[800px]"
+                className="block h-[78vh] min-h-[600px] w-full border-0 bg-white"
               />
             </div>
             <p className="mt-4.5 text-center font-mono text-xs text-steel">
