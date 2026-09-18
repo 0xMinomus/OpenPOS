@@ -229,7 +229,8 @@ function UserMenu() {
     setBusy(true)
     await apiLogout()
     setSession(null)
-    nav('/demo', { replace: true })
+    // Keluar dari demo = kembali ke landing page awal.
+    nav('/', { replace: true })
   }
 
   async function pick(u: User) {
