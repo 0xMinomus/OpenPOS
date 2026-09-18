@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router'
 import { Banknote, ReceiptText, Trophy, UsersRound } from 'lucide-react'
 import { apiGetReport, apiListUsers, type ReportBundle, type User } from './mock-api'
+import { Crumb } from './Crumb'
 import { useCache } from '../lib/cache'
 import { exportCSV, fmtDate, fmtInv, fmtRp, fmtShort, useDB } from '../lib/store'
 import { Button, Empty, PageHead, Td, Th } from '../lib/ui'
@@ -142,11 +143,7 @@ export default function Karyawan() {
 
   if (err && !data) return (
     <>
-      <nav className="opc-crumb mb-3" aria-label="Breadcrumb">
-        <span>Home</span>
-        <span aria-hidden="true">›</span>
-        <span aria-current="page" className="text-foreground">Karyawan</span>
-      </nav>
+      <Crumb page="Karyawan" />
       <PageHead title="Karyawan" sub="Pantau performa kasir dan kontribusi penjualan setiap karyawan." />
       <p className="rounded-lg bg-sand px-3.5 py-2.5 text-[13px] text-ember">{err}</p>
     </>
@@ -157,11 +154,7 @@ export default function Karyawan() {
 
   return (
     <>
-      <nav className="opc-crumb mb-3" aria-label="Breadcrumb">
-        <span>Home</span>
-        <span aria-hidden="true">›</span>
-        <span aria-current="page" className="text-foreground">Karyawan</span>
-      </nav>
+      <Crumb page="Karyawan" />
       <PageHead
         title="Karyawan"
         sub="Pantau performa kasir dan kontribusi penjualan setiap karyawan."

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { apiCheckout, apiGetSettings, apiListProducts, fetchAll, type PayMethod, type Product, type StoreSettings, type Trx } from './mock-api'
+import { Crumb } from './Crumb'
 import { useCache } from '../lib/cache'
 import { fmtRp, useDB } from '../lib/store'
 import { Receipt } from '../lib/receipt'
@@ -95,11 +96,7 @@ export default function Pos() {
 
   return (
     <>
-      <nav className="opc-crumb mb-3" aria-label="Breadcrumb">
-        <span>Home</span>
-        <span aria-hidden="true">›</span>
-        <span aria-current="page" className="text-foreground">POS Kasir</span>
-      </nav>
+      <Crumb page="POS Kasir" />
       <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1>POS Kasir</h1>

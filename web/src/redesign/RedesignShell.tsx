@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router'
 import {
   LayoutDashboard, Store, Package, Boxes, ReceiptText, BarChart3, Users, Settings, IdCard,
-  Moon, Sun, LogOut, Check, UserRound, Menu, ChevronDown,
+  Moon, Sun, LogOut, Check, UserRound, PanelLeftClose, PanelLeftOpen, ChevronDown,
 } from 'lucide-react'
 import './classic.css'
 import { ApiError, apiHeartbeat, apiListUsers, apiLogout, apiSwitchAccount, getCachedAccounts, resetSandbox, setCachedAccounts, type User } from './mock-api'
@@ -107,6 +107,9 @@ export default function RedesignShell() {
   }
 
   const menu = MENU.filter((m) => !m.adminOnly || s.role === 'admin')
+  // Ikon toggle mengikuti status: tertutup→buka, terbuka→tutup.
+  const narrow = typeof window !== 'undefined' && window.innerWidth < 768
+  const navExpanded = narrow ? navOpen : !collapsed
 
   return (
     <div className={`opc-shell op-classic${navOpen ? ' nav-open' : ''}${collapsed ? ' nav-collapsed' : ''}`}>
@@ -123,9 +126,11 @@ export default function RedesignShell() {
               else setCollapsed((v) => !v)
             }}
             aria-label="Buka/tutup navigasi"
-            aria-expanded={navOpen}
+            aria-expanded={navExpanded}
           >
-            <Menu className="size-5" />
+            <span key={navExpanded ? 'open' : 'closed'} className="opc-icopop">
+              {navExpanded ? <PanelLeftClose className="size-5" /> : <PanelLeftOpen className="size-5" />}
+            </span>
           </button>
           <button
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
@@ -135,16 +140,9 @@ export default function RedesignShell() {
           >
             {theme === 'dark' ? <Sun className="size-5" /> : <Moon className="size-5" />}
           </button>
-          <div className="ml-auto flex items-center gap-1">
+          <div className="ml-auto flex items-center">
             <span className="opc-bell">
               <NotifBell />
-            </span>
-            <span className="opc-topbar-user" aria-label={`${s.name}, ${s.role === 'admin' ? 'Admin' : 'Kasir'}`}>
-              <span className="opc-avatar" aria-hidden="true">
-                <UserRound className="size-5" />
-              </span>
-              <span className="hidden sm:inline">{s.name}</span>
-              <ChevronDown className="hidden size-4 opacity-80 sm:inline" aria-hidden="true" />
             </span>
           </div>
         </header>

@@ -2,7 +2,7 @@
 // Same Card/Button/Badge/Chart/Td/Th tokens as the rest of the app; no new identity.
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
-import { BarChart3, CalendarDays, House, Package, ReceiptText, ShoppingBag, Store, TriangleAlert } from 'lucide-react'
+import { BarChart3, House, Package, ReceiptText, ShoppingBag, Store, TriangleAlert } from 'lucide-react'
 import { apiGetDashboard, apiListTransactions, type DashboardAdmin, type Trx } from './mock-api'
 import { useCache } from '../lib/cache'
 import { fmtDate, fmtRp, fmtShort, fmtTime, useDB } from '../lib/store'
@@ -13,7 +13,7 @@ import { Bar, BarChart, CartesianGrid, Cell, LabelList, Pie, PieChart, XAxis, YA
 import { Button } from '@/components/ui/button'
 import { Empty, EmptyContent, EmptyDescription, EmptyTitle } from '@/components/ui/empty'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Td, Th } from '../lib/ui'
+import { DatePicker, Td, Th } from '../lib/ui'
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
 
@@ -46,11 +46,16 @@ export default function Dashboard() {
   }, [])
   // Kunci sesi pemilik data: key cache memisahkan admin vs kasir.
   const sessionKey = `${s.id}:${s.role}`
-  const dash = useCache(`dash:${sessionKey}`, apiGetDashboard, 'Gagal memuat dashboard.')
-  const recent = useCache(`recent5:${sessionKey}`, () => apiListTransactions({ limit: 5 }))
+  // Tanggal pilihan ('' = hari ini). Key cache ikut tanggal agar kisaran
+  // berbeda tak tertukar; kontrak live: docs/API-CONTRACT-DASHBOARD-DATE.md.
+  const [date, setDate] = useState('')
+  const dash = useCache(`dash:${sessionKey}:${date || 'today'}`, () => apiGetDashboard(date || undefined), 'Gagal memuat dashboard.')
+  const recent = useCache(`recent5:${sessionKey}:${date || 'today'}`, () => apiListTransactions({ limit: 5, date: date || undefined }))
   const data = dash.data
   const err = dash.err
   const recentTrx = recent.data ? recent.data.items : recent.err ? [] : null
+  const now = new Date()
+  const todayISO = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
 
   const isAdmin = s.role === 'admin'
   if (err && !data) return <p className="rounded-lg bg-sand px-3.5 py-2.5 text-[13px] text-ember">{err}</p>
@@ -92,11 +97,13 @@ export default function Dashboard() {
             <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Halo, {s.name}</h1>
             <p className="mt-1.5 text-sm text-muted-foreground">
               {today.trx_count > 0
-                ? `${today.trx_count} transaksi hari ini dengan omzet ${fmtRp(today.omzet)}.`
-                : 'Belum ada transaksi hari ini.'}
+                ? `${today.trx_count} transaksi ${date ? `pada ${fmtDate(date)}` : 'hari ini'} dengan omzet ${fmtRp(today.omzet)}.`
+                : date ? `Belum ada transaksi pada ${fmtDate(date)}.` : 'Belum ada transaksi hari ini.'}
             </p>
           </div>
-          <p className="text-sm text-muted-foreground">{fmtDate(new Date().toISOString())}</p>
+          <div className="w-44">
+            <DatePicker value={date} onChange={setDate} label="Pilih tanggal dashboard" placeholder={fmtDate(todayISO)} />
+          </div>
         </div>
 
         <Card>
@@ -155,7 +162,7 @@ export default function Dashboard() {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1>Dashboard</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Pantau aktivitas dan performa toko Anda hari ini</p>
+          <p className="mt-1 text-sm text-muted-foreground">{date ? `Menampilkan data ${fmtDate(date)}` : 'Pantau aktivitas dan performa toko Anda hari ini'}</p>
         </div>
         <div className="flex flex-col items-end gap-2">
           <nav className="opc-crumb" aria-label="Breadcrumb">
@@ -164,10 +171,9 @@ export default function Dashboard() {
             <span aria-hidden="true">›</span>
             <span aria-current="page" className="text-foreground">Dashboard</span>
           </nav>
-          <span className="opc-datechip">
-            <CalendarDays aria-hidden="true" />
-            {fmtDate(new Date().toISOString())}
-          </span>
+          <div className="w-44">
+            <DatePicker value={date} onChange={setDate} label="Pilih tanggal dashboard" placeholder={fmtDate(todayISO)} />
+          </div>
         </div>
       </div>
 

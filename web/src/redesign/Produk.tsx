@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Download, FolderPlus, Pencil, Plus, Power, Search, Trash2, Upload } from 'lucide-react'
 import { apiCreateCategory, apiCreateProduct, apiDeleteCategory, apiDeleteProduct, apiListCategories, apiListProducts, apiSetProductActive, apiUpdateProduct, fetchAll, type Category, type Product } from './mock-api'
+import { Crumb } from './Crumb'
 import { useCache } from '../lib/cache'
 import { exportCSV, fmtRp, useDB } from '../lib/store'
 import { NumInput, Button, Empty, Input, Modal, PageHead, Pager, Pill, SkeletonRows, Td, Th } from '../lib/ui'
@@ -213,11 +214,7 @@ export default function Produk() {
 
   return (
     <>
-      <nav className="opc-crumb mb-3" aria-label="Breadcrumb">
-        <span>Home</span>
-        <span aria-hidden="true">›</span>
-        <span aria-current="page" className="text-foreground">Produk</span>
-      </nav>
+      <Crumb page="Produk" />
       <PageHead
         title="Produk"
         sub={

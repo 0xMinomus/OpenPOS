@@ -43,14 +43,19 @@ function authed(): User {
 
 // ── dashboard & laporan ────────────────────────────────────────────
 
-export async function apiGetDashboard(): Promise<DashboardAdmin | DashboardCashier> {
+// date = hari lokal 'YYYY-MM-DD' (default hari ini). KPI/metode/top/transaksi
+// terbaru dihitung untuk hari itu; sales7 = 7 hari berjalan berakhir di hari
+// itu. Divergensi sandbox vs lib/api: param date (kontrak live:
+// docs/API-CONTRACT-DASHBOARD-DATE.md).
+export async function apiGetDashboard(date?: string): Promise<DashboardAdmin | DashboardCashier> {
   await wait()
-  const today = localDay(new Date())
+  const ref = date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : localDay(new Date())
+  const base = new Date(`${ref}T12:00:00`)
   const done = db.trx.filter((t) => t.status === 'completed')
-  const t0 = done.filter((t) => localDay(new Date(t.created_at)) === today)
+  const t0 = done.filter((t) => localDay(new Date(t.created_at)) === ref)
   const sales7 = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date()
-    d.setDate(d.getDate() - (6 - i))
+    const d = new Date(base)
+    d.setDate(base.getDate() - (6 - i))
     const key = localDay(d)
     return {
       date: key,
@@ -69,6 +74,7 @@ export async function apiGetDashboard(): Promise<DashboardAdmin | DashboardCashi
     }
   }
   const recent = [...db.trx]
+    .filter((t) => localDay(new Date(t.created_at)) === ref)
     .sort((a, b) => +new Date(b.created_at) - +new Date(a.created_at))
     .slice(0, 5)
     .map((t) => ({ id: t.id, cashier_name: t.cashier_name, total: t.total, status: t.status, time: t.created_at }))

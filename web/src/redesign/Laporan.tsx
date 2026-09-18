@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router'
 import { Banknote, BarChart3, Boxes, ChevronDown, ChevronUp, CircleCheck, Loader2, OctagonX, Package, ReceiptText, Sigma, TriangleAlert, TrendingUp, Wallet } from 'lucide-react'
 import { apiGetReport, apiListMovements, apiListProducts, apiListTransactions, fetchAll, type Movement, type Product, type ReportBundle, type Trx } from './mock-api'
+import { Crumb } from './Crumb'
 import { useCache } from '../lib/cache'
 import { exportCSV, fmtDate, fmtInv, fmtRp, fmtShort, fmtTime } from '../lib/store'
 import { Button, PageHead, Pill, SkeletonRows, StatusPill, Td, Th } from '../lib/ui'
@@ -363,11 +364,7 @@ export default function Laporan() {
 
   if (err && !data) return (
     <>
-      <nav className="opc-crumb mb-3" aria-label="Breadcrumb">
-        <span>Home</span>
-        <span aria-hidden="true">›</span>
-        <span aria-current="page" className="text-foreground">Laporan</span>
-      </nav>
+      <Crumb page="Laporan" />
       <PageHead title="Laporan" sub="Ringkasan performa toko Anda." right={<Button variant="ghost" onClick={exportTab}>Export CSV</Button>} />
       <p className="rounded-lg bg-sand px-3.5 py-2.5 text-[13px] text-ember">{err}</p>
     </>
@@ -375,11 +372,7 @@ export default function Laporan() {
 
   return (
     <>
-      <nav className="opc-crumb mb-3" aria-label="Breadcrumb">
-        <span>Home</span>
-        <span aria-hidden="true">›</span>
-        <span aria-current="page" className="text-foreground">Laporan</span>
-      </nav>
+      <Crumb page="Laporan" />
       <PageHead
         title="Laporan"
         sub="Ringkasan performa toko Anda."

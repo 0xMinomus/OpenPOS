@@ -12,6 +12,7 @@ import {
   apiCreateUser, apiDeleteUser, apiGetReport, apiListActivity, apiListTransactions, apiListUsers, apiRenameUser, apiSetUserActive,
   setCachedAccounts, type ActivityItem, type Page, type ReportBundle, type Trx, type User,
 } from './mock-api'
+import { Crumb } from './Crumb'
 import { useCache } from '../lib/cache'
 import { exportCSV, fmtDate, fmtInv, fmtRp, fmtTime, useDB } from '../lib/store'
 import { Button, Input, Modal, PageHead, Pager, Pill, Td, Th } from '../lib/ui'
@@ -376,11 +377,7 @@ export default function Users() {
 
   return (
     <>
-      <nav className="opc-crumb mb-3" aria-label="Breadcrumb">
-        <span>Home</span>
-        <span aria-hidden="true">›</span>
-        <span aria-current="page" className="text-foreground">User Management</span>
-      </nav>
+      <Crumb page="User Management" />
       <PageHead
         title="User Management"
         sub="Kelola akun admin dan kasir, status akun, serta akses pengguna."

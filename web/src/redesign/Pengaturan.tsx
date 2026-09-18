@@ -7,6 +7,7 @@ import {
   ApiError, apiGetSettings, apiListTransactions, apiListUsers, apiLogout, apiResetPassword, apiSendPasswordResetOtp, apiSetPasscode, apiUpdateSettings,
   type Page, type StoreHours, type StoreSettings, type Trx, type User,
 } from './mock-api'
+import { Crumb } from './Crumb'
 import { useCache } from '../lib/cache'
 import { fmtDate, fmtRp, fmtTime, getSession, setSession, useDB } from '../lib/store'
 import { Button, Input, Modal, NumInput, PageHead, Pill } from '../lib/ui'
@@ -381,11 +382,7 @@ export default function Pengaturan() {
   if (!form) {
     return (
       <>
-        <nav className="opc-crumb mb-3" aria-label="Breadcrumb">
-          <span>Home</span>
-          <span aria-hidden="true">›</span>
-          <span aria-current="page" className="text-foreground">Pengaturan</span>
-        </nav>
+        <Crumb page="Pengaturan" />
         <PageHead title="Pengaturan" sub="Kelola akun, toko, struk, pajak, dan keamanan." />
         {loadErr ? (
           <div className="max-w-2xl rounded-2xl bg-cream p-4 text-center sm:p-6">

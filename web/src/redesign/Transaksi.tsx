@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react'
 import { Banknote, CalendarDays, ReceiptText, Search, Sigma } from 'lucide-react'
 import { apiGetDashboard, apiListTransactions, apiRefundTransaction, fetchAll, type Trx } from './mock-api'
+import { Crumb } from './Crumb'
 import { useCache } from '../lib/cache'
 import { exportCSV, fmtDate, fmtRp, fmtTime, useDB } from '../lib/store'
 import { NumInput, Button, DatePicker, Empty, Modal, PageHead, Pager, SkeletonRows, StatusPill, Td, Th, TrxItems } from '../lib/ui'
@@ -108,11 +109,7 @@ export default function Transaksi() {
 
   return (
     <>
-      <nav className="opc-crumb mb-3" aria-label="Breadcrumb">
-        <span>Home</span>
-        <span aria-hidden="true">›</span>
-        <span aria-current="page" className="text-foreground">Transaksi</span>
-      </nav>
+      <Crumb page="Transaksi" />
       <PageHead
         title="Transaksi"
         sub={s.role === 'cashier' ? 'Transaksi yang Anda buat sendiri.' : 'Kelola dan pantau seluruh transaksi penjualan.'}
