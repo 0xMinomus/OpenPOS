@@ -185,6 +185,11 @@
   transition: background-color 120ms ease;
 }
 .opc-iconbtn:hover { background: rgba(255, 255, 255, 0.14); }
+/* Animasi pop tiap ikon toggle berganti (key berubah = re-mount). */
+.opc-icopop { display: inline-grid; place-items: center; }
+.opc-icopop svg { animation: opc-pop 180ms ease; }
+@keyframes opc-pop { from { transform: scale(0.6); opacity: 0.4; } }
+@media (prefers-reduced-motion: reduce) { .opc-icopop svg { animation: none; } }
 .opc-topbar-user { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; padding: 4px 4px 4px 8px; border-radius: 5px; }
 .opc-topbar-user:hover { background: rgba(255, 255, 255, 0.14); }
 
@@ -229,6 +234,7 @@
 .opc-main { flex: 1; min-width: 0; margin-left: 240px; padding: 20px; }
 .opc-crumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted-foreground); }
 .opc-crumb svg { width: 14px; height: 14px; }
+.opc-crumb-right { display: flex; justify-content: flex-end; margin-bottom: 12px; }
 .opc-datechip {
   display: inline-flex; align-items: center; gap: 8px;
   border: 1px solid var(--border); border-radius: 5px;
