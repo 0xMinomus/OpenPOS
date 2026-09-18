@@ -33,6 +33,7 @@
   --popover-foreground: #111827;
   --primary: #1976d2;
   --primary-foreground: #ffffff;
+  --primary-soft: #eaf4ff;
   --secondary: #f1f5f9;
   --secondary-foreground: #111827;
   --muted: #f1f5f9;
@@ -40,6 +41,7 @@
   --accent: #eaf4ff;
   --accent-foreground: #111827;
   --destructive: #d64545;
+  --danger-soft: #fde8e8;
   --border: #d8e1ea;
   --input: #d8e1ea;
   --ring: #1976d2;
@@ -87,6 +89,7 @@
   --popover-foreground: #f2f5f8;
   --primary: #1988ea;
   --primary-foreground: #ffffff;
+  --primary-soft: #163550;
   --secondary: #1b2d3c;
   --secondary-foreground: #f2f5f8;
   --muted: #1b2d3c;
@@ -94,6 +97,7 @@
   --accent: #163550;
   --accent-foreground: #f2f5f8;
   --destructive: #e04b4b;
+  --danger-soft: #4a2226;
   --border: #2b3f50;
   --input: #2b3f50;
   --ring: #1988ea;
@@ -228,8 +232,74 @@
   width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
   display: grid; place-items: center;
   background: rgba(255, 255, 255, 0.14); color: #fff;
+  font-size: 13px; font-weight: 600; letter-spacing: 0.02em;
 }
 .opc-sideuser small { display: block; font-size: 12px; color: #93a4b4; }
+
+/* ── panel ganti akun: menyatu dengan tema klasik (§24/§25) ── */
+.opc-acc-panel {
+  position: absolute; bottom: 100%; left: 0; z-index: 50;
+  width: 100%; max-width: calc(100vw - 2rem);
+  margin-bottom: 8px; padding: 6px;
+  background: var(--card); color: var(--foreground);
+  border: 1px solid var(--border); border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+}
+.dark .op-classic .opc-acc-panel { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); }
+.opc-acc-head {
+  margin: 0; padding: 6px 10px 4px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+.opc-acc-list { max-height: 256px; overflow-y: auto; display: flex; flex-direction: column; gap: 1px; }
+.opc-acc-item {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  padding: 7px 10px; border: 0; border-radius: 5px;
+  background: transparent; color: var(--foreground); text-align: left; font-size: 14px;
+  transition: background-color 120ms ease;
+}
+.opc-acc-item:hover:not(:disabled) { background: var(--secondary); }
+.opc-acc-item.active { background: var(--primary-soft); }
+.opc-acc-ava {
+  width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+  display: grid; place-items: center;
+  background: #e4eaf1; color: #3d4e61;
+  font-size: 12px; font-weight: 600; letter-spacing: 0.02em;
+}
+.dark .op-classic .opc-acc-ava { background: #1b2d3c; color: #b5c0cb; }
+.opc-acc-item.active .opc-acc-ava { background: var(--primary); color: #fff; }
+.opc-acc-meta { display: grid; min-width: 0; flex: 1; line-height: 1.3; }
+.opc-acc-meta strong { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.opc-acc-meta small { font-size: 12px; color: var(--muted-foreground); }
+.opc-acc-check { width: 16px; height: 16px; flex-shrink: 0; color: var(--primary); }
+.opc-acc-div { height: 1px; margin: 6px 4px; background: var(--border); }
+.opc-acc-logout {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  padding: 7px 10px; border: 0; border-radius: 5px;
+  background: transparent; color: var(--foreground); font-size: 14px;
+  transition: background-color 120ms ease;
+}
+.opc-acc-logout svg { width: 16px; height: 16px; color: var(--muted-foreground); }
+.opc-acc-logout:hover:not(:disabled) { background: var(--danger-soft); color: var(--destructive); }
+.opc-acc-logout:hover:not(:disabled) svg { color: var(--destructive); }
+.opc-acc-pin { padding: 8px 10px 10px; }
+.opc-acc-pin input {
+  width: 100%; margin-top: 8px; padding: 9px 10px;
+  border: 1px solid var(--border); border-radius: 5px;
+  background: var(--background); color: var(--foreground);
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 18px; letter-spacing: 0.5em; text-align: center;
+}
+.opc-acc-err { margin: 8px 0 0; font-size: 12px; color: var(--destructive); }
+.opc-acc-row { display: flex; justify-content: flex-end; gap: 4px; margin-top: 8px; }
+.opc-acc-btn {
+  padding: 6px 12px; border: 1px solid var(--border); border-radius: 5px;
+  background: transparent; color: var(--foreground); font-size: 13px; font-weight: 500;
+}
+.opc-acc-btn:hover:not(:disabled) { background: var(--secondary); }
+.opc-acc-btn.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+.opc-acc-btn.primary:hover:not(:disabled) { filter: brightness(0.94); }
+.opc-acc-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .opc-main { flex: 1; min-width: 0; margin-left: 240px; padding: 20px; }
 .opc-crumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted-foreground); }
