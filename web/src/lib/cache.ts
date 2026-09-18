@@ -14,6 +14,11 @@ function read<T>(key: string): T | null {
   return hit.data as T
 }
 
+// Kosongkan semua cache (dipakai reset sandbox /demo agar data awal murni).
+export function clearCache() {
+  store.clear()
+}
+
 export function useCache<T>(key: string, fn: () => Promise<T>, errMsg = 'Gagal memuat data.'): {
   data: T | null
   err: string

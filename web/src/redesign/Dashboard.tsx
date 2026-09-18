@@ -54,8 +54,8 @@ export default function Dashboard() {
   const data = dash.data
   const err = dash.err
   const recentTrx = recent.data ? recent.data.items : recent.err ? [] : null
-  const now = new Date()
-  const todayISO = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+  // Jangkar statis fixtures — placeholder kalender tak ikut tanggal sungguhan.
+  const todayISO = '2026-09-15'
 
   const isAdmin = s.role === 'admin'
   if (err && !data) return <p className="rounded-lg bg-sand px-3.5 py-2.5 text-[13px] text-ember">{err}</p>

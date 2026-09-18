@@ -27,6 +27,19 @@ export function resetSandbox() {
 
 const wait = (ms = 120) => new Promise<void>((r) => setTimeout(r, ms))
 
+// Hari demo = jangkar statis fixtures (bukan hari kalender), agar refresh tak
+// geser "Hari ini" dan sebaran 30 hari tetap kelihatan.
+const DEMO_TODAY = '2026-09-15'
+
+// Jam demo berjalan dari jangkar: checkout/notif baru ber-timestamp tanggal
+// jangkar (bukan tanggal sungguhan) agar masuk "Hari ini"/periode demo.
+function demoNowISO(): string {
+  const d = new Date(`${DEMO_TODAY}T12:00:00`)
+  const n = new Date()
+  d.setHours(n.getHours(), n.getMinutes(), n.getSeconds(), 0)
+  return d.toISOString()
+}
+
 function localDay(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
@@ -49,7 +62,7 @@ function authed(): User {
 // docs/API-CONTRACT-DASHBOARD-DATE.md).
 export async function apiGetDashboard(date?: string): Promise<DashboardAdmin | DashboardCashier> {
   await wait()
-  const ref = date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : localDay(new Date())
+  const ref = date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : DEMO_TODAY
   const base = new Date(`${ref}T12:00:00`)
   const done = db.trx.filter((t) => t.status === 'completed')
   const t0 = done.filter((t) => localDay(new Date(t.created_at)) === ref)
@@ -102,9 +115,8 @@ export async function apiGetDashboard(date?: string): Promise<DashboardAdmin | D
 // docs/API-CONTRACT-DASHBOARD-DATE.md §Laporan & Karyawan.
 export async function apiGetReport(period = 'all', date?: string): Promise<ReportBundle> {
   await wait()
-  const anchor = date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? new Date(`${date}T12:00:00`) : new Date()
-  const now = new Date()
-  const start = new Date(now)
+  const anchor = date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? new Date(`${date}T12:00:00`) : new Date(`${DEMO_TODAY}T12:00:00`)
+  const start = new Date(anchor)
   let end: Date | null = null
   if (period === 'today' || period === 'yesterday') {
     start.setTime(anchor.getTime())
@@ -205,7 +217,7 @@ export async function apiCheckout(body: {
     throw new ApiError(400, 'Jumlah bayar kurang dari total.')
   }
   const seq = db.seq++
-  const now = new Date().toISOString()
+  const now = demoNowISO()
   for (const l of lines) {
     l.p.stock -= l.qty
     db.movements.unshift({
@@ -251,7 +263,7 @@ export async function apiRefundTransaction(id: string, items: { productId: strin
     db.movements.unshift({
       id: `m-${Date.now()}-${it.productId}`, product_id: it.productId,
       product_name: line?.name ?? null, type: 'refund', qty: it.qty,
-      reason, actor: authed().name, created_at: new Date().toISOString(),
+      reason, actor: authed().name, created_at: demoNowISO(),
     })
   }
   const fully = items.every((it) => {
@@ -274,7 +286,7 @@ export async function apiCreateCategory(name: string) {
   if (db.categories.some((c) => c.name.toLowerCase() === name.trim().toLowerCase())) {
     throw new ApiError(409, 'Kategori dengan nama itu sudah ada.')
   }
-  const c: Category = { id: `c-${Date.now().toString(36)}`, name: name.trim(), active: true, created_at: new Date().toISOString() }
+  const c: Category = { id: `c-${Date.now().toString(36)}`, name: name.trim(), active: true, created_at: demoNowISO() }
   db.categories.push(c)
   return { category: c }
 }
@@ -316,7 +328,7 @@ export async function apiCreateProduct(body: {
     id: `p-${Date.now().toString(36)}`, name: body.name, sku: body.sku, barcode: body.barcode ?? '',
     category_id: cat?.id ?? null, category_name: cat?.name ?? null,
     buy_price: body.buyPrice ?? 0, sell_price: body.sellPrice, stock: body.stock ?? 0,
-    unit: body.unit ?? 'pcs', active: true, created_at: new Date().toISOString(),
+    unit: body.unit ?? 'pcs', active: true, created_at: demoNowISO(),
   }
   db.products.unshift(p)
   return p
@@ -368,7 +380,7 @@ export async function apiAdjustStock(productId: string, direction: 'plus' | 'min
   db.movements.unshift({
     id: `m-${Date.now()}`, product_id: p.id, product_name: p.name,
     type: 'adjust', qty: direction === 'plus' ? qty : -qty,
-    reason, actor: authed().name, created_at: new Date().toISOString(),
+    reason, actor: authed().name, created_at: demoNowISO(),
   })
   return { product: p }
 }
@@ -385,7 +397,7 @@ export async function apiCreateUser(body: { name: string }) {
   const u: User = {
     id: `u-${Date.now().toString(36)}`, email: '', name: body.name, role: 'cashier',
     active: true, store_id: 's1', store_name: 'Toko Preview', has_passcode: false,
-    created_at: new Date().toISOString(),
+    created_at: demoNowISO(),
   }
   db.users.push(u)
   return { user: u }
