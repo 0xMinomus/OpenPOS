@@ -163,7 +163,8 @@
 
 /* ══ shell klasik: brand strip + sidebar 240px + topbar biru 54px ( §5/§10/§11) ══ */
 .opc-shell { display: flex; flex-direction: column; min-height: 100dvh; }
-.opc-toprow { display: flex; align-items: stretch; height: 54px; flex-shrink: 0; position: sticky; top: 0; z-index: 40; }
+/* Toprow + sidebar fixed permanen: satu kesatuan statis, tak ikut scroll. */
+.opc-toprow { display: flex; align-items: stretch; height: 54px; flex-shrink: 0; position: fixed; top: 0; left: 0; right: 0; z-index: 40; }
 .opc-brand {
   width: 240px; flex-shrink: 0;
   display: flex; align-items: center; gap: 10px; padding: 0 16px;
@@ -187,7 +188,7 @@
 .opc-topbar-user { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; padding: 4px 4px 4px 8px; border-radius: 5px; }
 .opc-topbar-user:hover { background: rgba(255, 255, 255, 0.14); }
 
-.opc-body { display: flex; flex: 1; min-height: 0; }
+.opc-body { display: flex; flex: 1; min-height: 0; padding-top: 54px; }
 .opc-sidebar {
   width: 240px; flex-shrink: 0;
   background: #1f2d3a; color: #d9e2ea;
