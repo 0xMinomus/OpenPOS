@@ -177,7 +177,7 @@ export default function Landing() {
           </div>
         </section>
 
-        <section id="cara-kerja" className="section border-t border-border bg-sand">
+        <section id="cara-kerja" className="section border-t border-border bg-[#eaf4ff]">
           <div className="container mx-auto max-w-6xl px-5 md:px-8">
             <div className="reveal max-w-[680px]">
               <p className="font-mono text-xs uppercase tracking-[0.08em] text-steel">Cara Kerja</p>
