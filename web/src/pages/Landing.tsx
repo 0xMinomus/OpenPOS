@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { fmtRp } from '../lib/store'
@@ -39,6 +39,21 @@ const TESTIMONIALS = [
 
 export default function Landing() {
   const [sales7] = useState(randomSales7)
+  // Iframe demo: render di lebar virtual desktop (layout 100% kayak buka
+  // /demo) lalu scale-down visual agar muat di card semula. Di HP render
+  // 1:1 (layout responsif /demo). Scroll tetap di dalam iframe.
+  const demoWrapRef = useRef<HTMLDivElement>(null)
+  const [demoW, setDemoW] = useState(1100)
+  useEffect(() => {
+    const el = demoWrapRef.current
+    if (!el) return
+    const ro = new ResizeObserver(() => setDemoW(el.clientWidth))
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+  const demoVirtual = demoW < 768 ? demoW : 1280
+  const demoScale = demoW / demoVirtual
+  const demoViewH = demoW < 768 ? 640 : 620
 
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -97,7 +112,7 @@ export default function Landing() {
             </div>
           </div>
 
-          <div className="hero-visual relative mx-auto mt-10 w-full px-3 md:mt-18 md:px-6">
+          <div className="hero-visual container relative mx-auto mt-10 max-w-6xl px-5 md:mt-18 md:px-8">
             <div
               className="pointer-events-none absolute -top-24 -right-16 z-0 h-90 w-90 rounded-full blur-6xl sm:-top-28 sm:-right-18 sm:h-130 sm:w-130"
               style={{ background: 'radial-gradient(circle at 32% 32%, #ffa888 0%, color-mix(in oklch, #ff8868 55%, transparent) 42%, transparent 70%)' }}
@@ -115,12 +130,14 @@ export default function Landing() {
                   Coba full demo →
                 </Link>
               </div>
-              <iframe
-                src="/demo?embed=1"
-                title="Demo interaktif OpenPOS"
-                loading="lazy"
-                className="block h-[78vh] min-h-[600px] w-full border-0 bg-white"
-              />
+              <div ref={demoWrapRef} className="overflow-hidden bg-white" style={{ height: demoViewH * demoScale }}>
+                <iframe
+                  src="/demo?embed=1"
+                  title="Demo interaktif OpenPOS"
+                  loading="lazy"
+                  style={{ width: demoVirtual, height: demoViewH, border: 0, transform: `scale(${demoScale})`, transformOrigin: 'top left' }}
+                />
+              </div>
             </div>
             <p className="mt-4.5 text-center font-mono text-xs text-steel">
               coba interaktif · semua menu bisa diklik ·{' '}
