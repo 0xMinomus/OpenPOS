@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Navigate, Route, Routes } from 'react-router'
+import { Navigate, Route, Routes, useLocation } from 'react-router'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import ErrorBoundary from './lib/ErrorBoundary'
 import { useDB } from './lib/store'
@@ -37,6 +37,12 @@ function AdminOnly({ children }: { children: ReactNode }) {
   return <>{children}</>
 }
 
+// Route lama /redesign pindah ke /demo (subpath dipertahankan).
+function DemoMoved() {
+  const loc = useLocation()
+  return <Navigate to={loc.pathname.replace(/^\/redesign/, '/demo') + loc.search} replace />
+}
+
 export default function App() {
   return (
     <TooltipProvider>
@@ -59,7 +65,7 @@ export default function App() {
           <Route path="pengaturan" element={<AdminOnly><Pengaturan /></AdminOnly>} />
         </Route>
         {/* Sandbox redesign tersembunyi: tanpa link/nav, noindex, data mock. */}
-        <Route path="/redesign" element={<RedesignShell />}>
+        <Route path="/demo" element={<RedesignShell />}>
           <Route index element={<RedesignDashboard />} />
           <Route path="pos" element={<RedesignPos />} />
           <Route path="produk" element={<AdminOnly><RedesignProduk /></AdminOnly>} />
@@ -70,6 +76,7 @@ export default function App() {
           <Route path="users" element={<AdminOnly><RedesignUsers /></AdminOnly>} />
           <Route path="pengaturan" element={<AdminOnly><RedesignPengaturan /></AdminOnly>} />
         </Route>
+        <Route path="/redesign/*" element={<DemoMoved />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       </ErrorBoundary>

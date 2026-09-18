@@ -1,4 +1,4 @@
-// Mock API sandbox /redesign. Nama fungsi + bentuk return SAMA PERSIS
+// Mock API sandbox /demo. Nama fungsi + bentuk return SAMA PERSIS
 // dengan lib/api.ts agar salinan halaman cloud jalan tanpa ubah selain
 // import. Data hidup di memori (fixtures.ts) sehingga checkout, CRUD,
 // refund, dan baca notif terasa interaktif. Reset via resetSandbox().

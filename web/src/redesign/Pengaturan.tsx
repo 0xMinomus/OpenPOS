@@ -328,7 +328,7 @@ export default function Pengaturan() {
       setNewPw(''); setNewPw2(''); setOtp(''); setOtpSent(false)
       await apiLogout()
       setSession(null)
-      nav('/redesign', { replace: true })
+      nav('/demo', { replace: true })
     } catch (x) {
       if (x instanceof ApiError && (x.status === 410 || x.status === 429)) setCooldown(0)
       if (x instanceof ApiError && x.status === 400) setOtp('')
@@ -342,7 +342,7 @@ export default function Pengaturan() {
     setBusy(true)
     await apiLogout()
     setSession(null)
-    nav('/redesign', { replace: true })
+    nav('/demo', { replace: true })
   }
 
   const s = session
@@ -499,7 +499,7 @@ export default function Pengaturan() {
               </div>
               <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
                 {session?.role === 'admin' && (
-                  <Link to="/redesign/users" className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-dove bg-transparent px-6 py-3 text-[15px] font-medium transition hover:border-jet sm:w-auto">
+                  <Link to="/demo/users" className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-dove bg-transparent px-6 py-3 text-[15px] font-medium transition hover:border-jet sm:w-auto">
                     <Users className="size-4" /> Kelola Kasir
                   </Link>
                 )}
@@ -1101,3 +1101,4 @@ export default function Pengaturan() {
     </>
   )
 }
+
