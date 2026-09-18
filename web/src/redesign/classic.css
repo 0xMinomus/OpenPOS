@@ -185,7 +185,7 @@
   width: 240px; flex-shrink: 0;
   background: #1f2d3a; color: #d9e2ea;
   display: flex; flex-direction: column;
-  position: sticky; top: 54px; height: calc(100dvh - 54px);
+  position: fixed; top: 54px; bottom: 0; left: 0; z-index: 30;
 }
 .dark .op-classic .opc-sidebar { background: #0c1720; }
 .opc-nav { flex: 1; overflow-y: auto; padding: 12px 12px 16px; display: flex; flex-direction: column; gap: 18px; }
@@ -218,7 +218,7 @@
 }
 .opc-sideuser small { display: block; font-size: 12px; color: #93a4b4; }
 
-.opc-main { flex: 1; min-width: 0; padding: 20px; }
+.opc-main { flex: 1; min-width: 0; margin-left: 240px; padding: 20px; }
 .opc-crumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted-foreground); }
 .opc-crumb svg { width: 14px; height: 14px; }
 .opc-datechip {
@@ -276,6 +276,7 @@
 /* ── overlay drawer mobile ── */
 .opc-scrim { display: none; }
 .opc-shell.nav-collapsed .opc-sidebar { display: none; }
+.opc-shell.nav-collapsed .opc-main { margin-left: 0; }
 .opc-shell.nav-collapsed .opc-brand { width: auto; }
 .opc-shell.nav-collapsed .opc-brand span { display: none; }
 
@@ -291,7 +292,7 @@
   .opc-brand span { display: none; }
   .opc-burger { display: inline-grid; }
   .opc-sidebar {
-    position: fixed; left: 0; top: 54px; bottom: 0; height: auto;
+    left: 0; top: 54px; bottom: 0; height: auto;
     z-index: 50; transform: translateX(-100%);
     transition: transform 180ms ease;
   }
@@ -300,7 +301,7 @@
     display: block; position: fixed; inset: 54px 0 0 0; z-index: 40;
     background: rgba(15, 23, 42, 0.45);
   }
-  .opc-main { padding: 12px; }
+  .opc-main { padding: 12px; margin-left: 0; }
   .opc-kpi-val { font-size: 26px; }
   .opc-kpi-ico { width: 56px; height: 56px; }
 }
