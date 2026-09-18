@@ -408,6 +408,13 @@ p, h1, h2, h3, h4, li, span, a, td, th { overflow-wrap: anywhere; }
   .pos-product { transition: transform 0.15s ease, border-color 0.15s ease; }
   .pos-product:hover { transform: translateY(-2px); border-color: #6a6a6a; }
   .pos-item { animation: slide-in 0.22s ease both; }
+
+  .about-float { animation: about-float 5s ease-in-out infinite; }
+}
+
+@keyframes about-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
 
 @keyframes rise {

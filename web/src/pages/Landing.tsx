@@ -1,28 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
-import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
-import { fmtRp } from '../lib/store'
 import Footer from './Footer'
 import Navbar from './Navbar'
-
-const SALES7_DAYS = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min']
-
-function randomSales7() {
-  const base = 1500000 + Math.random() * 2500000
-  return SALES7_DAYS.map((day, i) => ({
-    day,
-    omzet: Math.round((base + i * 150000 + Math.random() * 1800000 - 900000) / 1000) * 1000,
-  }))
-}
-
-function SalesTooltip({ active, payload }: { active?: boolean; payload?: { value: number; payload: { day: string } }[] }) {
-  if (!active || !payload?.length) return null
-  return (
-    <div className="rounded-md border border-dove bg-paper px-2.5 py-1.5 font-mono text-xs text-fg shadow-sm">
-      {payload[0].payload.day} · {fmtRp(payload[0].value)}
-    </div>
-  )
-}
 
 const TESTIMONIALS = [
   { initial: 'S', name: 'Bu Sari', role: 'Pemilik toko kelontong · Java', quote: 'Dulu omzet harian saya hitung dari buku kas setiap malam. Sekarang cukup buka dashboard. Stok langsung berkurang tiap transaksi dan struk tercetak otomatis, jadi saya tidak perlu pusing lagi.' },
@@ -37,8 +16,46 @@ const TESTIMONIALS = [
   { initial: 'R', name: 'Pak Rudi', role: 'Pemilik toko elektronik · Palembang', quote: 'Seminggu memakai, langsung terbiasa. Import produk dari Excel juga mudah, ratusan barang masuk sekaligus tanpa salah tulis.' },
 ]
 
+function AboutVisual() {
+  const ref = useRef<HTMLDivElement>(null)
+  const [t, setT] = useState({ rx: 0, ry: 0, gx: 50, gy: 50 })
+  function onMove(e: React.MouseEvent) {
+    const r = ref.current?.getBoundingClientRect()
+    if (!r) return
+    const px = (e.clientX - r.left) / r.width
+    const py = (e.clientY - r.top) / r.height
+    setT({ rx: (0.5 - py) * 12, ry: (px - 0.5) * 14, gx: px * 100, gy: py * 100 })
+  }
+  function reset() {
+    setT({ rx: 0, ry: 0, gx: 50, gy: 50 })
+  }
+  return (
+    <div className="reveal flex items-center justify-center" data-delay="1">
+      <div className="about-float">
+        <div
+          ref={ref}
+          onMouseMove={onMove}
+          onMouseLeave={reset}
+          className="relative overflow-hidden rounded-2xl shadow-[rgba(15,23,42,0.18)_0_18px_40px_-24px]"
+          style={{ transform: `perspective(900px) rotateX(${t.rx}deg) rotateY(${t.ry}deg)`, transition: 'transform 120ms ease-out' }}
+        >
+          <img
+            src="/image-tentang.png"
+            alt="Ilustrasi toko memakai OpenPOS"
+            className="block h-auto w-full max-w-[340px] md:max-w-[400px]"
+          />
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0"
+            style={{ background: `radial-gradient(circle at ${t.gx}% ${t.gy}%, rgba(255,255,255,0.28) 0%, transparent 55%)` }}
+          />
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function Landing() {
-  const [sales7] = useState(randomSales7)
   // Iframe demo: render di lebar virtual desktop (layout 100% kayak buka
   // /demo) lalu scale-down visual agar muat di card semula. Di HP render
   // 1:1 (layout responsif /demo). Scroll tetap di dalam iframe.
@@ -213,7 +230,7 @@ export default function Landing() {
         </section>
 
         <section id="tentang" className="section border-t border-border">
-          <div className="container mx-auto grid max-w-6xl items-start gap-14 px-5 md:px-8 md:grid-cols-2">
+          <div className="container mx-auto grid max-w-6xl items-center gap-14 px-5 md:px-8 md:grid-cols-2">
             <div className="reveal">
               <p className="font-mono text-xs uppercase tracking-[0.08em] text-steel">Tentang</p>
               <h2 className="mt-5 text-[clamp(30px,3.8vw,46px)] font-normal leading-[1.14] tracking-[-0.025em]">
@@ -226,34 +243,7 @@ export default function Landing() {
                 Kami membuatnya berbeda. Antarmuka kasir yang sederhana, cukup untuk operasional harian toko kecil, dan gratis selamanya. Tanpa langganan dan tanpa masa percobaan yang berubah menjadi tagihan.
               </p>
             </div>
-            <div className="reveal rounded-2xl bg-cream p-8" data-delay="1">
-              <div className="mb-5 flex items-center gap-2">
-                <span className="font-mono text-xs tracking-wide text-steel">openpos · penjualan 7 hari terakhir</span>
-              </div>
-<div className="landing-chart h-52 w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={sales7} margin={{ top: 4, right: 14, bottom: 4, left: 14 }}>
-                    <defs>
-                      <linearGradient id="landingSales" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="var(--t-jet)" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="var(--t-jet)" stopOpacity={0.02} />
-                      </linearGradient>
-                      <linearGradient id="landingSalesHover" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="oklch(0.5 0.1 160)" stopOpacity={0.35} />
-                        <stop offset="95%" stopColor="oklch(0.5 0.1 160)" stopOpacity={0.02} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid vertical={false} strokeDasharray="4 4" stroke="var(--t-dove)" />
-                    <XAxis dataKey="day" interval={0} tickLine={false} axisLine={false} tick={{ fontSize: 11, fontFamily: 'Geist Mono', fill: 'var(--t-fog)' }} />
-                    <YAxis hide />
-                    <Tooltip cursor={{ stroke: 'var(--t-fog)', strokeDasharray: '4 4' }} content={<SalesTooltip />} />
-                    <Area type="monotone" dataKey="omzet" stroke="var(--t-jet)" strokeWidth={2} fill="url(#landingSales)" />
-                    <Area className="landing-chart-hover" type="monotone" dataKey="omzet" stroke="oklch(0.5 0.1 160)" strokeWidth={2} fill="url(#landingSalesHover)" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-              <p className="mt-3 text-center font-mono text-[11px] text-steel">omzet per hari · data demo</p>
-            </div>
+            <AboutVisual />
           </div>
         </section>
 
