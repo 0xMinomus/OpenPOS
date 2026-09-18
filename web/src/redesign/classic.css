@@ -239,7 +239,7 @@
 }
 .dark .op-classic .opc-kpi-ico { background: #1b2d3c; color: #b5c0cb; }
 .opc-kpi-ico svg { width: 30px; height: 30px; }
-.opc-kpi-val { font-size: 30px; font-weight: 700; line-height: 1.15; letter-spacing: -0.01em; }
+.opc-kpi-val { font-size: 28px; font-weight: 700; line-height: 1.15; letter-spacing: -0.01em; white-space: nowrap; }
 .opc-kpi-label { margin-top: 2px; font-size: 14px; color: var(--muted-foreground); }
 .opc-kpi-foot {
   display: flex; justify-content: center;
