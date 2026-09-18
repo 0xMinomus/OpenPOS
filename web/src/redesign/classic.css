@@ -120,12 +120,19 @@
 .op-classic button.rounded-full,
 .op-classic a.rounded-full { border-radius: 5px; }
 .op-classic .rounded-2xl { border-radius: 6px; }
+.op-classic .rounded-xl { border-radius: 6px; }
+
+/* ── tombol besar lib/ui (px-6 py-3) → compact 38px ala referensi (§22).
+   Kualifikasi .px-6 agar pill/stepper kecil tak ikut mengecil. ── */
+.op-classic button.rounded-full.border.px-6,
+.op-classic a.rounded-full.border.px-6 { padding: 9px 16px; font-size: 14px; }
 
 /* ── tabel: header 12px semibold uppercase, row 44–48px, hover halus (§20) ── */
 .op-classic th {
   font-family: inherit;
   font-size: 12px;
   font-weight: 600;
+  white-space: nowrap;
   color: var(--muted-foreground);
 }
 .op-classic tbody tr { transition: background-color 120ms ease; }

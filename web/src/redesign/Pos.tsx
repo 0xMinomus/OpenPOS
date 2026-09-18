@@ -95,9 +95,14 @@ export default function Pos() {
 
   return (
     <>
+      <nav className="opc-crumb mb-3" aria-label="Breadcrumb">
+        <span>Home</span>
+        <span aria-hidden="true">›</span>
+        <span aria-current="page" className="text-foreground">POS Kasir</span>
+      </nav>
       <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-normal tracking-tight sm:text-3xl">POS Kasir</h1>
+          <h1>POS Kasir</h1>
           <p className="mt-1 text-sm text-muted">Cari produk, tambah ke keranjang, selesaikan pembayaran.</p>
         </div>
       </div>
