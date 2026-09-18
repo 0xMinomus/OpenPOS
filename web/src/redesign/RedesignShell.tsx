@@ -2,19 +2,13 @@ import { useEffect, useState } from 'react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router'
 import {
   LayoutDashboard, Store, Package, Boxes, ReceiptText, BarChart3, Users, Settings, IdCard,
-  Moon, Sun, LogOut, ChevronsUpDown, Check, UserRound,
+  Moon, Sun, LogOut, Check, UserRound, Menu, ChevronDown,
 } from 'lucide-react'
+import './classic.css'
 import { ApiError, apiHeartbeat, apiListUsers, apiLogout, apiSwitchAccount, getCachedAccounts, resetSandbox, setCachedAccounts, type User } from './mock-api'
 import { getSession, setSession, toSession, useDB, useTheme } from '../lib/store'
 import { NotifBell } from './notifications'
 import { Logo } from '../lib/ui'
-import {
-  Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel,
-  SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem,
-  SidebarProvider, SidebarRail, SidebarTrigger,
-} from '@/components/ui/sidebar'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Separator } from '@/components/ui/separator'
 
 const MENU: { label: string; to: string; icon: React.ComponentType<{ className?: string }>; adminOnly?: boolean }[] = [
   { label: 'Dashboard', to: '/redesign', icon: LayoutDashboard },
@@ -55,6 +49,8 @@ export default function RedesignShell() {
   const db = useDB()
   const loc = useLocation()
   const [theme, setTheme] = useTheme()
+  const [navOpen, setNavOpen] = useState(false)
+  const [collapsed, setCollapsed] = useState(false)
   const s = db.session
 
   useEffect(() => {
@@ -81,22 +77,27 @@ export default function RedesignShell() {
     return () => clearInterval(timer)
   }, [s?.id, s?.role])
 
+  // Tutup drawer tiap pindah halaman (mobile).
+  useEffect(() => {
+    setNavOpen(false)
+  }, [loc.pathname])
+
   if (!s) {
     return (
-      <main className="grid min-h-screen place-items-center bg-bg px-4 text-fg">
-        <section className="w-full max-w-sm rounded-2xl border border-dove bg-paper p-8 text-center shadow-xl">
+      <main className="op-classic grid min-h-screen place-items-center bg-bg px-4 text-fg">
+        <section className="w-full max-w-sm rounded-md border border-dove bg-paper p-8 text-center shadow-xl">
           <p className="font-mono text-xs uppercase tracking-widest text-steel">Redesign sandbox</p>
-          <h1 className="mt-3 text-2xl font-medium tracking-tight text-jet">Toko Preview</h1>
+          <h1 className="mt-3 tracking-tight text-jet">Toko Preview</h1>
           <p className="mt-2 text-sm text-muted">Mock session. No backend calls.</p>
           <button
             onClick={() => setSession(MOCK_ADMIN)}
-            className="mt-6 w-full rounded-full bg-jet py-3 text-[15px] font-medium text-paper hover:opacity-85"
+            className="mt-6 w-full rounded-md bg-jet py-3 text-[15px] font-medium text-paper hover:opacity-85"
           >
             Masuk sandbox
           </button>
           <button
             onClick={() => { resetSandbox(); setSession({ ...MOCK_ADMIN }) }}
-            className="mt-2 w-full rounded-full border border-dove py-3 text-[15px] font-medium text-jet hover:border-jet"
+            className="mt-2 w-full rounded-md border border-dove py-3 text-[15px] font-medium text-jet hover:border-jet"
           >
             Reset data mock
           </button>
@@ -106,131 +107,90 @@ export default function RedesignShell() {
   }
 
   const menu = MENU.filter((m) => !m.adminOnly || s.role === 'admin')
-  const isAdmin = s.role === 'admin'
 
   return (
-    <SidebarProvider>
-      <Sidebar>
-        {isAdmin ? (
-          <>
-            <SidebarHeader className="px-4 pt-4 pb-0">
-              <Link to="/redesign" className="flex h-12 items-center gap-2.5 rounded-[10px] px-2 outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring">
-                <Logo className="h-8 w-auto shrink-0" />
-                <span className="grid min-w-0 flex-1 text-left leading-tight">
-                  <span className="truncate text-sm font-semibold text-sidebar-foreground">{s.store || 'Toko Andika'}</span>
-                </span>
-              </Link>
-            </SidebarHeader>
-            <SidebarContent className="px-4">
-              {/* Reserved empty space — area search dikosongkan sesuai spek, navigasi tidak digeser naik. */}
-              <div aria-hidden="true" className="h-10 shrink-0" />
-              <nav aria-label="Navigasi utama" className="flex flex-col gap-6 pb-4">
-                {GROUP_ORDER.map((g) => (
-                  <div key={g}>
-                    <p className="mb-2 flex items-center gap-2.5 px-3 text-[11px] font-medium tracking-[0.12em] text-muted-foreground uppercase">
-                      {g}
-                      {g !== 'UTAMA' && <span aria-hidden="true" className="h-px flex-1 bg-sidebar-border" />}
-                    </p>
-                    <ul className="flex flex-col gap-1">
-                      {menu.filter((m) => GROUP_OF[m.to] === g).map((m) => {
-                        const active = isMenuActive(loc.pathname, m.to)
-                        return (
-                          <li key={m.to}>
-                            <Link
-                              to={m.to}
-                              aria-current={active ? 'page' : undefined}
-                              className={`relative flex h-11 items-center gap-3 rounded-[10px] px-3.5 text-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring ${active
-                                ? 'bg-sidebar-accent font-medium text-sidebar-accent-foreground'
-                                : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-                                }`}
-                            >
-                              {active && (
-                                <span aria-hidden="true" className="absolute top-1/2 left-0 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-[var(--t-jet)]" />
-                              )}
-                              <m.icon className="size-[18px] shrink-0" />
-                              <span className="truncate">{m.label}</span>
-                            </Link>
-                          </li>
-                        )
-                      })}
-                    </ul>
-                  </div>
-                ))}
-              </nav>
-            </SidebarContent>
-            <SidebarFooter className="px-4 pb-4">
-              <UserMenu variant="card" />
-            </SidebarFooter>
-          </>
-        ) : (
-          <>
-            <SidebarHeader>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton size="lg" render={<Link to="/redesign" />}>
-                      <Logo className="h-8 w-auto shrink-0" />
-                      <span className="grid flex-1 text-left leading-tight">
-                        <span className="truncate font-mono text-xs text-muted-foreground">{s.store}</span>
-                      </span>
-                    </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarHeader>
-            <SidebarContent>
-              <SidebarGroup>
-                <SidebarGroupLabel>Menu</SidebarGroupLabel>
-                <SidebarMenu>
-                  {menu.map((m) => {
-                    const active = isMenuActive(loc.pathname, m.to)
-                    return (
-                      <SidebarMenuItem key={m.to}>
-                        <SidebarMenuButton isActive={active} render={<Link to={m.to} />}>
-                          <m.icon />
-                          <span>{m.label}</span>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    )
-                  })}
-                </SidebarMenu>
-              </SidebarGroup>
-            </SidebarContent>
-            <SidebarFooter>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <UserMenu />
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarFooter>
-          </>
-        )}
-        <SidebarRail />
-      </Sidebar>
-
-      <SidebarInset>
-        <header className="flex h-[calc(3.5rem+env(safe-area-inset-top))] items-end gap-3 border-b bg-background px-4 pb-3 pt-[env(safe-area-inset-top)] lg:px-6">
-          <SidebarTrigger />
-          <Separator orientation="vertical" className="h-5" />
+    <div className={`opc-shell op-classic${navOpen ? ' nav-open' : ''}${collapsed ? ' nav-collapsed' : ''}`}>
+      <div className="opc-toprow">
+        <Link to="/redesign" className="opc-brand" aria-label="Toko Preview — Dashboard">
+          <Logo tone="dark" className="h-[26px] w-auto shrink-0" />
+          <span>{s.store || 'Toko Preview'}</span>
+        </Link>
+        <header className="opc-topbar">
+          <button
+            className="opc-iconbtn"
+            onClick={() => {
+              if (window.innerWidth < 768) setNavOpen((v) => !v)
+              else setCollapsed((v) => !v)
+            }}
+            aria-label="Buka/tutup navigasi"
+            aria-expanded={navOpen}
+          >
+            <Menu className="size-5" />
+          </button>
           <button
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
             aria-label={theme === 'dark' ? 'Ganti ke tema terang' : 'Ganti ke tema gelap'}
             title={theme === 'dark' ? 'Tema terang' : 'Tema gelap'}
-            className="inline-flex items-center gap-2 rounded-md px-2.5 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+            className="opc-iconbtn"
           >
-            {theme === 'dark' ? <Sun className="size-4" /> : <Moon className="size-4" />}
+            {theme === 'dark' ? <Sun className="size-5" /> : <Moon className="size-5" />}
           </button>
-          <div className="ml-auto">
-            <NotifBell />
+          <div className="ml-auto flex items-center gap-1">
+            <span className="opc-bell">
+              <NotifBell />
+            </span>
+            <span className="opc-topbar-user" aria-label={`${s.name}, ${s.role === 'admin' ? 'Admin' : 'Kasir'}`}>
+              <span className="opc-avatar" aria-hidden="true">
+                <UserRound className="size-5" />
+              </span>
+              <span className="hidden sm:inline">{s.name}</span>
+              <ChevronDown className="hidden size-4 opacity-80 sm:inline" aria-hidden="true" />
+            </span>
           </div>
         </header>
-        <main className="w-full min-w-0 flex-1 space-y-4 overflow-x-clip p-4 sm:space-y-6 lg:p-6">
+      </div>
+
+      <div className="opc-body">
+        <aside className="opc-sidebar" aria-label="Navigasi utama">
+          <nav className="opc-nav">
+            {GROUP_ORDER.map((g) => {
+              const items = menu.filter((m) => GROUP_OF[m.to] === g)
+              if (items.length === 0) return null
+              return (
+                <div key={g}>
+                  <p className="opc-group-label">{g}</p>
+                  <ul>
+                    {items.map((m) => {
+                      const active = isMenuActive(loc.pathname, m.to)
+                      return (
+                        <li key={m.to}>
+                          <Link to={m.to} aria-current={active ? 'page' : undefined} className={`opc-link${active ? ' active' : ''}`}>
+                            <m.icon className="" />
+                            <span>{m.label}</span>
+                          </Link>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                </div>
+              )
+            })}
+          </nav>
+          <div className="opc-sidefoot">
+            <UserMenu />
+          </div>
+        </aside>
+        <div className="opc-scrim" onClick={() => setNavOpen(false)} aria-hidden="true" />
+
+        <main className="opc-main">
           <Outlet />
         </main>
-      </SidebarInset>
-    </SidebarProvider>
+      </div>
+    </div>
   )
 }
 
-function UserMenu({ variant = 'legacy' }: { variant?: 'legacy' | 'card' }) {
+function UserMenu() {
   const db = useDB()
   const nav = useNavigate()
   const s = db.session!
@@ -313,18 +273,16 @@ function UserMenu({ variant = 'legacy' }: { variant?: 'legacy' | 'card' }) {
         onClick={() => { setOpen(!open); setPending(null); setErr('') }}
         aria-expanded={open}
         aria-haspopup="menu"
-        className={variant === 'card'
-          ? 'flex w-full items-center gap-2.5 rounded-xl border border-sidebar-border bg-background p-2.5 text-left text-sm outline-none transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring'
-          : 'flex w-full items-center gap-2 rounded-md p-2 text-left text-sm outline-none transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring'}
+        className="opc-sideuser"
       >
-        <Avatar className="size-8 rounded-lg">
-          <AvatarFallback className="rounded-lg"><UserRound className="size-5 text-white dark:text-black" /></AvatarFallback>
-        </Avatar>
-        <span className="grid flex-1 text-left text-sm leading-tight">
-          <span className="truncate font-medium">{s.name}</span>
-          <span className="truncate text-xs text-muted-foreground">{s.role === 'admin' ? 'Admin' : 'Kasir'}</span>
+        <span className="opc-avatar" aria-hidden="true">
+          <UserRound className="size-5" />
         </span>
-        <ChevronsUpDown className="ml-auto size-4" />
+        <span className="grid min-w-0 flex-1 leading-tight">
+          <span className="truncate text-sm font-medium text-white">{s.name}</span>
+          <small className="truncate">{s.role === 'admin' ? 'Admin' : 'Kasir'}</small>
+        </span>
+        <ChevronDown className="size-4 shrink-0 opacity-70" aria-hidden="true" />
       </button>
 
       {open && (
@@ -332,7 +290,7 @@ function UserMenu({ variant = 'legacy' }: { variant?: 'legacy' | 'card' }) {
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} aria-hidden="true" />
           <div
             role="menu"
-            className="absolute bottom-full left-0 z-50 mb-2 w-full max-w-[calc(100vw-2rem)] rounded-lg bg-popover p-1.5 text-popover-foreground shadow-md ring-1 ring-foreground/10 sm:min-w-64"
+            className="absolute bottom-full left-0 z-50 mb-2 w-full max-w-[calc(100vw-2rem)] rounded-md bg-popover p-1.5 text-popover-foreground shadow-md ring-1 ring-foreground/10 sm:min-w-64"
           >
             {pending ? (
               <div className="space-y-2 p-2">
@@ -380,9 +338,6 @@ function UserMenu({ variant = 'legacy' }: { variant?: 'legacy' | 'card' }) {
                         onClick={() => pick(a)}
                         className={`flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm disabled:opacity-50 ${active ? 'bg-accent text-accent-foreground' : 'hover:bg-accent/50'}`}
                       >
-                        <Avatar className="size-7 rounded-md">
-                          <AvatarFallback className="rounded-md"><UserRound className="size-4 text-white dark:text-black" /></AvatarFallback>
-                        </Avatar>
                         <span className="grid flex-1 leading-tight">
                           <span className="truncate font-medium">{a.name}</span>
                           <span className="truncate font-mono text-[11px] text-muted-foreground">
