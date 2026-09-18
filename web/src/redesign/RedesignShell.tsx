@@ -6,6 +6,7 @@ import {
 } from 'lucide-react'
 import './classic.css'
 import { ApiError, apiHeartbeat, apiListUsers, apiLogout, apiSwitchAccount, getCachedAccounts, resetSandbox, setCachedAccounts, type User } from './mock-api'
+import { clearCache } from '../lib/cache'
 import { getSession, setSession, toSession, useDB, useTheme } from '../lib/store'
 import { NotifBell } from './notifications'
 import { Logo } from '../lib/ui'
@@ -66,9 +67,17 @@ export default function RedesignShell() {
     meta.name = 'robots'
     meta.content = 'noindex, nofollow'
     document.head.appendChild(meta)
+    // Masuk /demo: mulai dari datum murni (cache sesi lama dibuang).
+    resetSandbox()
+    clearCache()
+    try { sessionStorage.removeItem('op_accounts') } catch { /* abaikan */ }
     return () => {
       meta.remove()
-      // Bersih-bersih sesi mock saat tinggalkan sandbox.
+      // Keluar dari /demo: data mock kembali ke awal (statis), cache +
+      // sisa sesi mock dibersihkan agar refresh mulai dari datum murni.
+      resetSandbox()
+      clearCache()
+      try { sessionStorage.removeItem('op_accounts') } catch { /* abaikan */ }
       setSession(null)
     }
   }, [])
@@ -187,7 +196,7 @@ export default function RedesignShell() {
             })}
           </nav>
           <div className="opc-sidefoot">
-            <UserMenu />
+            <UserMenu hideLogout={isEmbed} />
           </div>
         </aside>
         <div className="opc-scrim" onClick={() => setNavOpen(false)} aria-hidden="true" />
@@ -205,7 +214,7 @@ function initials(name: string) {
   return ((parts[0]?.[0] ?? '') + (parts[1]?.[0] ?? '')).toUpperCase() || '?'
 }
 
-function UserMenu() {
+function UserMenu({ hideLogout = false }: { hideLogout?: boolean }) {
   const db = useDB()
   const nav = useNavigate()
   const s = db.session!
@@ -364,16 +373,18 @@ function UserMenu() {
                   )}
                 </div>
                 {err && <p className="opc-acc-err">{err}</p>}
-                <div className="opc-acc-div" />
-                <button
-                  role="menuitem"
-                  onClick={keluar}
-                  disabled={busy}
-                  className="opc-acc-logout"
-                >
-                  <LogOut aria-hidden="true" />
-                  {busy ? 'Keluar…' : 'Keluar'}
-                </button>
+                {!hideLogout && <div className="opc-acc-div" />}
+                {!hideLogout && (
+                  <button
+                    role="menuitem"
+                    onClick={keluar}
+                    disabled={busy}
+                    className="opc-acc-logout"
+                  >
+                    <LogOut aria-hidden="true" />
+                    {busy ? 'Keluar…' : 'Keluar'}
+                  </button>
+                )}
               </>
             )}
           </div>
