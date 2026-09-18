@@ -96,16 +96,31 @@ export async function apiGetDashboard(date?: string): Promise<DashboardAdmin | D
   }
 }
 
-export async function apiGetReport(period = 'all'): Promise<ReportBundle> {
+// date = jangkar hari lokal 'YYYY-MM-DD' (opsional). Bila diisi, period
+// 'today' = hari itu 00:00–23:59 (data terakhir jam 23.59) dan 'yesterday' =
+// H-1-nya; period lain mengabaikan date. Kontrak live:
+// docs/API-CONTRACT-DASHBOARD-DATE.md §Laporan & Karyawan.
+export async function apiGetReport(period = 'all', date?: string): Promise<ReportBundle> {
   await wait()
+  const anchor = date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? new Date(`${date}T12:00:00`) : new Date()
   const now = new Date()
   const start = new Date(now)
-  if (period === 'today') start.setHours(0, 0, 0, 0)
-  else if (period === 'yesterday') { start.setDate(start.getDate() - 1); start.setHours(0, 0, 0, 0) }
+  let end: Date | null = null
+  if (period === 'today' || period === 'yesterday') {
+    start.setTime(anchor.getTime())
+    if (period === 'yesterday') start.setDate(start.getDate() - 1)
+    start.setHours(0, 0, 0, 0)
+    // Batas atas hari itu 23:59 — transaksi setelahnya tak ikut.
+    end = new Date(start)
+    end.setHours(23, 59, 59, 999)
+  }
   else if (period === 'week') start.setDate(start.getDate() - 7)
   else if (period === 'month') start.setMonth(start.getMonth() - 1)
   else start.setFullYear(2000)
-  const inRange = db.trx.filter((t) => new Date(t.created_at) >= start)
+  const inRange = db.trx.filter((t) => {
+    const c = new Date(t.created_at)
+    return c >= start && (end === null || c <= end)
+  })
   const done = inRange.filter((t) => t.status === 'completed')
   const omzet = done.reduce((n, t) => n + t.total, 0)
   const byMethod = new Map<string, number>()

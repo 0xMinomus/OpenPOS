@@ -7,7 +7,7 @@ import { apiGetReport, apiListUsers, type ReportBundle, type User } from './mock
 import { Crumb } from './Crumb'
 import { useCache } from '../lib/cache'
 import { exportCSV, fmtDate, fmtInv, fmtRp, fmtShort, useDB } from '../lib/store'
-import { Button, Empty, PageHead, Td, Th } from '../lib/ui'
+import { Button, DatePicker, Empty, PageHead, Td, Th } from '../lib/ui'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
@@ -37,11 +37,14 @@ export default function Karyawan() {
   const s = db.session!
   const [period, setPeriod] = useState<Period>('today')
   const [metric, setMetric] = useState<'omzet' | 'trx' | 'avg'>('omzet')
-  const rep = useCache<ReportBundle>(`report:${period}`, () => apiGetReport(period), 'Gagal memuat laporan.')
+  // Tanggal kustom ('' = ikut periode). Data hari itu 00:00–23:59, pembanding
+  // = H-1-nya. Kontrak live: docs/API-CONTRACT-DASHBOARD-DATE.md.
+  const [date, setDate] = useState('')
+  const rep = useCache<ReportBundle>(`report:${date || period}`, () => apiGetReport(date ? 'today' : period, date || undefined), 'Gagal memuat laporan.')
   const usersRep = useCache<User[]>(`karyawan-users:${s.id}`, () => apiListUsers(), 'Gagal memuat kasir.')
   const prevRep = useCache<ReportBundle | null>(
-    `reportprev:karyawan:${period}`,
-    () => (period === 'today' ? apiGetReport('yesterday') : Promise.resolve(null)),
+    `reportprev:karyawan:${date || period}`,
+    () => ((period === 'today' || date) ? apiGetReport('yesterday', date || undefined) : Promise.resolve(null)),
   )
   const data = rep.data
   const err = rep.err || usersRep.err
@@ -112,7 +115,7 @@ export default function Karyawan() {
   )
 
   const changes = useMemo(() => {
-    if (period !== 'today' || !prevRep.data) {
+    if ((period !== 'today' && !date) || !prevRep.data) {
       return stats.map((r) => ({ name: r.name, cur: r.omzet, prev: null as number | null }))
     }
     const pm = new Map<string, number>()
@@ -123,7 +126,7 @@ export default function Karyawan() {
       cur: stats.find((r) => r.name === name)?.omzet ?? 0,
       prev: pm.get(name) ?? 0,
     })).sort((a, b) => b.cur - a.cur)
-  }, [stats, prevRep.data, period])
+  }, [stats, prevRep.data, period, date])
 
   function changeStatus(cur: number, prev: number | null): { label: string; cls: string } {
     if (prev === null) return { label: 'Stabil', cls: 'bg-surface text-muted' }
@@ -135,7 +138,7 @@ export default function Karyawan() {
   }
 
   function exportList() {
-    exportCSV(`karyawan-${period}.csv`, [
+    exportCSV(`karyawan-${date || period}.csv`, [
       ['kasir', 'omzet', 'transaksi', 'rata_rata', 'kontribusi_pct'],
       ...stats.map((r) => [r.name, String(r.omzet), String(r.trx), String(r.avg), totalOmzet > 0 ? String(Math.round((r.omzet / totalOmzet) * 100)) : '0']),
     ])
@@ -158,14 +161,21 @@ export default function Karyawan() {
       <PageHead
         title="Karyawan"
         sub="Pantau performa kasir dan kontribusi penjualan setiap karyawan."
-        right={<Button variant="ghost" onClick={exportList}>Export CSV</Button>}
+        right={(
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="w-44">
+              <DatePicker value={date} onChange={setDate} label="Pilih tanggal performa" placeholder="Semua periode" />
+            </div>
+            <Button variant="ghost" onClick={exportList}>Export CSV</Button>
+          </div>
+        )}
       />
 
-      <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label="Periode performa">
+      <div className="mb-4 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label="Periode performa">
         {PERIODS.map((p) => (
           <button
             key={p.id}
-            onClick={() => setPeriod(p.id)}
+            onClick={() => { setPeriod(p.id); setDate('') }}
             aria-pressed={period === p.id}
             className={`shrink-0 rounded-full border px-3.5 py-1.5 text-[13px] transition ${period === p.id ? 'border-jet bg-jet font-medium text-paper' : 'border-dove bg-paper text-muted hover:border-jet hover:text-fg'}`}
           >
@@ -175,7 +185,7 @@ export default function Karyawan() {
       </div>
 
       {!data ? (
-        <div className="mt-5 space-y-5" aria-busy="true" aria-label="Memuat performa kasir">
+        <div className="space-y-5" aria-busy="true" aria-label="Memuat performa kasir">
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {[0, 1, 2, 3].map((i) => (
               <Card key={i}>
