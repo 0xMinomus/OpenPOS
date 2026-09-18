@@ -3,10 +3,10 @@
 import { useMemo, useState } from 'react'
 import { Banknote, CalendarDays, ReceiptText, Search, Sigma } from 'lucide-react'
 import { apiGetDashboard, apiListTransactions, apiRefundTransaction, fetchAll, type Trx } from './mock-api'
-import { Crumb } from './Crumb'
+import { PageHeader } from './PageHeader'
 import { useCache } from '../lib/cache'
 import { exportCSV, fmtDate, fmtRp, fmtTime, useDB } from '../lib/store'
-import { NumInput, Button, DatePicker, Empty, Modal, PageHead, Pager, SkeletonRows, StatusPill, Td, Th, TrxItems } from '../lib/ui'
+import { NumInput, Button, DatePicker, Empty, Modal, Pager, SkeletonRows, StatusPill, Td, Th, TrxItems } from '../lib/ui'
 import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 
@@ -109,11 +109,11 @@ export default function Transaksi() {
 
   return (
     <>
-      <Crumb page="Transaksi" />
-      <PageHead
+      <PageHeader
         title="Transaksi"
         sub={s.role === 'cashier' ? 'Transaksi yang Anda buat sendiri.' : 'Kelola dan pantau seluruh transaksi penjualan.'}
-        right={(
+        crumb="Transaksi"
+        actions={(
           <div className="flex flex-wrap items-center gap-2">
             <div className="w-44">
               <DatePicker value={date} onChange={(v) => { setDate(v); setPage(0) }} label="Filter tanggal" placeholder="Semua tanggal" />

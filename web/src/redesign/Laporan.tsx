@@ -2,10 +2,10 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router'
 import { Banknote, BarChart3, Boxes, ChevronDown, ChevronUp, CircleCheck, Loader2, OctagonX, Package, ReceiptText, Sigma, TriangleAlert, TrendingUp, Wallet } from 'lucide-react'
 import { apiGetReport, apiListMovements, apiListProducts, apiListTransactions, fetchAll, type Movement, type Product, type ReportBundle, type Trx } from './mock-api'
-import { Crumb } from './Crumb'
+import { PageHeader } from './PageHeader'
 import { useCache } from '../lib/cache'
 import { exportCSV, fmtDate, fmtInv, fmtRp, fmtShort, fmtTime } from '../lib/store'
-import { Button, DatePicker, PageHead, Pill, SkeletonRows, StatusPill, Td, Th } from '../lib/ui'
+import { Button, DatePicker, Pill, SkeletonRows, StatusPill, Td, Th } from '../lib/ui'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
@@ -369,8 +369,7 @@ export default function Laporan() {
 
   if (err && !data) return (
     <>
-      <Crumb page="Laporan" />
-      <PageHead title="Laporan" sub="Ringkasan performa toko Anda." right={(
+      <PageHeader title="Laporan" sub="Ringkasan performa toko Anda." crumb="Laporan" actions={(
         <div className="flex flex-wrap items-center gap-2">
           <div className="w-44">
             <DatePicker value={date} onChange={setDate} label="Pilih tanggal laporan" placeholder="Semua periode" />
@@ -384,11 +383,11 @@ export default function Laporan() {
 
   return (
     <>
-      <Crumb page="Laporan" />
-      <PageHead
+      <PageHeader
         title="Laporan"
         sub="Ringkasan performa toko Anda."
-        right={(
+        crumb="Laporan"
+        actions={(
           <div className="flex flex-wrap items-center gap-2">
             <div className="w-44">
               <DatePicker value={date} onChange={setDate} label="Pilih tanggal laporan" placeholder="Semua periode" />

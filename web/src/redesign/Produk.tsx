@@ -3,10 +3,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Download, FolderPlus, Pencil, Plus, Power, Search, Trash2, Upload } from 'lucide-react'
 import { apiCreateCategory, apiCreateProduct, apiDeleteCategory, apiDeleteProduct, apiListCategories, apiListProducts, apiSetProductActive, apiUpdateProduct, fetchAll, type Category, type Product } from './mock-api'
-import { Crumb } from './Crumb'
+import { PageHeader } from './PageHeader'
 import { useCache } from '../lib/cache'
 import { exportCSV, fmtRp, useDB } from '../lib/store'
-import { NumInput, Button, Empty, Input, Modal, PageHead, Pager, Pill, SkeletonRows, Td, Th } from '../lib/ui'
+import { NumInput, Button, Empty, Input, Modal, Pager, Pill, SkeletonRows, Td, Th } from '../lib/ui'
 import { Skeleton } from '@/components/ui/skeleton'
 
 interface Draft {
@@ -214,8 +214,7 @@ export default function Produk() {
 
   return (
     <>
-      <Crumb page="Produk" />
-      <PageHead
+      <PageHeader
         title="Produk"
         sub={
           !products
@@ -224,7 +223,8 @@ export default function Produk() {
               ? `${filtered?.length ?? 0} dari ${products.length} produk ditampilkan`
               : `${products.length} produk · ${activeCats.length} kategori aktif`
         }
-        right={
+        crumb="Produk"
+        actions={(
           <div className="flex flex-wrap gap-2">
             <Button variant="ghost" onClick={exportList}><Download className="size-4" />Export</Button>
             <Button variant="ghost" onClick={() => fileRef.current?.click()}><Upload className="size-4" />Import</Button>
@@ -232,7 +232,7 @@ export default function Produk() {
             <Button onClick={() => setEditing({ ...emptyDraft })}><Plus className="size-4" />Tambah Produk</Button>
             <input ref={fileRef} type="file" accept=".csv" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) onImportFile(f); e.target.value = '' }} />
           </div>
-        }
+        )}
       />
 
       {(err || prod.err) && <p className="mb-4 rounded-lg bg-sand px-3.5 py-2.5 text-[13px] text-ember">{err || prod.err}</p>}

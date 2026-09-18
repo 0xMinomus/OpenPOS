@@ -4,10 +4,10 @@ import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { Check, ChevronDown, CircleCheck, OctagonX, Package, Search, TriangleAlert } from 'lucide-react'
 import { apiAdjustStock, apiListCategories, apiListMovements, apiListProducts, fetchAll, type Category, type Movement, type Product } from './mock-api'
-import { Crumb } from './Crumb'
+import { PageHeader } from './PageHeader'
 import { useCache } from '../lib/cache'
 import { fmtDate, fmtTime, useDB } from '../lib/store'
-import { NumInput, Button, Empty, Input, Modal, PageHead, Pager, Pill, SkeletonRows, Td, Th } from '../lib/ui'
+import { NumInput, Button, Empty, Input, Modal, Pager, Pill, SkeletonRows, Td, Th } from '../lib/ui'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
@@ -110,8 +110,7 @@ export default function Stok() {
 
   return (
     <>
-      <Crumb page="Stok" />
-      <PageHead title="Stok" sub="Pantau ketersediaan dan pergerakan stok barang." />
+      <PageHeader title="Stok" sub="Pantau ketersediaan dan pergerakan stok barang." crumb="Stok" />
 
       {(err || prod.err) && <p className="mb-4 rounded-lg bg-sand px-3.5 py-2.5 text-[13px] text-ember">{err || prod.err}</p>}
 
