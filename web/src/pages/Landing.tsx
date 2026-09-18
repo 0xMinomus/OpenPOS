@@ -116,11 +116,6 @@ export default function Landing() {
           </div>
 
           <div className="hero-visual container relative mx-auto mt-8 max-w-6xl px-5 md:mt-10 md:px-8">
-            <div
-              className="pointer-events-none absolute -top-24 -right-16 z-0 h-90 w-90 rounded-full blur-6xl sm:-top-28 sm:-right-18 sm:h-130 sm:w-130"
-              style={{ background: 'radial-gradient(circle at 32% 32%, #ffa888 0%, color-mix(in oklch, #ff8868 55%, transparent) 42%, transparent 70%)' }}
-              aria-hidden="true"
-            />
             <div className="relative z-1 overflow-hidden rounded-xl border border-dove bg-paper shadow-[rgba(0,0,0,0.06)_0_0_0_1px,rgba(15,23,42,0.18)_0_18px_40px_-24px]">
               <div className="flex items-center gap-3 border-b border-dove bg-cream px-4 py-3">
                 <span className="flex items-center gap-1.5" aria-hidden="true">

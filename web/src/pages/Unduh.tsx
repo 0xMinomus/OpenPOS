@@ -62,7 +62,7 @@ export default function Unduh() {
         <section className="pt-[clamp(48px,7vw,96px)] pb-10 text-center md:pb-12">
           <div className="mx-auto max-w-[1120px] px-5 md:px-8">
             <p className="ud-reveal ud-1 font-mono text-[11px] tracking-[0.14em] text-steel uppercase">Unduh · OpenPOS</p>
-            <h1 className="ud-reveal ud-2 mx-auto mt-5 max-w-[560px] text-[clamp(36px,5.2vw,56px)] leading-[1.06] font-medium tracking-[-0.03em] text-jet">
+            <h1 className="ud-reveal ud-2 mx-auto mt-5 max-w-[560px] text-[clamp(36px,5.2vw,56px)] leading-[1.06] font-medium tracking-[-0.03em] text-fg">
               Unduh OpenPOS
               <br />
               untuk perangkat Anda.
@@ -85,7 +85,7 @@ export default function Unduh() {
                     </svg>
                   </span>
                   <div className="min-w-0">
-                    <h2 className="text-[15px] font-medium leading-none text-jet">OpenPOS untuk Windows</h2>
+                    <h2 className="text-[15px] font-medium leading-none text-fg">OpenPOS untuk Windows</h2>
                     <p className="mt-1.5 text-[13px] leading-none text-muted">Windows 10/11 (64-bit) · Installer .exe</p>
                   </div>
                 </div>
@@ -108,7 +108,7 @@ export default function Unduh() {
                     </svg>
                   </span>
                   <div className="min-w-0">
-                    <h2 className="text-[15px] font-medium leading-none text-jet">OpenPOS untuk Android</h2>
+                    <h2 className="text-[15px] font-medium leading-none text-fg">OpenPOS untuk Android</h2>
                     <p className="mt-1.5 text-[13px] leading-none text-muted">Android 8.0+ · APK resmi</p>
                   </div>
                 </div>
@@ -139,7 +139,7 @@ export default function Unduh() {
         <section className="pt-12 pb-14 md:pt-14 md:pb-16">
           <div className="mx-auto max-w-[1120px] px-5 md:px-8">
             <div className="ud-reveal ud-6 rounded-2xl border border-dove bg-cream px-6 py-7 md:px-8 md:py-9">
-              <h2 className="text-[15px] font-medium tracking-tight text-jet">Mulai dalam tiga langkah</h2>
+              <h2 className="text-[15px] font-medium tracking-tight text-fg">Mulai dalam tiga langkah</h2>
               <div className="hidden md:grid md:grid-cols-[1fr_auto_1fr_auto_1fr] md:items-start">
                 {STEPS.map((s, idx) => (
                   <Fragment key={s.n}>
@@ -148,7 +148,7 @@ export default function Unduh() {
                         {s.n}
                       </span>
                       <div className="min-w-0 pt-0.5">
-                        <p className="text-[14px] font-medium leading-none text-jet">{s.t}</p>
+                        <p className="text-[14px] font-medium leading-none text-fg">{s.t}</p>
                         <p className="mt-1.5 text-[13px] leading-relaxed text-muted">{s.d}</p>
                       </div>
                     </div>
@@ -164,7 +164,7 @@ export default function Unduh() {
                         {s.n}
                       </span>
                       <div className="min-w-0 pt-0.5">
-                        <p className="text-[14px] font-medium leading-none text-jet">{s.t}</p>
+                        <p className="text-[14px] font-medium leading-none text-fg">{s.t}</p>
                         <p className="mt-1.5 text-[13px] leading-relaxed text-muted">{s.d}</p>
                       </div>
                     </div>
