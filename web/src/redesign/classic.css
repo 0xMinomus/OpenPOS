@@ -1,0 +1,306 @@
+/* OpenPOS classic admin theme — HANYA untuk sandbox /redesign.
+   Scope .op-classic menimpa token + komponen agar live app (/app, landing)
+   100% tak tersentuh. Token mengikuti MASTER_PROMPT §6/§7.
+   Catatan: CSS tak ber-layer menang atas utilities Tailwind (v4 @layer). */
+
+.op-classic {
+  font-family: Inter, system-ui, "Segoe UI", Roboto, Arial, sans-serif;
+  background: var(--background);
+  color: var(--foreground);
+
+  --t-bg: #f4f7fa;
+  --t-surface: #f8fafc;
+  --t-fg: #111827;
+  --t-muted: #5f6f82;
+  --t-border: #d8e1ea;
+  --t-jet: #1976d2;
+  --t-charcoal: #1568ba;
+  --t-fog: #8794a5;
+  --t-steel: #5f6f82;
+  --t-dove: #e5ebf1;
+  --t-cream: #f8fafc;
+  --t-paper: #ffffff;
+  --t-sand: #fff4d6;
+  --t-ember: #d64545;
+  --t-sunbeam: #e5a817;
+  --t-sprout: #2e9d63;
+  --t-success-bg: #e4f4ea;
+  --background: #f4f7fa;
+  --foreground: #111827;
+  --card: #ffffff;
+  --card-foreground: #111827;
+  --popover: #ffffff;
+  --popover-foreground: #111827;
+  --primary: #1976d2;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #111827;
+  --muted: #f1f5f9;
+  --muted-foreground: #5f6f82;
+  --accent: #eaf4ff;
+  --accent-foreground: #111827;
+  --destructive: #d64545;
+  --border: #d8e1ea;
+  --input: #d8e1ea;
+  --ring: #1976d2;
+  --chart-1: #2f8de4;
+  --chart-2: #27a86b;
+  --chart-3: #f2b323;
+  --chart-4: #8b5cf6;
+  --chart-5: #df4747;
+  --chart-omzet: #2f8de4;
+  --radius: 6px;
+  --sidebar: #1f2d3a;
+  --sidebar-foreground: #d9e2ea;
+  --sidebar-primary: #1976d2;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #25394a;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #2b3f50;
+  --sidebar-ring: #1976d2;
+}
+
+.dark .op-classic {
+  color-scheme: dark;
+  --t-bg: #0f1b26;
+  --t-surface: #172836;
+  --t-fg: #f2f5f8;
+  --t-muted: #b5c0cb;
+  --t-border: #2b3f50;
+  --t-jet: #1988ea;
+  --t-charcoal: #2094fb;
+  --t-fog: #8797a7;
+  --t-steel: #b5c0cb;
+  --t-dove: #243747;
+  --t-cream: #172836;
+  --t-paper: #142330;
+  --t-sand: #4d3c15;
+  --t-ember: #e04b4b;
+  --t-sunbeam: #f0b323;
+  --t-sprout: #36a86f;
+  --t-success-bg: #184c35;
+  --background: #0f1b26;
+  --foreground: #f2f5f8;
+  --card: #142330;
+  --card-foreground: #f2f5f8;
+  --popover: #172836;
+  --popover-foreground: #f2f5f8;
+  --primary: #1988ea;
+  --primary-foreground: #ffffff;
+  --secondary: #1b2d3c;
+  --secondary-foreground: #f2f5f8;
+  --muted: #1b2d3c;
+  --muted-foreground: #b5c0cb;
+  --accent: #163550;
+  --accent-foreground: #f2f5f8;
+  --destructive: #e04b4b;
+  --border: #2b3f50;
+  --input: #2b3f50;
+  --ring: #1988ea;
+  --sidebar: #0c1720;
+  --sidebar-foreground: #e3e9ef;
+  --sidebar-primary: #156dc5;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #152838;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #243747;
+  --sidebar-ring: #1988ea;
+}
+
+/* ── card: border tipis + shadow nyaris tak terlihat (§42) ── */
+.op-classic [data-slot="card"] {
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+}
+.dark .op-classic [data-slot="card"] { box-shadow: none; }
+.op-classic [data-slot="card-title"] { font-size: 16px; font-weight: 600; }
+
+/* ── radius kecil: tombol pill + modal/empty besar → 5–6px (§4) ── */
+.op-classic button.rounded-full,
+.op-classic a.rounded-full { border-radius: 5px; }
+.op-classic .rounded-2xl { border-radius: 6px; }
+
+/* ── tabel: header 12px semibold uppercase, row 44–48px, hover halus (§20) ── */
+.op-classic th {
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted-foreground);
+}
+.op-classic tbody tr { transition: background-color 120ms ease; }
+.op-classic tbody tr:hover { background: #f8fafc; }
+.dark .op-classic tbody tr:hover { background: #192b3a; }
+
+/* ── page header pola seragam: judul 28px/700 + sub 14px (§8/§12) ── */
+.op-classic h1 {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0;
+}
+
+/* ── form focus ring biru halus (§21) ── */
+.op-classic input:focus-visible,
+.op-classic select:focus-visible,
+.op-classic textarea:focus-visible {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.1);
+}
+.dark .op-classic input:focus-visible,
+.dark .op-classic select:focus-visible,
+.dark .op-classic textarea:focus-visible {
+  box-shadow: 0 0 0 2px rgba(25, 136, 234, 0.14);
+}
+
+/* ══ shell klasik: brand strip + sidebar 240px + topbar biru 54px ( §5/§10/§11) ══ */
+.opc-shell { display: flex; flex-direction: column; min-height: 100dvh; }
+.opc-toprow { display: flex; align-items: stretch; height: 54px; flex-shrink: 0; position: sticky; top: 0; z-index: 40; }
+.opc-brand {
+  width: 240px; flex-shrink: 0;
+  display: flex; align-items: center; gap: 10px; padding: 0 16px;
+  background: #1b2733; color: #fff;
+}
+.opc-brand img { height: 26px; width: auto; }
+.opc-brand span { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.opc-topbar {
+  flex: 1; min-width: 0;
+  display: flex; align-items: center; gap: 4px; padding: 0 20px 0 8px;
+  background: #1976d2; color: #fff;
+}
+.dark .op-classic .opc-topbar { background: #0b68b8; }
+.opc-iconbtn {
+  display: inline-grid; place-items: center;
+  width: 36px; height: 36px; border-radius: 5px;
+  color: #fff; background: transparent; border: 0;
+  transition: background-color 120ms ease;
+}
+.opc-iconbtn:hover { background: rgba(255, 255, 255, 0.14); }
+.opc-topbar-user { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; padding: 4px 4px 4px 8px; border-radius: 5px; }
+.opc-topbar-user:hover { background: rgba(255, 255, 255, 0.14); }
+
+.opc-body { display: flex; flex: 1; min-height: 0; }
+.opc-sidebar {
+  width: 240px; flex-shrink: 0;
+  background: #1f2d3a; color: #d9e2ea;
+  display: flex; flex-direction: column;
+  position: sticky; top: 54px; height: calc(100dvh - 54px);
+}
+.dark .op-classic .opc-sidebar { background: #0c1720; }
+.opc-nav { flex: 1; overflow-y: auto; padding: 12px 12px 16px; display: flex; flex-direction: column; gap: 18px; }
+.opc-group-label {
+  margin: 0 0 6px; padding: 0 12px;
+  font-size: 11px; font-weight: 500; letter-spacing: 0.1em;
+  text-transform: uppercase; color: #93a4b4;
+}
+.dark .op-classic .opc-group-label { color: #92a2b1; }
+.opc-nav ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.opc-link {
+  display: flex; align-items: center; gap: 12px;
+  min-height: 44px; padding: 0 12px; border-radius: 5px;
+  font-size: 14px; color: #d9e2ea; text-decoration: none;
+  transition: background-color 120ms ease;
+}
+.opc-link:hover { background: #25394a; color: #fff; }
+.dark .op-classic .opc-link:hover { background: #152838; }
+.opc-link.active { background: #1976d2; color: #fff; font-weight: 500; }
+.dark .op-classic .opc-link.active { background: #156dc5; }
+.opc-link svg { width: 19px; height: 19px; flex-shrink: 0; }
+.opc-sidefoot { border-top: 1px solid rgba(255, 255, 255, 0.09); padding: 12px; }
+.opc-sideuser { display: flex; align-items: center; gap: 10px; width: 100%; padding: 6px 8px; border-radius: 5px; background: transparent; border: 0; color: inherit; text-align: left; }
+.opc-sideuser:hover { background: #25394a; }
+.dark .op-classic .opc-sideuser:hover { background: #152838; }
+.opc-avatar {
+  width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+  display: grid; place-items: center;
+  background: rgba(255, 255, 255, 0.14); color: #fff;
+}
+.opc-sideuser small { display: block; font-size: 12px; color: #93a4b4; }
+
+.opc-main { flex: 1; min-width: 0; padding: 20px; }
+.opc-crumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted-foreground); }
+.opc-crumb svg { width: 14px; height: 14px; }
+.opc-datechip {
+  display: inline-flex; align-items: center; gap: 8px;
+  border: 1px solid var(--border); border-radius: 5px;
+  background: var(--card); padding: 7px 12px;
+  font-size: 13px; color: var(--foreground);
+}
+.opc-datechip svg { width: 15px; height: 15px; color: var(--muted-foreground); }
+
+/* ── KPI card: satu surface + footer menyatu (§13) ── */
+.opc-kpi { overflow: hidden; }
+.opc-kpi-body { display: flex; align-items: center; gap: 16px; padding: 16px; }
+.opc-kpi-ico {
+  width: 68px; height: 68px; border-radius: 6px; flex-shrink: 0;
+  display: grid; place-items: center;
+  background: #eef3f8; color: #3d4e61;
+}
+.dark .op-classic .opc-kpi-ico { background: #1b2d3c; color: #b5c0cb; }
+.opc-kpi-ico svg { width: 30px; height: 30px; }
+.opc-kpi-val { font-size: 30px; font-weight: 700; line-height: 1.15; letter-spacing: -0.01em; }
+.opc-kpi-label { margin-top: 2px; font-size: 14px; color: var(--muted-foreground); }
+.opc-kpi-foot {
+  display: flex; justify-content: center;
+  border-top: 1px solid var(--border);
+  background: transparent;
+  padding: 9px 12px;
+  font-size: 13px; color: var(--primary); text-decoration: none;
+}
+.opc-kpi-foot:hover { text-decoration: underline; }
+
+/* ── panel header pola referensi: ikon + judul + sub (§14–§17) ── */
+.opc-panel-head { display: flex; align-items: flex-start; gap: 10px; }
+.opc-panel-ico { color: var(--foreground); margin-top: 1px; }
+.opc-panel-ico svg { width: 18px; height: 18px; }
+.opc-panel-title { font-size: 16px; font-weight: 600; line-height: 1.3; }
+.opc-panel-sub { font-size: 13px; color: var(--muted-foreground); }
+
+/* ── ranked list produk (§17) ── */
+.opc-rank { display: flex; align-items: baseline; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.opc-rank:last-child { border-bottom: 0; }
+.opc-rank-num { width: 24px; flex-shrink: 0; font-size: 13px; color: var(--muted-foreground); font-variant-numeric: tabular-nums; }
+
+/* ── tombol primary kecil ala referensi (Lihat semua) ── */
+.opc-btn-sm {
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 34px; padding: 0 14px; border-radius: 5px;
+  background: var(--primary); color: #fff;
+  font-size: 13px; font-weight: 500; text-decoration: none; border: 0;
+  transition: background-color 120ms ease;
+}
+.opc-btn-sm:hover { background: #1568ba; color: #fff; }
+.dark .op-classic .opc-btn-sm:hover { background: #2094fb; }
+
+/* ── overlay drawer mobile ── */
+.opc-scrim { display: none; }
+.opc-shell.nav-collapsed .opc-sidebar { display: none; }
+.opc-shell.nav-collapsed .opc-brand { width: auto; }
+.opc-shell.nav-collapsed .opc-brand span { display: none; }
+
+/* ── bell di topbar biru: ikon putih ── */
+.opc-bell > .relative > button { color: #fff; }
+.opc-bell > .relative > button:hover { background: rgba(255, 255, 255, 0.14); color: #fff; }
+
+@media (max-width: 1023px) {
+  .opc-main { padding: 16px; }
+}
+@media (max-width: 767px) {
+  .opc-brand { width: auto; padding: 0 12px; }
+  .opc-brand span { display: none; }
+  .opc-burger { display: inline-grid; }
+  .opc-sidebar {
+    position: fixed; left: 0; top: 54px; bottom: 0; height: auto;
+    z-index: 50; transform: translateX(-100%);
+    transition: transform 180ms ease;
+  }
+  .opc-shell.nav-open .opc-sidebar { transform: none; }
+  .opc-shell.nav-open .opc-scrim {
+    display: block; position: fixed; inset: 54px 0 0 0; z-index: 40;
+    background: rgba(15, 23, 42, 0.45);
+  }
+  .opc-main { padding: 12px; }
+  .opc-kpi-val { font-size: 26px; }
+  .opc-kpi-ico { width: 56px; height: 56px; }
+}
