@@ -18,6 +18,16 @@ import Laporan from './pages/Laporan'
 import Users from './pages/Users'
 import Pengaturan from './pages/Pengaturan'
 import Unduh from './pages/Unduh'
+import RedesignShell from './redesign/RedesignShell'
+import RedesignDashboard from './redesign/Dashboard'
+import RedesignPos from './redesign/Pos'
+import RedesignProduk from './redesign/Produk'
+import RedesignStok from './redesign/Stok'
+import RedesignTransaksi from './redesign/Transaksi'
+import RedesignLaporan from './redesign/Laporan'
+import RedesignKaryawan from './redesign/Karyawan'
+import RedesignUsers from './redesign/Users'
+import RedesignPengaturan from './redesign/Pengaturan'
 
 // Halaman khusus admin: kasir yang mengetik URL langsung diarahkan balik.
 // API tetap penjaga utama (403); ini pertahanan berlapis + UX.
@@ -47,6 +57,18 @@ export default function App() {
           <Route path="karyawan" element={<AdminOnly><Karyawan /></AdminOnly>} />
           <Route path="users" element={<AdminOnly><Users /></AdminOnly>} />
           <Route path="pengaturan" element={<AdminOnly><Pengaturan /></AdminOnly>} />
+        </Route>
+        {/* Sandbox redesign tersembunyi: tanpa link/nav, noindex, data mock. */}
+        <Route path="/redesign" element={<RedesignShell />}>
+          <Route index element={<RedesignDashboard />} />
+          <Route path="pos" element={<RedesignPos />} />
+          <Route path="produk" element={<AdminOnly><RedesignProduk /></AdminOnly>} />
+          <Route path="stok" element={<AdminOnly><RedesignStok /></AdminOnly>} />
+          <Route path="transaksi" element={<RedesignTransaksi />} />
+          <Route path="laporan" element={<AdminOnly><RedesignLaporan /></AdminOnly>} />
+          <Route path="karyawan" element={<AdminOnly><RedesignKaryawan /></AdminOnly>} />
+          <Route path="users" element={<AdminOnly><RedesignUsers /></AdminOnly>} />
+          <Route path="pengaturan" element={<AdminOnly><RedesignPengaturan /></AdminOnly>} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
