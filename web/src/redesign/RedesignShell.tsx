@@ -49,6 +49,10 @@ export default function RedesignShell() {
   const db = useDB()
   const loc = useLocation()
   const [theme, setTheme] = useTheme()
+  // Embed landing (iframe): selalu light + tanpa toggle tema.
+  // Terdeteksi via window.self !== window.top agar tahan pindah halaman
+  // di dalam iframe (query ?embed=1 hilang setelah navigasi internal).
+  const isEmbed = typeof window !== 'undefined' && (window.self !== window.top || new URLSearchParams(loc.search).get('embed') === '1')
   const [navOpen, setNavOpen] = useState(false)
   const [collapsed, setCollapsed] = useState(false)
   const s = db.session
@@ -81,6 +85,12 @@ export default function RedesignShell() {
   useEffect(() => {
     setNavOpen(false)
   }, [loc.pathname])
+
+  // Embed di landing selalu light: cabut .dark yang dipasang useTheme
+  // (efek ini terdaftar setelahnya sehingga menang). Toggle disembunyikan.
+  useEffect(() => {
+    if (isEmbed) document.documentElement.classList.remove('dark')
+  }, [isEmbed, theme])
 
   if (!s) {
     return (
@@ -132,14 +142,16 @@ export default function RedesignShell() {
               {navExpanded ? <PanelLeftClose className="size-5" strokeWidth={1.5} /> : <PanelLeftOpen className="size-5" strokeWidth={1.5} />}
             </span>
           </button>
-          <button
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            aria-label={theme === 'dark' ? 'Ganti ke tema terang' : 'Ganti ke tema gelap'}
-            title={theme === 'dark' ? 'Tema terang' : 'Tema gelap'}
-            className="opc-iconbtn"
-          >
-            {theme === 'dark' ? <Sun className="size-5" strokeWidth={1.5} /> : <Moon className="size-5" strokeWidth={1.5} />}
-          </button>
+          {!isEmbed && (
+            <button
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              aria-label={theme === 'dark' ? 'Ganti ke tema terang' : 'Ganti ke tema gelap'}
+              title={theme === 'dark' ? 'Tema terang' : 'Tema gelap'}
+              className="opc-iconbtn"
+            >
+              {theme === 'dark' ? <Sun className="size-5" strokeWidth={1.5} /> : <Moon className="size-5" strokeWidth={1.5} />}
+            </button>
+          )}
           <div className="ml-auto flex items-center">
             <span className="opc-bell">
               <NotifBell />

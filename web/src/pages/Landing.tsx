@@ -1,32 +1,9 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { fmtRp } from '../lib/store'
 import Footer from './Footer'
 import Navbar from './Navbar'
-
-interface DemoProduct {
-  id: string
-  name: string
-  sku: string
-  barcode: string
-  categoryId: string
-  sellPrice: number
-  stock: number
-}
-
-const DEMO_CATS = ['Sembako', 'Minuman', 'Rumah Tangga']
-
-const DEMO_PRODUCTS: DemoProduct[] = [
-  { id: 'b1', name: 'Beras Premium 5 kg', sku: 'BR-001', barcode: '', categoryId: 'Sembako', sellPrice: 68000, stock: 24 },
-  { id: 'g1', name: 'Gula Pasir 1 kg', sku: 'GP-001', barcode: '', categoryId: 'Sembako', sellPrice: 17500, stock: 40 },
-  { id: 'm1', name: 'Minyak Goreng 1 L', sku: 'MG-001', barcode: '', categoryId: 'Sembako', sellPrice: 20000, stock: 30 },
-  { id: 'm2', name: 'Mie Goreng Instan', sku: 'MG-002', barcode: '', categoryId: 'Sembako', sellPrice: 3500, stock: 60 },
-  { id: 'k1', name: 'Kopi Sachet 165 g', sku: 'KP-001', barcode: '', categoryId: 'Minuman', sellPrice: 14000, stock: 25 },
-  { id: 't1', name: 'Teh Celup 25 sachet', sku: 'TH-001', barcode: '', categoryId: 'Minuman', sellPrice: 10500, stock: 18 },
-  { id: 'a1', name: 'Air Mineral 600 ml', sku: 'AM-001', barcode: '', categoryId: 'Minuman', sellPrice: 3000, stock: 48 },
-  { id: 's1', name: 'Sabun Mandi 90 g', sku: 'SB-001', barcode: '', categoryId: 'Rumah Tangga', sellPrice: 6500, stock: 22 },
-]
 
 const SALES7_DAYS = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min']
 
@@ -61,11 +38,6 @@ const TESTIMONIALS = [
 ]
 
 export default function Landing() {
-  const [q, setQ] = useState('')
-  const [cat, setCat] = useState('Semua')
-  const [cart, setCart] = useState<Record<string, number>>({})
-  const [done, setDone] = useState(false)
-  const [receiptItems, setReceiptItems] = useState<{ product: DemoProduct; qty: number }[]>([])
   const [sales7] = useState(randomSales7)
 
   useEffect(() => {
@@ -85,40 +57,6 @@ export default function Landing() {
     document.querySelectorAll('.reveal').forEach((el) => io.observe(el))
     return () => io.disconnect()
   }, [])
-
-  const cats = ['Semua', ...DEMO_CATS]
-  const products = DEMO_PRODUCTS.filter((p) => {
-    if (cat !== 'Semua' && p.categoryId !== cat) return false
-    const s = q.toLowerCase()
-    return !s || p.name.toLowerCase().includes(s) || p.sku.toLowerCase().includes(s) || p.barcode.toLowerCase().includes(s)
-  })
-
-  const cartItems = useMemo(
-    () => Object.entries(cart).map(([id, qty]) => ({ product: DEMO_PRODUCTS.find((p) => p.id === id)!, qty })).filter((x) => x.product),
-    [cart],
-  )
-  const total = cartItems.reduce((sum, { product, qty }) => sum + product.sellPrice * qty, 0)
-
-  function add(p: DemoProduct) {
-    const cur = cart[p.id] ?? 0
-    if (cur >= p.stock) return
-    setCart({ ...cart, [p.id]: cur + 1 })
-  }
-
-  function remove(id: string) {
-    setCart((c) => {
-      const n = { ...c }
-      delete n[id]
-      return n
-    })
-  }
-
-  function pay() {
-    if (cartItems.length === 0) return
-    setReceiptItems(cartItems)
-    setDone(true)
-    setCart({})
-  }
 
   return (
     <div className="landing-light bg-bg text-fg">
@@ -165,117 +103,30 @@ export default function Landing() {
               style={{ background: 'radial-gradient(circle at 32% 32%, #ffa888 0%, color-mix(in oklch, #ff8868 55%, transparent) 42%, transparent 70%)' }}
               aria-hidden="true"
             />
-            <div className="relative z-1 overflow-hidden rounded-xl border border-[#262626] bg-[#151515] shadow-[rgba(0,0,0,0.06)_0_0_0_1px,rgba(15,23,42,0.18)_0_18px_40px_-24px]">
-              <div className="flex items-center gap-2 border-b border-[#262626] px-4.5 py-3.5">
-                <span className="font-mono text-xs tracking-wide text-[#9d9d9d]">openpos · kasir</span>
+            <div className="relative z-1 overflow-hidden rounded-xl border border-dove bg-paper shadow-[rgba(0,0,0,0.06)_0_0_0_1px,rgba(15,23,42,0.18)_0_18px_40px_-24px]">
+              <div className="flex items-center gap-3 border-b border-dove bg-cream px-4 py-3">
+                <span className="flex items-center gap-1.5" aria-hidden="true">
+                  <span className="size-3 rounded-full bg-[#ff5f57]" />
+                  <span className="size-3 rounded-full bg-[#ffbd2e]" />
+                  <span className="size-3 rounded-full bg-[#28c840]" />
+                </span>
+                <span className="font-mono text-xs tracking-wide text-steel">openpos · kasir</span>
+                <Link to="/demo" className="ml-auto rounded-full bg-jet px-4 py-1.5 text-xs font-medium text-paper transition hover:opacity-85">
+                  Coba full demo →
+                </Link>
               </div>
-              <div className="p-3 sm:p-5">
-                <input
-                  value={q}
-                  onChange={(e) => { setQ(e.target.value); setDone(false) }}
-                  placeholder="Cari produk, SKU, atau barcode…"
-                  aria-label="Cari produk"
-                  className="w-full rounded-md border border-[#262626] bg-[#1b1b1b] px-3.5 py-2.5 font-mono text-[13px] text-[#ededed] placeholder:text-[#9d9d9d] focus:border-[#6a6a6a] focus:outline-2 focus:outline-[#6a6a6a]"
-                />
-                <div className="mt-3.5 mb-4 flex flex-wrap gap-2" role="group" aria-label="Filter kategori">
-                  {cats.map((c) => (
-                    <button
-                      key={c}
-                      onClick={() => { setCat(c); setDone(false) }}
-                      className={`rounded-full border px-3.5 py-1.5 text-xs transition ${cat === c ? 'border-[#ffffff] bg-[#ffffff] font-medium text-[#0a0a0a]' : 'border-[#2c2c2c] text-[#9d9d9d] hover:border-[#6a6a6a] hover:text-[#ededed]'}`}
-                    >
-                      {c}
-                    </button>
-                  ))}
-                </div>
-                <div className="grid items-start gap-3 lg:grid-cols-[1fr_300px] lg:gap-4">
-                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-2.5 xl:grid-cols-4">
-                    {products.map((p) => (
-                      <div
-                        key={p.id}
-                        className="pos-product flex flex-col gap-1.5 rounded-lg border border-[#262626] bg-[#1b1b1b] p-2.5 sm:p-3"
-                      >
-                        <p className="line-clamp-2 text-[13px] font-medium leading-[1.35] text-[#ededed]">{p.name}</p>
-                        <p className="font-mono text-[11px] text-[#9d9d9d]">{p.stock} stok</p>
-                        <p className="mt-auto font-mono text-sm text-[#ffffff]">{fmtRp(p.sellPrice)}</p>
-                        <button
-                          onClick={() => add(p)}
-                          disabled={p.stock === 0}
-                          className="self-start mt-2 rounded-full bg-[#2a2a2a] px-3.5 py-2 text-xs font-medium text-[#ededed] transition hover:bg-[#383838] active:scale-[0.97] disabled:opacity-45 disabled:hover:bg-[#2a2a2a]"
-                        >
-                          Tambah
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                  <aside className="flex flex-col gap-3 rounded-xl border border-[#262626] bg-[#1a1a1a] p-4">
-                    <h4 className="text-[13px] font-medium tracking-tight text-[#ffffff]">Keranjang</h4>
-                    {done ? (
-                      <div className="flex animate-[fade-in_0.3s_ease_both] flex-col gap-2 font-mono text-xs text-[#ededed]">
-                        <div className="rounded-md border border-dashed border-[#2c2c2c] bg-[#1b1b1b] px-3 py-2.5 text-[10px] leading-relaxed">
-                          <p className="text-center tracking-widest text-[#ffffff]">OPENPOS</p>
-                          <p className="text-center text-[#7a7a7a]">{new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
-                          <p className="border-b border-dashed border-[#2c2c2c] pb-1.5 text-center text-[#9d9d9d]">STRUK DEMO</p>
-                          <div className="space-y-1 py-1.5">
-                            {receiptItems.map(({ product, qty }) => (
-                              <div key={product.id} className="flex justify-between gap-3">
-                                <span className="flex-1 truncate">{product.name}</span>
-                                <span className="tabular-nums">{qty}×{fmtRp(product.sellPrice)}</span>
-                              </div>
-                            ))}
-                          </div>
-                          <div className="border-t border-dashed border-[#2c2c2c] pt-1.5">
-                            <div className="flex justify-between"><span className="text-[#9d9d9d]">Total</span><span className="font-medium tabular-nums text-[#ffffff]">{fmtRp(receiptItems.reduce((n, { product, qty }) => n + product.sellPrice * qty, 0))}</span></div>
-                            <div className="flex justify-between"><span className="text-[#9d9d9d]">Bayar (Cash)</span><span className="tabular-nums">{fmtRp(receiptItems.reduce((n, { product, qty }) => n + product.sellPrice * qty, 0))}</span></div>
-                            <div className="flex justify-between"><span className="text-[#9d9d9d]">Kembalian</span><span className="tabular-nums">Rp 0</span></div>
-                          </div>
-                          <p className="border-t border-dashed border-[#2c2c2c] pt-1.5 text-center tracking-widest text-sprout">PEMBAYARAN BERHASIL</p>
-                        </div>
-                        <p className="text-center text-[#9d9d9d]">Transaksi selesai!</p>
-                        <button
-                          onClick={() => { setDone(false); setReceiptItems([]) }}
-                          className="rounded-full bg-[#ffffff] py-2.5 text-[13px] font-semibold text-[#0a0a0a] transition hover:bg-[color-mix(in_oklch,#ffffff_82%,#0a0a0a)] active:scale-[0.97]"
-                        >
-                          Transaksi Baru
-                        </button>
-                      </div>
-                    ) : (
-                      <>
-                        <div className="flex min-h-16 flex-col gap-2.5">
-                          {cartItems.length === 0 && <p className="font-mono text-xs text-[#9d9d9d]">Keranjang kosong.</p>}
-                          {cartItems.map(({ product, qty }) => (
-                            <div key={product.id} className="pos-item flex items-start justify-between gap-2.5 text-xs leading-[1.4] text-[#ededed]">
-                              <span className="flex-1">{product.name}</span>
-                              <span className="font-mono text-[#9d9d9d]">×{qty}</span>
-                              <button
-                                onClick={() => remove(product.id)}
-                                aria-label={`Hapus ${product.name}`}
-                                className="grid h-6 w-6 place-items-center text-sm leading-none text-[#7a7a7a] hover:text-[#ffffff]"
-                              >
-                                ✕
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                        <div className="flex justify-between border-t border-[#2c2c2c] pt-3 font-mono text-[13px] text-[#ffffff]">
-                          <span>Total</span>
-                          <span className="text-[15px]">{fmtRp(total)}</span>
-                        </div>
-                        <button
-                          onClick={pay}
-                          disabled={cartItems.length === 0}
-                          className="rounded-full bg-[#ffffff] py-2.5 text-[13px] font-semibold text-[#0a0a0a] transition hover:bg-[color-mix(in_oklch,#ffffff_82%,#0a0a0a)] active:scale-[0.97] disabled:opacity-50 disabled:hover:bg-[#ffffff]"
-                        >
-                          Bayar · Selesaikan Transaksi
-                        </button>
-                      </>
-                    )}
-                  </aside>
-                </div>
-              </div>
+              <iframe
+                src="/demo?embed=1"
+                title="Demo interaktif OpenPOS"
+                loading="lazy"
+                className="block h-[560px] w-full border-0 bg-white md:h-[620px]"
+              />
             </div>
             <p className="mt-4.5 text-center font-mono text-xs text-steel">
-              coba interaktif · transaksi di sini hanya pratinjau
+              coba interaktif · semua menu bisa diklik ·{' '}
+              <Link to="/demo" className="underline underline-offset-2 hover:text-jet">
+                buka demo penuh
+              </Link>
             </p>
           </div>
         </section>
