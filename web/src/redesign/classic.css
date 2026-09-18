@@ -234,7 +234,9 @@
 .opc-main { flex: 1; min-width: 0; margin-left: 240px; padding: 20px; }
 .opc-crumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted-foreground); }
 .opc-crumb svg { width: 14px; height: 14px; }
-.opc-crumb-right { display: flex; justify-content: flex-end; margin-bottom: 12px; }
+.opc-crumb-right { display: flex; justify-content: flex-end; margin-bottom: 6px; }
+/* Judul rapat ke atas samakan dashboard: remap mb PageHead/custom header. */
+.op-classic .opc-crumb-right + div { margin-bottom: 16px; }
 .opc-datechip {
   display: inline-flex; align-items: center; gap: 8px;
   border: 1px solid var(--border); border-radius: 5px;
@@ -275,6 +277,16 @@
 .opc-rank { display: flex; align-items: baseline; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
 .opc-rank:last-child { border-bottom: 0; }
 .opc-rank-num { width: 24px; flex-shrink: 0; font-size: 13px; color: var(--muted-foreground); font-variant-numeric: tabular-nums; }
+
+/* ── stat ringkas isi penuh: ikon kiri + angka, tanpa ruang mati (§13) ── */
+.opc-stat-body { display: flex; align-items: center; gap: 12px; padding: 14px 16px; }
+.opc-stat .opc-kpi-ico { width: 48px; height: 48px; }
+.opc-stat .opc-kpi-ico svg { width: 24px; height: 24px; }
+.opc-stat-val { font-size: 22px; font-weight: 700; line-height: 1.2; letter-spacing: -0.01em; white-space: nowrap; }
+.opc-stat-label { margin-top: 1px; font-size: 13px; color: var(--muted-foreground); white-space: nowrap; }
+@media (max-width: 1023px) {
+  .opc-stat-val { font-size: 20px; }
+}
 
 /* ── tombol primary kecil ala referensi (Lihat semua) ── */
 .opc-btn-sm {
