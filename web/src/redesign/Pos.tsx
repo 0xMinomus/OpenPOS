@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { apiCheckout, apiGetSettings, apiListProducts, fetchAll, type PayMethod, type Product, type StoreSettings, type Trx } from './mock-api'
-import { Crumb } from './Crumb'
+import { PageHeader } from './PageHeader'
 import { useCache } from '../lib/cache'
 import { fmtRp, useDB } from '../lib/store'
 import { Receipt } from '../lib/receipt'
@@ -96,13 +96,11 @@ export default function Pos() {
 
   return (
     <>
-      <Crumb page="POS Kasir" />
-      <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1>POS Kasir</h1>
-          <p className="mt-1 text-sm text-muted">Cari produk, tambah ke keranjang, selesaikan pembayaran.</p>
-        </div>
-      </div>
+      <PageHeader
+        title="POS Kasir"
+        sub="Cari produk, tambah ke keranjang, selesaikan pembayaran."
+        crumb="POS Kasir"
+      />
 
       <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
         <section>

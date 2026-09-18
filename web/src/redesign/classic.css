@@ -235,8 +235,15 @@
 .opc-crumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted-foreground); }
 .opc-crumb svg { width: 14px; height: 14px; }
 .opc-crumb-right { display: flex; justify-content: flex-end; margin-bottom: 6px; }
-/* Judul rapat ke atas samakan dashboard: remap mb PageHead/custom header. */
-.op-classic .opc-crumb-right + div { margin-bottom: 16px; }
+/* Header halaman pola dashboard: judul kiri, crumb + aksi kanan. */
+.opc-pagehead { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.opc-pagehead-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex-shrink: 0; }
+.opc-pagehead-right .opc-crumb-right { margin-bottom: 0; }
+.opc-pagesub { margin-top: 4px; font-size: 14px; color: var(--muted-foreground); }
+@media (max-width: 767px) {
+  .opc-pagehead { flex-direction: column; }
+  .opc-pagehead-right { align-items: flex-start; width: 100%; }
+}
 .opc-datechip {
   display: inline-flex; align-items: center; gap: 8px;
   border: 1px solid var(--border); border-radius: 5px;

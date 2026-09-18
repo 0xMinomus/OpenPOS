@@ -129,7 +129,7 @@ export default function RedesignShell() {
             aria-expanded={navExpanded}
           >
             <span key={navExpanded ? 'open' : 'closed'} className="opc-icopop">
-              {navExpanded ? <PanelLeftClose className="size-5" /> : <PanelLeftOpen className="size-5" />}
+              {navExpanded ? <PanelLeftClose className="size-5" strokeWidth={1.5} /> : <PanelLeftOpen className="size-5" strokeWidth={1.5} />}
             </span>
           </button>
           <button
@@ -138,7 +138,7 @@ export default function RedesignShell() {
             title={theme === 'dark' ? 'Tema terang' : 'Tema gelap'}
             className="opc-iconbtn"
           >
-            {theme === 'dark' ? <Sun className="size-5" /> : <Moon className="size-5" />}
+            {theme === 'dark' ? <Sun className="size-5" strokeWidth={1.5} /> : <Moon className="size-5" strokeWidth={1.5} />}
           </button>
           <div className="ml-auto flex items-center">
             <span className="opc-bell">

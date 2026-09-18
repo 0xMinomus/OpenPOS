@@ -7,10 +7,10 @@ import {
   ApiError, apiGetSettings, apiListTransactions, apiListUsers, apiLogout, apiResetPassword, apiSendPasswordResetOtp, apiSetPasscode, apiUpdateSettings,
   type Page, type StoreHours, type StoreSettings, type Trx, type User,
 } from './mock-api'
-import { Crumb } from './Crumb'
+import { PageHeader } from './PageHeader'
 import { useCache } from '../lib/cache'
 import { fmtDate, fmtRp, fmtTime, getSession, setSession, useDB } from '../lib/store'
-import { Button, Input, Modal, NumInput, PageHead, Pill } from '../lib/ui'
+import { Button, Input, Modal, NumInput, Pill } from '../lib/ui'
 import { Receipt } from '../lib/receipt'
 import { Skeleton } from '@/components/ui/skeleton'
 
@@ -382,8 +382,7 @@ export default function Pengaturan() {
   if (!form) {
     return (
       <>
-        <Crumb page="Pengaturan" />
-        <PageHead title="Pengaturan" sub="Kelola akun, toko, struk, pajak, dan keamanan." />
+        <PageHeader title="Pengaturan" sub="Kelola akun, toko, struk, pajak, dan keamanan." crumb="Pengaturan" />
         {loadErr ? (
           <div className="max-w-2xl rounded-2xl bg-cream p-4 text-center sm:p-6">
             <p className="text-sm text-ember">Gagal memuat pengaturan.</p>
@@ -453,12 +452,7 @@ export default function Pengaturan() {
 
   return (
     <>
-      <nav className="opc-crumb mb-3" aria-label="Breadcrumb">
-        <span>Home</span>
-        <span aria-hidden="true">›</span>
-        <span aria-current="page" className="text-foreground">Pengaturan</span>
-      </nav>
-      <PageHead title="Pengaturan" sub="Kelola akun, toko, struk, pajak, dan keamanan." />
+      <PageHeader title="Pengaturan" sub="Kelola akun, toko, struk, pajak, dan keamanan." crumb="Pengaturan" />
 
       {err && <p className="mb-4 rounded-lg bg-sand px-3.5 py-2.5 text-[13px] text-ember" role="alert">{err}</p>}
       {msg && <p className="mb-4 rounded-lg bg-surface px-3.5 py-2.5 text-[13px] text-sprout">{msg}</p>}

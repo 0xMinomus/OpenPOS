@@ -12,10 +12,10 @@ import {
   apiCreateUser, apiDeleteUser, apiGetReport, apiListActivity, apiListTransactions, apiListUsers, apiRenameUser, apiSetUserActive,
   setCachedAccounts, type ActivityItem, type Page, type ReportBundle, type Trx, type User,
 } from './mock-api'
-import { Crumb } from './Crumb'
+import { PageHeader } from './PageHeader'
 import { useCache } from '../lib/cache'
 import { exportCSV, fmtDate, fmtInv, fmtRp, fmtTime, useDB } from '../lib/store'
-import { Button, Input, Modal, PageHead, Pager, Pill, Td, Th } from '../lib/ui'
+import { Button, Input, Modal, Pager, Pill, Td, Th } from '../lib/ui'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
@@ -377,11 +377,11 @@ export default function Users() {
 
   return (
     <>
-      <Crumb page="User Management" />
-      <PageHead
+      <PageHeader
         title="User Management"
         sub="Kelola akun admin dan kasir, status akun, serta akses pengguna."
-        right={(
+        crumb="User Management"
+        actions={(
           <div className="flex gap-2">
             <Button variant="ghost" onClick={exportAll} disabled={!data}>
               <Download className="size-4" /> Export
