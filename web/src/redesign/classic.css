@@ -293,6 +293,9 @@
 
 @media (max-width: 1023px) {
   .opc-main { padding: 16px; }
+  .opc-kpi-ico { width: 56px; height: 56px; }
+  .opc-kpi-ico svg { width: 26px; height: 26px; }
+  .opc-kpi-val { font-size: 24px; }
 }
 @media (max-width: 767px) {
   .opc-brand { width: auto; padding: 0 12px; }
