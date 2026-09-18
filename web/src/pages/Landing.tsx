@@ -96,23 +96,9 @@ export default function Landing() {
                 Unduh Offline
               </Link>
             </div>
-            <div className="hero-reveal relative z-10 mt-6 flex flex-wrap justify-center gap-x-6 gap-y-2 font-mono text-xs tracking-wide text-jet sm:mt-9">
-              <span className="inline-flex items-center gap-2">
-                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
-                Gratis tanpa kartu kredit
-              </span>
-              <span className="inline-flex items-center gap-2">
-                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
-                Cocok untuk toko retail kecil dan menengah
-              </span>
-              <span className="inline-flex items-center gap-2">
-                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
-                Desktop · tablet · mobile
-              </span>
-            </div>
           </div>
 
-          <div className="hero-visual container relative mx-auto mt-10 max-w-6xl px-5 md:mt-18 md:px-8">
+          <div className="hero-visual container relative mx-auto mt-8 max-w-6xl px-5 md:mt-10 md:px-8">
             <div
               className="pointer-events-none absolute -top-24 -right-16 z-0 h-90 w-90 rounded-full blur-6xl sm:-top-28 sm:-right-18 sm:h-130 sm:w-130"
               style={{ background: 'radial-gradient(circle at 32% 32%, #ffa888 0%, color-mix(in oklch, #ff8868 55%, transparent) 42%, transparent 70%)' }}
@@ -125,9 +111,9 @@ export default function Landing() {
                   <span className="size-3 rounded-full bg-[#ffbd2e]" />
                   <span className="size-3 rounded-full bg-[#28c840]" />
                 </span>
-                <span className="font-mono text-xs tracking-wide text-steel">openpos · kasir</span>
-                <Link to="/demo" className="ml-auto rounded-full bg-jet px-4 py-1.5 text-xs font-medium text-paper transition hover:opacity-85">
-                  Coba full demo →
+                <span className="font-mono text-xs tracking-wide text-steel">openpos · demo</span>
+                <Link to="/demo" className="ml-auto font-mono text-xs text-steel underline underline-offset-2 transition hover:text-jet">
+                  Coba demo penuh
                 </Link>
               </div>
               <div ref={demoWrapRef} className="overflow-hidden bg-white" style={{ height: demoViewH * demoScale }}>
