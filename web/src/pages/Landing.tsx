@@ -177,11 +177,11 @@ export default function Landing() {
           </div>
         </section>
 
-        <section id="cara-kerja" className="section border-t border-border bg-[#eaf4ff]">
+        <section id="cara-kerja" className="section border-t border-transparent bg-[#1a76d1]">
           <div className="container mx-auto max-w-6xl px-5 md:px-8">
             <div className="reveal max-w-[680px]">
-              <p className="font-mono text-xs uppercase tracking-[0.08em] text-steel">Cara Kerja</p>
-              <h2 className="mt-5 text-[clamp(30px,3.8vw,46px)] font-normal leading-[1.14] tracking-[-0.025em]">
+              <p className="font-mono text-xs uppercase tracking-[0.08em] text-white/70">Cara Kerja</p>
+              <h2 className="mt-5 text-[clamp(30px,3.8vw,46px)] font-normal leading-[1.14] tracking-[-0.025em] text-white">
                 Dari mendaftar sampai transaksi pertama, hanya tiga langkah.
               </h2>
             </div>
@@ -192,9 +192,9 @@ export default function Landing() {
                 { n: '03', t: 'Mulai berjualan', d: 'Buka menu kasir, cari produk, selesaikan pembayaran, lalu cetak struk. Stok otomatis terbarui di dashboard.' },
               ].map((s, i) => (
                 <div key={s.n} className="step reveal" data-delay={i}>
-                  <span className="mb-5 block font-mono text-[26px] text-fog">{s.n}</span>
-                  <h3 className="mb-1.5 text-2xl font-medium leading-[1.3] tracking-[-0.01em]">{s.t}</h3>
-                  <p className="text-[15px] leading-relaxed text-muted">{s.d}</p>
+                  <span className="mb-5 block font-mono text-[26px] text-white/60">{s.n}</span>
+                  <h3 className="mb-1.5 text-2xl font-medium leading-[1.3] tracking-[-0.01em] text-white">{s.t}</h3>
+                  <p className="text-[15px] leading-relaxed text-white/80">{s.d}</p>
                 </div>
               ))}
             </div>
