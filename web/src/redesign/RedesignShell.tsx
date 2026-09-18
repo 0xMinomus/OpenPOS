@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router'
 import {
   LayoutDashboard, Store, Package, Boxes, ReceiptText, BarChart3, Users, Settings, IdCard,
-  Moon, Sun, LogOut, Check, UserRound, PanelLeftClose, PanelLeftOpen, ChevronDown,
+  Moon, Sun, LogOut, Check, PanelLeftClose, PanelLeftOpen, ChevronDown,
 } from 'lucide-react'
 import './classic.css'
 import { ApiError, apiHeartbeat, apiListUsers, apiLogout, apiSwitchAccount, getCachedAccounts, resetSandbox, setCachedAccounts, type User } from './mock-api'
@@ -188,6 +188,11 @@ export default function RedesignShell() {
   )
 }
 
+function initials(name: string) {
+  const parts = name.trim().split(/\s+/)
+  return ((parts[0]?.[0] ?? '') + (parts[1]?.[0] ?? '')).toUpperCase() || '?'
+}
+
 function UserMenu() {
   const db = useDB()
   const nav = useNavigate()
@@ -273,8 +278,8 @@ function UserMenu() {
         aria-haspopup="menu"
         className="opc-sideuser"
       >
-        <span className="opc-avatar" aria-hidden="true">
-          <UserRound className="size-5" />
+        <span className="opc-avatar opc-avatar-initials" aria-hidden="true">
+          {initials(s.name)}
         </span>
         <span className="grid min-w-0 flex-1 leading-tight">
           <span className="truncate text-sm font-medium text-white">{s.name}</span>
@@ -286,13 +291,10 @@ function UserMenu() {
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} aria-hidden="true" />
-          <div
-            role="menu"
-            className="absolute bottom-full left-0 z-50 mb-2 w-full max-w-[calc(100vw-2rem)] rounded-md bg-popover p-1.5 text-popover-foreground shadow-md ring-1 ring-foreground/10 sm:min-w-64"
-          >
+          <div role="menu" className="opc-acc-panel">
             {pending ? (
-              <div className="space-y-2 p-2">
-                <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+              <div className="opc-acc-pin">
+                <p className="opc-acc-head">
                   Passcode · {pending.name}
                 </p>
                 <input
@@ -303,20 +305,16 @@ function UserMenu() {
                   autoFocus
                   placeholder="•••••"
                   aria-label="Passcode 5 angka"
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-center font-mono text-lg tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-ring"
                 />
-                {err && <p className="text-xs text-destructive">{err}</p>}
-                <div className="flex justify-end gap-2">
-                  <button
-                    onClick={() => { setPending(null); setErr('') }}
-                    className="rounded-md px-2.5 py-1 text-xs text-muted-foreground hover:bg-accent"
-                  >
+                {err && <p className="opc-acc-err">{err}</p>}
+                <div className="opc-acc-row">
+                  <button className="opc-acc-btn" onClick={() => { setPending(null); setErr('') }}>
                     Batal
                   </button>
                   <button
+                    className="opc-acc-btn primary"
                     onClick={submitPasscode}
                     disabled={passcode.length !== 5 || busy}
-                    className="rounded-md bg-primary px-3 py-1 text-xs font-medium text-primary-foreground disabled:opacity-50"
                   >
                     {busy ? '…' : 'Masuk'}
                   </button>
@@ -324,8 +322,8 @@ function UserMenu() {
               </div>
             ) : (
               <>
-                <p className="px-2 py-1.5 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">Ganti akun</p>
-                <div className="max-h-64 overflow-y-auto">
+                <p className="opc-acc-head">Ganti akun</p>
+                <div className="opc-acc-list">
                   {accounts.filter((a) => a.active).map((a) => {
                     const active = a.id === s.id
                     return (
@@ -334,31 +332,33 @@ function UserMenu() {
                         role="menuitem"
                         disabled={busy}
                         onClick={() => pick(a)}
-                        className={`flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm disabled:opacity-50 ${active ? 'bg-accent text-accent-foreground' : 'hover:bg-accent/50'}`}
+                        aria-current={active || undefined}
+                        className={`opc-acc-item${active ? ' active' : ''}`}
                       >
-                        <span className="grid flex-1 leading-tight">
-                          <span className="truncate font-medium">{a.name}</span>
-                          <span className="truncate font-mono text-[11px] text-muted-foreground">
-                            {a.role === 'admin' ? 'Admin' : 'Kasir'}
-                          </span>
+                        <span className="opc-acc-ava" aria-hidden="true">
+                          {initials(a.name)}
                         </span>
-                        {active && <Check className="size-4 shrink-0" />}
+                        <span className="opc-acc-meta">
+                          <strong>{a.name}</strong>
+                          <small>{a.role === 'admin' ? 'Admin' : 'Kasir'}</small>
+                        </span>
+                        {active && <Check className="opc-acc-check" aria-hidden="true" />}
                       </button>
                     )
                   })}
                   {accounts.length === 0 && (
-                    <p className="px-2 py-2 text-xs text-muted-foreground">Daftar akun tidak tersedia.</p>
+                    <p className="px-2.5 py-2 text-xs text-muted-foreground">Daftar akun tidak tersedia.</p>
                   )}
                 </div>
-                {err && <p className="px-2 py-1 text-xs text-destructive">{err}</p>}
-                <div className="my-1 h-px bg-border" />
+                {err && <p className="opc-acc-err">{err}</p>}
+                <div className="opc-acc-div" />
                 <button
                   role="menuitem"
                   onClick={keluar}
                   disabled={busy}
-                  className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-destructive hover:bg-destructive/10 disabled:opacity-50"
+                  className="opc-acc-logout"
                 >
-                  <LogOut className="size-4" />
+                  <LogOut aria-hidden="true" />
                   {busy ? 'Keluar…' : 'Keluar'}
                 </button>
               </>
