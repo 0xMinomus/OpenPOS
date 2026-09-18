@@ -387,6 +387,13 @@
 .opc-bell > .relative > button { color: #fff; }
 .opc-bell > .relative > button:hover { background: rgba(255, 255, 255, 0.14); color: #fff; }
 
+/* ── embed landing (iframe virtual 1280px): kartu KPI sempit 4 kolom —
+   ikon + angka dikecilkan agar nilai Rp tak kepotong. ── */
+.opc-embed .opc-kpi-body { gap: 12px; padding: 14px; }
+.opc-embed .opc-kpi-ico { width: 52px; height: 52px; }
+.opc-embed .opc-kpi-ico svg { width: 24px; height: 24px; }
+.opc-embed .opc-kpi-val { font-size: 22px; }
+
 @media (max-width: 1023px) {
   .opc-main { padding: 16px; }
   .opc-kpi-ico { width: 56px; height: 56px; }

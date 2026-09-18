@@ -122,7 +122,7 @@ export default function RedesignShell() {
   const navExpanded = narrow ? navOpen : !collapsed
 
   return (
-    <div className={`opc-shell op-classic${navOpen ? ' nav-open' : ''}${collapsed ? ' nav-collapsed' : ''}`}>
+    <div className={`opc-shell op-classic${isEmbed ? ' opc-embed' : ''}${navOpen ? ' nav-open' : ''}${collapsed ? ' nav-collapsed' : ''}`}>
       <div className="opc-toprow">
         <Link to="/demo" className="opc-brand" aria-label="Toko Preview — Dashboard">
           <Logo tone="dark" className="h-[26px] w-auto shrink-0" />
