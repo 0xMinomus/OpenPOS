@@ -185,7 +185,7 @@ export default function Dashboard() {
 
       <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
         <Card>
-          <CardHeader>
+          <CardHeader className="border-b border-border/70 pb-4">
             <div className="opc-panel-head">
               <span className="opc-panel-ico" aria-hidden="true"><BarChart3 /></span>
               <div>
@@ -194,15 +194,15 @@ export default function Dashboard() {
               </div>
             </div>
           </CardHeader>
-          <CardContent>
-            <ChartContainer config={salesConfig} className="h-56 w-full [&_:focus]:outline-none">
-              <BarChart data={sales7} margin={{ top: 16, right: 8, bottom: 0, left: 8 }} barCategoryGap="30%">
-                <CartesianGrid vertical={false} strokeDasharray="4 4" stroke="color-mix(in oklch, var(--foreground) 18%, transparent)" />
-                <XAxis dataKey="label" interval="preserveStartEnd" minTickGap={16} tickLine={false} axisLine={false} tickMargin={10} tick={{ fontSize: 12 }} />
-                <YAxis tickLine={false} axisLine={false} width={44} domain={[0, 'auto']} tickFormatter={(v: number) => fmtShort(v)} tick={{ fontSize: 11 }} className="font-mono text-xs" />
+          <CardContent className="pt-4">
+            <ChartContainer config={salesConfig} className="h-60 w-full [&_:focus]:outline-none">
+              <BarChart data={sales7} margin={{ top: 20, right: 12, bottom: 0, left: 0 }} barCategoryGap="25%">
+                <CartesianGrid vertical={false} strokeDasharray="4 4" stroke="color-mix(in oklch, var(--foreground) 24%, transparent)" />
+                <XAxis dataKey="label" interval="preserveStartEnd" minTickGap={16} tickLine={false} axisLine={false} tickMargin={8} tick={{ fontSize: 12 }} />
+                <YAxis tickLine={false} axisLine={false} width={48} domain={[0, 'auto']} tickFormatter={(v: number) => fmtShort(v)} tick={{ fontSize: 12 }} className="fill-muted-foreground" />
                 <ChartTooltip cursor={false} content={<ChartTooltipContent formatter={(v) => fmtRp(Number(v))} />} />
-                <Bar dataKey="omzet" fill="var(--color-omzet)" radius={[6, 6, 0, 0]} maxBarSize={38} isAnimationActive={animate} animationDuration={650} animationEasing="ease-out">
-                  <LabelList dataKey="omzet" position="top" formatter={(v) => fmtShort(Number(v))} fontSize={11} className="fill-muted-foreground" />
+                <Bar dataKey="omzet" fill="var(--color-omzet)" radius={[6, 6, 0, 0]} maxBarSize={46} isAnimationActive={animate} animationDuration={650} animationEasing="ease-out">
+                  <LabelList dataKey="omzet" position="top" formatter={(v) => fmtShort(Number(v))} fontSize={12} className="fill-foreground font-medium" />
                 </Bar>
               </BarChart>
             </ChartContainer>

@@ -324,21 +324,21 @@
 
 /* ── KPI card: satu surface + footer menyatu (§13) ── */
 .opc-kpi { overflow: hidden; }
-.opc-kpi-body { display: flex; align-items: center; gap: 16px; padding: 16px; }
+.opc-kpi-body { display: flex; align-items: center; gap: 12px; padding: 14px 16px; }
 .opc-kpi-ico {
-  width: 68px; height: 68px; border-radius: 6px; flex-shrink: 0;
+  width: 64px; height: 64px; border-radius: 6px; flex-shrink: 0;
   display: grid; place-items: center;
-  background: #eef3f8; color: #3d4e61;
+  background: #e9f0f7; color: #24405f;
 }
 .dark .op-classic .opc-kpi-ico { background: #1b2d3c; color: #b5c0cb; }
 .opc-kpi-ico svg { width: 30px; height: 30px; }
-.opc-kpi-val { font-size: 28px; font-weight: 700; line-height: 1.15; letter-spacing: -0.01em; white-space: nowrap; }
-.opc-kpi-label { margin-top: 2px; font-size: 14px; color: var(--muted-foreground); }
+.opc-kpi-val { font-size: 30px; font-weight: 700; line-height: 1.15; letter-spacing: -0.01em; white-space: nowrap; color: var(--foreground); }
+.opc-kpi-label { margin-top: 2px; font-size: 13px; line-height: 1.4; color: var(--muted-foreground); }
 .opc-kpi-foot {
   display: flex; justify-content: center;
   border-top: 1px solid var(--border);
   background: transparent;
-  padding: 9px 12px;
+  padding: 7px 12px;
   font-size: 13px; color: var(--primary); text-decoration: none;
 }
 .opc-kpi-foot:hover { text-decoration: underline; }
