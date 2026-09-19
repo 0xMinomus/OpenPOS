@@ -73,9 +73,9 @@ function toGh(d: any, fb: GhProfile): GhProfile {
   }
 }
 
-// Kartu profil GitHub: sorotan ikut kursor + float + angkat saat hover.
-// Tanpa tilt 3D — interaksinya datar dan tenang.
-function GhCard({ user, role, cta, floatSlow }: { user: GhProfile; role: string; cta: { label: string; href: string }; floatSlow?: boolean }) {
+// Kartu profil GitHub (light): sorotan ikut kursor + angkat saat hover.
+// Tanpa animasi idle dan tanpa tilt — diam sampai kursor datang.
+function GhCard({ user, role, cta }: { user: GhProfile; role: string; cta: { label: string; href: string } }) {
   const ref = useRef<HTMLDivElement>(null)
   const [spot, setSpot] = useState({ x: 50, y: 50 })
   function onMove(e: React.MouseEvent) {
@@ -84,46 +84,43 @@ function GhCard({ user, role, cta, floatSlow }: { user: GhProfile; role: string;
     setSpot({ x: ((e.clientX - r.left) / r.width) * 100, y: ((e.clientY - r.top) / r.height) * 100 })
   }
   return (
-    <div
-      className="about-float w-full"
-      style={floatSlow ? { animationDuration: '6.5s', animationDelay: '-3s' } : undefined}
-    >
+    <div className="h-full">
       <div
         ref={ref}
         onMouseMove={onMove}
-        className="relative overflow-hidden rounded-2xl border border-[#30363d] bg-[#0d1117] text-[#e6edf3] shadow-[rgba(15,23,42,0.28)_0_18px_40px_-24px] transition duration-300 hover:-translate-y-1.5 hover:border-[#8b949e] hover:shadow-[rgba(31,111,235,0.25)_0_18px_48px_-20px]"
+        className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-dove bg-paper text-fg shadow-[rgba(15,23,42,0.12)_0_18px_40px_-24px] transition duration-300 hover:-translate-y-1.5 hover:border-jet hover:shadow-[rgba(26,118,209,0.22)_0_18px_48px_-20px]"
       >
-        <div className="flex items-center gap-2 border-b border-[#30363d] px-4 py-2.5" aria-hidden="true">
+        <div className="flex items-center gap-2 border-b border-dove bg-cream px-4 py-2.5" aria-hidden="true">
           <span className="size-2.5 rounded-full bg-[#ff5f57]" />
           <span className="size-2.5 rounded-full bg-[#ffbd2e]" />
           <span className="size-2.5 rounded-full bg-[#28c840]" />
-          <span className="ml-2 font-mono text-[11px] text-[#8b949e]">github.com/{user.login}</span>
-          <span className="ml-auto rounded-full border border-[#30363d] bg-[#161b22] px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-[#8b949e]">{role}</span>
+          <span className="ml-2 font-mono text-[11px] text-steel">github.com/{user.login}</span>
+          <span className="ml-auto rounded-full border border-dove bg-paper px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-steel">{role}</span>
         </div>
-        <div className="p-5">
+        <div className="flex flex-1 flex-col p-5">
           <div className="flex items-center gap-4">
             <img
               src={user.avatar_url}
               alt={`Foto profil GitHub ${user.login}`}
               loading="lazy"
-              className="size-16 rounded-full border border-[#30363d]"
+              className="size-16 rounded-full border border-dove"
             />
             <div className="min-w-0">
               <p className="truncate text-xl font-semibold leading-tight">{user.name}</p>
-              <p className="truncate font-mono text-sm text-[#8b949e]">{user.login}</p>
+              <p className="truncate font-mono text-sm text-steel">{user.login}</p>
             </div>
             <a
               href={`https://github.com/${user.login}`}
               target="_blank"
               rel="noreferrer"
-              className="ml-auto inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[#30363d] bg-[#21262d] px-3.5 py-1.5 text-[13px] font-medium transition hover:border-[#8b949e]"
+              className="ml-auto inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-dove bg-paper px-3.5 py-1.5 text-[13px] font-medium transition hover:border-jet hover:text-jet"
             >
               <GhMark />
               Follow
             </a>
           </div>
-          {user.bio && <p className="mt-3 text-sm leading-relaxed text-[#c9d1d9]">{user.bio}</p>}
-          <div className="mt-3 space-y-1.5 text-[13px] text-[#8b949e]">
+          {user.bio && <p className="mt-3 text-sm leading-relaxed text-muted">{user.bio}</p>}
+          <div className="mt-3 space-y-1.5 text-[13px] text-steel">
             {user.company && (
               <p className="flex items-center gap-2">
                 <Building2 className="size-3.5 shrink-0" />
@@ -137,45 +134,47 @@ function GhCard({ user, role, cta, floatSlow }: { user: GhProfile; role: string;
               </p>
             )}
             {user.blog && (
-              <a href={user.blog} target="_blank" rel="noreferrer" className="flex items-center gap-2 transition hover:text-[#e6edf3]">
+              <a href={user.blog} target="_blank" rel="noreferrer" className="flex items-center gap-2 transition hover:text-jet">
                 <Link2 className="size-3.5 shrink-0" />
                 <span className="truncate">{user.blog.replace(/^https?:\/\//, '')}</span>
               </a>
             )}
           </div>
-          <div className="mt-4 grid grid-cols-3 divide-x divide-[#30363d] rounded-xl border border-[#30363d] bg-[#161b22] text-center">
-            <div className="py-2.5">
-              <p className="flex items-center justify-center gap-1.5 text-base font-semibold tabular-nums">
-                <BookMarked className="size-4 text-[#8b949e]" />
-                {user.public_repos}
-              </p>
-              <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-[#8b949e]">repo</p>
+          <div className="mt-auto pt-4">
+            <div className="grid grid-cols-3 divide-x divide-dove rounded-xl border border-dove bg-cream text-center">
+              <div className="py-2.5">
+                <p className="flex items-center justify-center gap-1.5 text-base font-semibold tabular-nums">
+                  <BookMarked className="size-4 text-fog" />
+                  {user.public_repos}
+                </p>
+                <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-steel">repo</p>
+              </div>
+              <div className="py-2.5">
+                <p className="flex items-center justify-center gap-1.5 text-base font-semibold tabular-nums">
+                  <Users className="size-4 text-fog" />
+                  {user.followers}
+                </p>
+                <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-steel">followers</p>
+              </div>
+              <div className="py-2.5">
+                <p className="text-base font-semibold tabular-nums">{user.following}</p>
+                <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-steel">following</p>
+              </div>
             </div>
-            <div className="py-2.5">
-              <p className="flex items-center justify-center gap-1.5 text-base font-semibold tabular-nums">
-                <Users className="size-4 text-[#8b949e]" />
-                {user.followers}
-              </p>
-              <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-[#8b949e]">followers</p>
-            </div>
-            <div className="py-2.5">
-              <p className="text-base font-semibold tabular-nums">{user.following}</p>
-              <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-[#8b949e]">following</p>
-            </div>
+            <a
+              href={cta.href}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-4 block rounded-xl bg-jet py-2.5 text-center text-sm font-medium text-paper transition hover:opacity-85"
+            >
+              {cta.label}
+            </a>
           </div>
-          <a
-            href={cta.href}
-            target="_blank"
-            rel="noreferrer"
-            className="mt-4 block rounded-xl bg-[#1f6feb] py-2.5 text-center text-sm font-medium text-white transition hover:bg-[#388bfd]"
-          >
-            {cta.label}
-          </a>
         </div>
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0"
-          style={{ background: `radial-gradient(circle at ${spot.x}% ${spot.y}%, rgba(56,139,253,0.16) 0%, transparent 55%)` }}
+          style={{ background: `radial-gradient(circle at ${spot.x}% ${spot.y}%, rgba(26,118,209,0.10) 0%, transparent 55%)` }}
         />
       </div>
     </div>
@@ -199,9 +198,9 @@ function AboutVisual() {
     return () => { dead = true }
   }, [])
   return (
-    <div className="reveal mx-auto grid w-full max-w-4xl gap-6 md:grid-cols-2" data-delay="1">
+    <div className="reveal mx-auto grid w-full max-w-4xl items-stretch gap-6 md:grid-cols-2" data-delay="1">
       <GhCard user={gh} role="Frontend" cta={{ label: 'Lihat repo OpenPOS →', href: 'https://github.com/0xMinomus/OpenPOS' }} />
-      <GhCard user={adrr} role="Backend" cta={{ label: 'Lihat repo API →', href: 'https://github.com/adrr-dev/openPOS' }} floatSlow />
+      <GhCard user={adrr} role="Backend" cta={{ label: 'Lihat repo API →', href: 'https://github.com/adrr-dev/openPOS' }} />
     </div>
   )
 }
