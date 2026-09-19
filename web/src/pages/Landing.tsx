@@ -51,133 +51,157 @@ const GH_FALLBACK: GhProfile = {
   avatar_url: 'https://avatars.githubusercontent.com/u/207334042?v=4',
 }
 
-function AboutVisual() {
+const GH_ADRR_FALLBACK: GhProfile = {
+  login: 'adrr-dev',
+  name: 'adrr-dev',
+  bio: '',
+  company: '',
+  location: '',
+  blog: '',
+  public_repos: 9,
+  followers: 1,
+  following: 1,
+  avatar_url: 'https://avatars.githubusercontent.com/u/228172413?v=4',
+}
+
+function toGh(d: any, fb: GhProfile): GhProfile {
+  return {
+    login: d.login, name: d.name ?? d.login, bio: d.bio ?? '',
+    company: d.company ?? '', location: d.location ?? '', blog: d.blog ?? '',
+    public_repos: d.public_repos ?? 0, followers: d.followers ?? 0,
+    following: d.following ?? 0, avatar_url: d.avatar_url ?? fb.avatar_url,
+  }
+}
+
+// Kartu profil GitHub: sorotan ikut kursor + float + angkat saat hover.
+// Tanpa tilt 3D — interaksinya datar dan tenang.
+function GhCard({ user, role, cta, floatSlow }: { user: GhProfile; role: string; cta: { label: string; href: string }; floatSlow?: boolean }) {
   const ref = useRef<HTMLDivElement>(null)
-  const [t, setT] = useState({ rx: 0, ry: 0, gx: 50, gy: 50 })
-  // Profil live dari GitHub API; fallback statis bila offline/rate-limit.
-  const [gh, setGh] = useState<GhProfile>(GH_FALLBACK)
-  useEffect(() => {
-    let dead = false
-    fetch('https://api.github.com/users/0xMinomus')
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d) => {
-        if (!dead && d?.login) {
-          setGh({
-            login: d.login, name: d.name ?? d.login, bio: d.bio ?? '',
-            company: d.company ?? '', location: d.location ?? '', blog: d.blog ?? '',
-            public_repos: d.public_repos ?? 0, followers: d.followers ?? 0,
-            following: d.following ?? 0, avatar_url: d.avatar_url ?? GH_FALLBACK.avatar_url,
-          })
-        }
-      })
-      .catch(() => {})
-    return () => { dead = true }
-  }, [])
+  const [spot, setSpot] = useState({ x: 50, y: 50 })
   function onMove(e: React.MouseEvent) {
     const r = ref.current?.getBoundingClientRect()
     if (!r) return
-    const px = (e.clientX - r.left) / r.width
-    const py = (e.clientY - r.top) / r.height
-    setT({ rx: (0.5 - py) * 10, ry: (px - 0.5) * 12, gx: px * 100, gy: py * 100 })
-  }
-  function reset() {
-    setT({ rx: 0, ry: 0, gx: 50, gy: 50 })
+    setSpot({ x: ((e.clientX - r.left) / r.width) * 100, y: ((e.clientY - r.top) / r.height) * 100 })
   }
   return (
-    <div className="reveal flex items-center justify-center" data-delay="1">
-      <div className="about-float w-full max-w-[400px]">
-        <div
-          ref={ref}
-          onMouseMove={onMove}
-          onMouseLeave={reset}
-          className="relative overflow-hidden rounded-2xl border border-[#30363d] bg-[#0d1117] text-[#e6edf3] shadow-[rgba(15,23,42,0.28)_0_18px_40px_-24px]"
-          style={{ transform: `perspective(900px) rotateX(${t.rx}deg) rotateY(${t.ry}deg)`, transition: 'transform 120ms ease-out' }}
-        >
-          <div className="flex items-center gap-2 border-b border-[#30363d] px-4 py-2.5" aria-hidden="true">
-            <span className="size-2.5 rounded-full bg-[#ff5f57]" />
-            <span className="size-2.5 rounded-full bg-[#ffbd2e]" />
-            <span className="size-2.5 rounded-full bg-[#28c840]" />
-            <span className="ml-2 font-mono text-[11px] text-[#8b949e]">github.com/{gh.login}</span>
-          </div>
-          <div className="p-5">
-            <div className="flex items-center gap-4">
-              <img
-                src={gh.avatar_url}
-                alt={`Foto profil GitHub ${gh.login}`}
-                loading="lazy"
-                className="size-16 rounded-full border border-[#30363d]"
-              />
-              <div className="min-w-0">
-                <p className="truncate text-xl font-semibold leading-tight">{gh.name}</p>
-                <p className="truncate font-mono text-sm text-[#8b949e]">{gh.login}</p>
-              </div>
-              <a
-                href={`https://github.com/${gh.login}`}
-                target="_blank"
-                rel="noreferrer"
-                className="ml-auto inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[#30363d] bg-[#21262d] px-3.5 py-1.5 text-[13px] font-medium transition hover:border-[#8b949e]"
-              >
-                <GhMark />
-                Follow
-              </a>
-            </div>
-            {gh.bio && <p className="mt-3 text-sm leading-relaxed text-[#c9d1d9]">{gh.bio}</p>}
-            <div className="mt-3 space-y-1.5 text-[13px] text-[#8b949e]">
-              {gh.company && (
-                <p className="flex items-center gap-2">
-                  <Building2 className="size-3.5 shrink-0" />
-                  <span className="truncate">{gh.company}</span>
-                </p>
-              )}
-              {gh.location && (
-                <p className="flex items-center gap-2">
-                  <MapPin className="size-3.5 shrink-0" />
-                  <span className="truncate">{gh.location}</span>
-                </p>
-              )}
-              {gh.blog && (
-                <a href={gh.blog} target="_blank" rel="noreferrer" className="flex items-center gap-2 transition hover:text-[#e6edf3]">
-                  <Link2 className="size-3.5 shrink-0" />
-                  <span className="truncate">{gh.blog.replace(/^https?:\/\//, '')}</span>
-                </a>
-              )}
-            </div>
-            <div className="mt-4 grid grid-cols-3 divide-x divide-[#30363d] rounded-xl border border-[#30363d] bg-[#161b22] text-center">
-              <div className="py-2.5">
-                <p className="flex items-center justify-center gap-1.5 text-base font-semibold tabular-nums">
-                  <BookMarked className="size-4 text-[#8b949e]" />
-                  {gh.public_repos}
-                </p>
-                <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-[#8b949e]">repo</p>
-              </div>
-              <div className="py-2.5">
-                <p className="flex items-center justify-center gap-1.5 text-base font-semibold tabular-nums">
-                  <Users className="size-4 text-[#8b949e]" />
-                  {gh.followers}
-                </p>
-                <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-[#8b949e]">followers</p>
-              </div>
-              <div className="py-2.5">
-                <p className="text-base font-semibold tabular-nums">{gh.following}</p>
-                <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-[#8b949e]">following</p>
-              </div>
+    <div
+      className="about-float w-full"
+      style={floatSlow ? { animationDuration: '6.5s', animationDelay: '-3s' } : undefined}
+    >
+      <div
+        ref={ref}
+        onMouseMove={onMove}
+        className="relative overflow-hidden rounded-2xl border border-[#30363d] bg-[#0d1117] text-[#e6edf3] shadow-[rgba(15,23,42,0.28)_0_18px_40px_-24px] transition duration-300 hover:-translate-y-1.5 hover:border-[#8b949e] hover:shadow-[rgba(31,111,235,0.25)_0_18px_48px_-20px]"
+      >
+        <div className="flex items-center gap-2 border-b border-[#30363d] px-4 py-2.5" aria-hidden="true">
+          <span className="size-2.5 rounded-full bg-[#ff5f57]" />
+          <span className="size-2.5 rounded-full bg-[#ffbd2e]" />
+          <span className="size-2.5 rounded-full bg-[#28c840]" />
+          <span className="ml-2 font-mono text-[11px] text-[#8b949e]">github.com/{user.login}</span>
+          <span className="ml-auto rounded-full border border-[#30363d] bg-[#161b22] px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-[#8b949e]">{role}</span>
+        </div>
+        <div className="p-5">
+          <div className="flex items-center gap-4">
+            <img
+              src={user.avatar_url}
+              alt={`Foto profil GitHub ${user.login}`}
+              loading="lazy"
+              className="size-16 rounded-full border border-[#30363d]"
+            />
+            <div className="min-w-0">
+              <p className="truncate text-xl font-semibold leading-tight">{user.name}</p>
+              <p className="truncate font-mono text-sm text-[#8b949e]">{user.login}</p>
             </div>
             <a
-              href={`https://github.com/${gh.login}?tab=repositories`}
+              href={`https://github.com/${user.login}`}
               target="_blank"
               rel="noreferrer"
-              className="mt-4 block rounded-xl bg-[#1f6feb] py-2.5 text-center text-sm font-medium text-white transition hover:bg-[#388bfd]"
+              className="ml-auto inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[#30363d] bg-[#21262d] px-3.5 py-1.5 text-[13px] font-medium transition hover:border-[#8b949e]"
             >
-              Lihat repo OpenPOS di GitHub →
+              <GhMark />
+              Follow
             </a>
           </div>
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0"
-            style={{ background: `radial-gradient(circle at ${t.gx}% ${t.gy}%, rgba(255,255,255,0.12) 0%, transparent 55%)` }}
-          />
+          {user.bio && <p className="mt-3 text-sm leading-relaxed text-[#c9d1d9]">{user.bio}</p>}
+          <div className="mt-3 space-y-1.5 text-[13px] text-[#8b949e]">
+            {user.company && (
+              <p className="flex items-center gap-2">
+                <Building2 className="size-3.5 shrink-0" />
+                <span className="truncate">{user.company}</span>
+              </p>
+            )}
+            {user.location && (
+              <p className="flex items-center gap-2">
+                <MapPin className="size-3.5 shrink-0" />
+                <span className="truncate">{user.location}</span>
+              </p>
+            )}
+            {user.blog && (
+              <a href={user.blog} target="_blank" rel="noreferrer" className="flex items-center gap-2 transition hover:text-[#e6edf3]">
+                <Link2 className="size-3.5 shrink-0" />
+                <span className="truncate">{user.blog.replace(/^https?:\/\//, '')}</span>
+              </a>
+            )}
+          </div>
+          <div className="mt-4 grid grid-cols-3 divide-x divide-[#30363d] rounded-xl border border-[#30363d] bg-[#161b22] text-center">
+            <div className="py-2.5">
+              <p className="flex items-center justify-center gap-1.5 text-base font-semibold tabular-nums">
+                <BookMarked className="size-4 text-[#8b949e]" />
+                {user.public_repos}
+              </p>
+              <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-[#8b949e]">repo</p>
+            </div>
+            <div className="py-2.5">
+              <p className="flex items-center justify-center gap-1.5 text-base font-semibold tabular-nums">
+                <Users className="size-4 text-[#8b949e]" />
+                {user.followers}
+              </p>
+              <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-[#8b949e]">followers</p>
+            </div>
+            <div className="py-2.5">
+              <p className="text-base font-semibold tabular-nums">{user.following}</p>
+              <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-[#8b949e]">following</p>
+            </div>
+          </div>
+          <a
+            href={cta.href}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-4 block rounded-xl bg-[#1f6feb] py-2.5 text-center text-sm font-medium text-white transition hover:bg-[#388bfd]"
+          >
+            {cta.label}
+          </a>
         </div>
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0"
+          style={{ background: `radial-gradient(circle at ${spot.x}% ${spot.y}%, rgba(56,139,253,0.16) 0%, transparent 55%)` }}
+        />
       </div>
+    </div>
+  )
+}
+
+function AboutVisual() {
+  // Profil live dari GitHub API; fallback statis bila offline/rate-limit.
+  const [gh, setGh] = useState<GhProfile>(GH_FALLBACK)
+  const [adrr, setAdrr] = useState<GhProfile>(GH_ADRR_FALLBACK)
+  useEffect(() => {
+    let dead = false
+    const load = (login: string, fb: GhProfile, set: (p: GhProfile) => void) => {
+      fetch(`https://api.github.com/users/${login}`)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => { if (!dead && d?.login) set(toGh(d, fb)) })
+        .catch(() => {})
+    }
+    load('0xMinomus', GH_FALLBACK, setGh)
+    load('adrr-dev', GH_ADRR_FALLBACK, setAdrr)
+    return () => { dead = true }
+  }, [])
+  return (
+    <div className="reveal mx-auto grid w-full max-w-4xl gap-6 md:grid-cols-2" data-delay="1">
+      <GhCard user={gh} role="Frontend" cta={{ label: 'Lihat repo OpenPOS →', href: 'https://github.com/0xMinomus/OpenPOS' }} />
+      <GhCard user={adrr} role="Backend" cta={{ label: 'Lihat repo API →', href: 'https://github.com/adrr-dev/openPOS' }} floatSlow />
     </div>
   )
 }
@@ -352,20 +376,22 @@ export default function Landing() {
         </section>
 
         <section id="tentang" className="section border-t border-border">
-          <div className="container mx-auto grid max-w-6xl items-center gap-14 px-5 md:px-8 md:grid-cols-2">
-            <div className="reveal">
+          <div className="container mx-auto max-w-6xl px-5 md:px-8">
+            <div className="reveal mx-auto max-w-[680px] text-center">
               <p className="font-mono text-xs uppercase tracking-[0.08em] text-steel">Tentang</p>
               <h2 className="mt-5 text-[clamp(30px,3.8vw,46px)] font-normal leading-[1.14] tracking-[-0.025em]">
                 Sederhana untuk siapa pun, andal untuk bisnis yang bertumbuh.
               </h2>
-              <p className="mt-10 text-lg leading-relaxed text-muted">
+              <p className="mt-6 text-lg leading-relaxed text-muted">
                 OpenPOS lahir dari masalah yang sering terjadi. Mayoritas UMKM di Indonesia masih mencatat penjualan di buku kas atau Excel, sementara aplikasi kasir yang ada umumnya berbayar per bulan dan terlalu rumit untuk dipelajari.
               </p>
               <p className="mt-4 text-lg leading-relaxed text-muted">
-                Kami membuatnya berbeda. Antarmuka kasir yang sederhana, cukup untuk operasional harian toko kecil, dan gratis selamanya. Tanpa langganan dan tanpa masa percobaan yang berubah menjadi tagihan.
+                Kami membuatnya berbeda. Antarmuka kasir yang sederhana, cukup untuk operasional harian toko kecil, dan gratis selamanya. Dibangun terbuka oleh dua orang ini:
               </p>
             </div>
-            <AboutVisual />
+            <div className="mt-10">
+              <AboutVisual />
+            </div>
           </div>
         </section>
 
