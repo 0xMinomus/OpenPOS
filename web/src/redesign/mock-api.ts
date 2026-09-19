@@ -16,6 +16,7 @@ export type {
 }
 
 import { ApiError } from '../lib/api'
+import { getSession } from '../lib/store'
 import { buildDB, type SandboxDB } from './fixtures'
 
 let db: SandboxDB = buildDB()
@@ -51,7 +52,8 @@ function paginate<T>(items: T[], page = 1, limit = 20): Page<T> {
 }
 
 function authed(): User {
-  return db.users[0]
+  const s = getSession()
+  return db.users.find((u) => u.id === s?.id) ?? db.users[0]
 }
 
 // ── dashboard & laporan ────────────────────────────────────────────
@@ -91,6 +93,21 @@ export async function apiGetDashboard(date?: string): Promise<DashboardAdmin | D
     .sort((a, b) => +new Date(b.created_at) - +new Date(a.created_at))
     .slice(0, 5)
     .map((t) => ({ id: t.id, cashier_name: t.cashier_name, total: t.total, status: t.status, time: t.created_at }))
+  // Kasir: cakupannya transaksinya sendiri (ikut RBAC backend). Sebelumnya
+  // mock selalu role admin → dashboard kasir stuck skeleton selamanya.
+  const me = authed()
+  if (me.role === 'cashier') {
+    const mine = t0.filter((t) => t.cashier_name === me.name)
+    return {
+      role: 'cashier',
+      today: {
+        omzet: mine.reduce((n, t) => n + t.total, 0),
+        trx_count: mine.length,
+        items_sold: mine.reduce((n, t) => n + t.items.reduce((m, i) => m + i.qty, 0), 0),
+      },
+      recent: recent.filter((t) => t.cashier_name === me.name),
+    }
+  }
   return {
     role: 'admin',
     today: {
@@ -183,6 +200,9 @@ export async function apiGetReport(period = 'all', date?: string): Promise<Repor
 export async function apiListTransactions(f: { q?: string; method?: string; date?: string; page?: number; limit?: number } = {}) {
   await wait()
   let items = [...db.trx].sort((a, b) => +new Date(b.created_at) - +new Date(a.created_at))
+  // Kasir hanya lihat transaksinya sendiri (ikut RBAC backend asli).
+  const me = authed()
+  if (me.role === 'cashier') items = items.filter((t) => t.cashier_name === me.name)
   if (f.q) {
     const q = f.q.toLowerCase()
     items = items.filter((t) => t.id.toLowerCase().includes(q) || t.cashier_name.toLowerCase().includes(q))
