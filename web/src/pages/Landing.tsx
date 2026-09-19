@@ -1,7 +1,16 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
+import { BookMarked, Building2, Link2, MapPin, Users } from 'lucide-react'
 import Footer from './Footer'
 import Navbar from './Navbar'
+
+function GhMark({ className = 'size-4' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" className={className}>
+      <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z" />
+    </svg>
+  )
+}
 
 const TESTIMONIALS = [
   { initial: 'S', name: 'Bu Sari', role: 'Pemilik toko kelontong · Java', quote: 'Dulu omzet harian saya hitung dari buku kas setiap malam. Sekarang cukup buka dashboard. Stok langsung berkurang tiap transaksi dan struk tercetak otomatis, jadi saya tidak perlu pusing lagi.' },
@@ -16,38 +25,156 @@ const TESTIMONIALS = [
   { initial: 'R', name: 'Pak Rudi', role: 'Pemilik toko elektronik · Palembang', quote: 'Seminggu memakai, langsung terbiasa. Import produk dari Excel juga mudah, ratusan barang masuk sekaligus tanpa salah tulis.' },
 ]
 
+interface GhProfile {
+  login: string
+  name: string
+  bio: string
+  company: string
+  location: string
+  blog: string
+  public_repos: number
+  followers: number
+  following: number
+  avatar_url: string
+}
+
+const GH_FALLBACK: GhProfile = {
+  login: '0xMinomus',
+  name: 'Andika Putra',
+  bio: 'README isinya larping doang itu.',
+  company: '0xTeam',
+  location: 'Earth',
+  blog: 'https://andika-portofolio-eta.vercel.app/',
+  public_repos: 4,
+  followers: 1,
+  following: 2,
+  avatar_url: 'https://avatars.githubusercontent.com/u/207334042?v=4',
+}
+
 function AboutVisual() {
   const ref = useRef<HTMLDivElement>(null)
   const [t, setT] = useState({ rx: 0, ry: 0, gx: 50, gy: 50 })
+  // Profil live dari GitHub API; fallback statis bila offline/rate-limit.
+  const [gh, setGh] = useState<GhProfile>(GH_FALLBACK)
+  useEffect(() => {
+    let dead = false
+    fetch('https://api.github.com/users/0xMinomus')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!dead && d?.login) {
+          setGh({
+            login: d.login, name: d.name ?? d.login, bio: d.bio ?? '',
+            company: d.company ?? '', location: d.location ?? '', blog: d.blog ?? '',
+            public_repos: d.public_repos ?? 0, followers: d.followers ?? 0,
+            following: d.following ?? 0, avatar_url: d.avatar_url ?? GH_FALLBACK.avatar_url,
+          })
+        }
+      })
+      .catch(() => {})
+    return () => { dead = true }
+  }, [])
   function onMove(e: React.MouseEvent) {
     const r = ref.current?.getBoundingClientRect()
     if (!r) return
     const px = (e.clientX - r.left) / r.width
     const py = (e.clientY - r.top) / r.height
-    setT({ rx: (0.5 - py) * 12, ry: (px - 0.5) * 14, gx: px * 100, gy: py * 100 })
+    setT({ rx: (0.5 - py) * 10, ry: (px - 0.5) * 12, gx: px * 100, gy: py * 100 })
   }
   function reset() {
     setT({ rx: 0, ry: 0, gx: 50, gy: 50 })
   }
   return (
     <div className="reveal flex items-center justify-center" data-delay="1">
-      <div className="about-float">
+      <div className="about-float w-full max-w-[400px]">
         <div
           ref={ref}
           onMouseMove={onMove}
           onMouseLeave={reset}
-          className="relative overflow-hidden rounded-2xl shadow-[rgba(15,23,42,0.18)_0_18px_40px_-24px]"
+          className="relative overflow-hidden rounded-2xl border border-[#30363d] bg-[#0d1117] text-[#e6edf3] shadow-[rgba(15,23,42,0.28)_0_18px_40px_-24px]"
           style={{ transform: `perspective(900px) rotateX(${t.rx}deg) rotateY(${t.ry}deg)`, transition: 'transform 120ms ease-out' }}
         >
-          <img
-            src="/image-tentang.png"
-            alt="Ilustrasi toko memakai OpenPOS"
-            className="block h-auto w-full max-w-[340px] md:max-w-[400px]"
-          />
+          <div className="flex items-center gap-2 border-b border-[#30363d] px-4 py-2.5" aria-hidden="true">
+            <span className="size-2.5 rounded-full bg-[#ff5f57]" />
+            <span className="size-2.5 rounded-full bg-[#ffbd2e]" />
+            <span className="size-2.5 rounded-full bg-[#28c840]" />
+            <span className="ml-2 font-mono text-[11px] text-[#8b949e]">github.com/{gh.login}</span>
+          </div>
+          <div className="p-5">
+            <div className="flex items-center gap-4">
+              <img
+                src={gh.avatar_url}
+                alt={`Foto profil GitHub ${gh.login}`}
+                loading="lazy"
+                className="size-16 rounded-full border border-[#30363d]"
+              />
+              <div className="min-w-0">
+                <p className="truncate text-xl font-semibold leading-tight">{gh.name}</p>
+                <p className="truncate font-mono text-sm text-[#8b949e]">{gh.login}</p>
+              </div>
+              <a
+                href={`https://github.com/${gh.login}`}
+                target="_blank"
+                rel="noreferrer"
+                className="ml-auto inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[#30363d] bg-[#21262d] px-3.5 py-1.5 text-[13px] font-medium transition hover:border-[#8b949e]"
+              >
+                <GhMark />
+                Follow
+              </a>
+            </div>
+            {gh.bio && <p className="mt-3 text-sm leading-relaxed text-[#c9d1d9]">{gh.bio}</p>}
+            <div className="mt-3 space-y-1.5 text-[13px] text-[#8b949e]">
+              {gh.company && (
+                <p className="flex items-center gap-2">
+                  <Building2 className="size-3.5 shrink-0" />
+                  <span className="truncate">{gh.company}</span>
+                </p>
+              )}
+              {gh.location && (
+                <p className="flex items-center gap-2">
+                  <MapPin className="size-3.5 shrink-0" />
+                  <span className="truncate">{gh.location}</span>
+                </p>
+              )}
+              {gh.blog && (
+                <a href={gh.blog} target="_blank" rel="noreferrer" className="flex items-center gap-2 transition hover:text-[#e6edf3]">
+                  <Link2 className="size-3.5 shrink-0" />
+                  <span className="truncate">{gh.blog.replace(/^https?:\/\//, '')}</span>
+                </a>
+              )}
+            </div>
+            <div className="mt-4 grid grid-cols-3 divide-x divide-[#30363d] rounded-xl border border-[#30363d] bg-[#161b22] text-center">
+              <div className="py-2.5">
+                <p className="flex items-center justify-center gap-1.5 text-base font-semibold tabular-nums">
+                  <BookMarked className="size-4 text-[#8b949e]" />
+                  {gh.public_repos}
+                </p>
+                <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-[#8b949e]">repo</p>
+              </div>
+              <div className="py-2.5">
+                <p className="flex items-center justify-center gap-1.5 text-base font-semibold tabular-nums">
+                  <Users className="size-4 text-[#8b949e]" />
+                  {gh.followers}
+                </p>
+                <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-[#8b949e]">followers</p>
+              </div>
+              <div className="py-2.5">
+                <p className="text-base font-semibold tabular-nums">{gh.following}</p>
+                <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-[#8b949e]">following</p>
+              </div>
+            </div>
+            <a
+              href={`https://github.com/${gh.login}?tab=repositories`}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-4 block rounded-xl bg-[#1f6feb] py-2.5 text-center text-sm font-medium text-white transition hover:bg-[#388bfd]"
+            >
+              Lihat repo OpenPOS di GitHub →
+            </a>
+          </div>
           <div
             aria-hidden="true"
             className="pointer-events-none absolute inset-0"
-            style={{ background: `radial-gradient(circle at ${t.gx}% ${t.gy}%, rgba(255,255,255,0.28) 0%, transparent 55%)` }}
+            style={{ background: `radial-gradient(circle at ${t.gx}% ${t.gy}%, rgba(255,255,255,0.12) 0%, transparent 55%)` }}
           />
         </div>
       </div>
