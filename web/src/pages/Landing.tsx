@@ -73,21 +73,12 @@ function toGh(d: any, fb: GhProfile): GhProfile {
   }
 }
 
-// Kartu profil GitHub (light): sorotan ikut kursor + angkat saat hover.
-// Tanpa animasi idle dan tanpa tilt — diam sampai kursor datang.
+// Kartu profil GitHub (light): hanya terangkat + glow biru saat hover.
+// Tanpa animasi idle, tanpa sorotan kursor, tanpa tilt — diam total.
 function GhCard({ user, role, cta }: { user: GhProfile; role: string; cta: { label: string; href: string } }) {
-  const ref = useRef<HTMLDivElement>(null)
-  const [spot, setSpot] = useState({ x: 50, y: 50 })
-  function onMove(e: React.MouseEvent) {
-    const r = ref.current?.getBoundingClientRect()
-    if (!r) return
-    setSpot({ x: ((e.clientX - r.left) / r.width) * 100, y: ((e.clientY - r.top) / r.height) * 100 })
-  }
   return (
     <div className="h-full">
       <div
-        ref={ref}
-        onMouseMove={onMove}
         className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-dove bg-paper text-fg shadow-[rgba(15,23,42,0.12)_0_18px_40px_-24px] transition duration-300 hover:-translate-y-1.5 hover:border-jet hover:shadow-[rgba(26,118,209,0.22)_0_18px_48px_-20px]"
       >
         <div className="flex items-center gap-2 border-b border-dove bg-cream px-4 py-2.5" aria-hidden="true">
@@ -171,11 +162,6 @@ function GhCard({ user, role, cta }: { user: GhProfile; role: string; cta: { lab
             </a>
           </div>
         </div>
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0"
-          style={{ background: `radial-gradient(circle at ${spot.x}% ${spot.y}%, rgba(26,118,209,0.10) 0%, transparent 55%)` }}
-        />
       </div>
     </div>
   )
