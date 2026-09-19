@@ -85,7 +85,11 @@ function GhCard({ user, role, cta }: { user: GhProfile; role: string; cta: { lab
           <span className="size-2.5 rounded-full bg-[#ff5f57]" />
           <span className="size-2.5 rounded-full bg-[#ffbd2e]" />
           <span className="size-2.5 rounded-full bg-[#28c840]" />
-          <span className="ml-2 font-mono text-[11px] text-steel">github.com/{user.login}</span>
+          <span className="ml-2 font-mono text-[11px] text-steel">
+            <a href={`https://github.com/${user.login}`} target="_blank" rel="noreferrer" className="transition hover:text-jet hover:underline">
+              github.com/{user.login}
+            </a>
+          </span>
           <span className="ml-auto rounded-full border border-dove bg-paper px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-steel">{role}</span>
         </div>
         <div className="flex flex-1 flex-col p-5">
