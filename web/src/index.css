@@ -318,6 +318,24 @@ p, h1, h2, h3, h4, li, span, a, td, th { overflow-wrap: anywhere; }
 .auth-card { animation: rise 0.5s cubic-bezier(0.2, 0, 0, 1) both; }
 @media (prefers-reduced-motion: reduce) { .auth-card { animation: none; } }
 
+/* ─── landing overlapping sections (native sticky, tanpa lib) ───────────
+   Tiap section parkir di top:0; section berikut menggeser di atasnya dengan
+   sudut rounded + bayangan — efek kartu menumpuk. Hanya desktop + tanpa
+   reduced-motion; HP tetap scroll normal. */
+@media (prefers-reduced-motion: no-preference) and (min-width: 768px) {
+  .landing-light main > section { position: sticky; top: 0; }
+  .landing-light main > section + section {
+    border-radius: 24px 24px 0 0;
+    box-shadow: 0 -18px 40px -24px rgba(15, 23, 42, 0.25);
+  }
+  .landing-light main > #beranda { z-index: 1; background: var(--t-bg); }
+  .landing-light main > #fitur { z-index: 2; background: var(--t-bg); }
+  .landing-light main > #cara-kerja { z-index: 3; }
+  .landing-light main > #cerita { z-index: 4; background: var(--t-bg); }
+  .landing-light main > #tentang { z-index: 5; background: var(--t-bg); }
+  .landing-light main > #daftar { z-index: 6; background: var(--t-bg); }
+}
+
 @media print {
   @page {
     size: auto;
