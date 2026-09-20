@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { apiCheckout, apiGetSettings, apiListProducts, fetchAll, type PayMethod, type Product, type StoreSettings, type Trx } from '../../lib/local-api'
 import { useCache } from '../../lib/cache'
 import { fmtRp, useDB } from '../../lib/store'
@@ -35,6 +35,10 @@ export default function Pos() {
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   const [receipt, setReceipt] = useState<Trx | null>(null)
+
+  // Nominal bayar selalu untuk total terkini: tiap keranjang/diskon berubah,
+  // draft Jumlah dibayar dibuang agar tak nempel ke total lama.
+  useEffect(() => { setPaid('') }, [cart, discount])
 
   function load() {
     prod.reload()
