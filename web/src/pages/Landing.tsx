@@ -186,7 +186,7 @@ function AboutVisual() {
     return () => { dead = true }
   }, [])
   return (
-    <div className="reveal mx-auto grid w-full max-w-4xl items-stretch gap-6 md:grid-cols-2" data-delay="1">
+    <div className="reveal mx-auto grid w-full max-w-none items-start gap-5" data-delay="1">
       <GhCard user={gh} role="Frontend" cta={{ label: 'Lihat repo OpenPOS →', href: 'https://github.com/0xMinomus/OpenPOS' }} />
       <GhCard user={adrr} role="Backend" cta={{ label: 'Lihat repo API →', href: 'https://github.com/adrr-dev/openPOS' }} />
     </div>
@@ -364,23 +364,25 @@ export default function Landing() {
 
         <section id="tentang" className="section border-t border-border">
           <div className="container mx-auto max-w-6xl px-5 md:px-8">
-            <div className="reveal mx-auto max-w-[680px] text-center">
-              <p className="font-mono text-xs uppercase tracking-[0.08em] text-steel">Tentang</p>
-              <h2 className="mt-5 text-[clamp(30px,3.8vw,46px)] font-normal leading-[1.14] tracking-[-0.025em]">
-                Kenapa kami bikin ini.
-              </h2>
-              <p className="mt-6 text-lg leading-relaxed text-muted">
-                Kami membangun OpenPOS sebagai tim kecil dengan fokus yang sederhana: membuat sistem POS yang bisa digunakan dengan mudah, dikembangkan secara terbuka, dan tetap dapat diakses tanpa biaya yang memberatkan.
-              </p>
-              <p className="mt-4 text-lg leading-relaxed text-muted">
-                Seluruh proses pengembangan, mulai dari tampilan, sistem, hingga perbaikan bug, kami kerjakan sendiri. Karena itu, kami punya kebebasan untuk menjaga OpenPOS tetap terbuka dan berkembang berdasarkan kebutuhan pengguna, bukan tekanan bisnis atau investor.
-              </p>
-              <p className="mt-4 text-lg leading-relaxed text-muted">
-                Kode OpenPOS tersedia secara terbuka di GitHub. Siapa pun dapat melihat, mempelajari, menggunakan, maupun ikut mengembangkannya.
-              </p>
-            </div>
-            <div className="mt-10">
-              <AboutVisual />
+            <div className="grid items-start gap-10 lg:grid-cols-[1fr_1.05fr] lg:gap-14">
+              <div className="reveal lg:sticky lg:top-24">
+                <p className="font-mono text-xs uppercase tracking-[0.08em] text-steel">Tentang</p>
+                <h2 className="mt-5 text-[clamp(30px,3.8vw,46px)] font-normal leading-[1.14] tracking-[-0.025em]">
+                  Kecil timnya,<br />terbuka kodenya.
+                </h2>
+                <p className="mt-6 text-lg leading-relaxed text-muted">
+                  Kami membangun OpenPOS sebagai tim kecil dengan fokus yang sederhana: membuat sistem POS yang bisa digunakan dengan mudah, dikembangkan secara terbuka, dan tetap dapat diakses tanpa biaya yang memberatkan.
+                </p>
+                <p className="mt-4 text-lg leading-relaxed text-muted">
+                  Seluruh proses pengembangan, mulai dari tampilan, sistem, hingga perbaikan bug, kami kerjakan sendiri. Karena itu, kami punya kebebasan untuk menjaga OpenPOS tetap terbuka dan berkembang berdasarkan kebutuhan pengguna, bukan tekanan bisnis atau investor.
+                </p>
+                <p className="mt-4 text-lg leading-relaxed text-muted">
+                  Kode OpenPOS tersedia secara terbuka di GitHub. Siapa pun dapat melihat, mempelajari, menggunakan, maupun ikut mengembangkannya.
+                </p>
+              </div>
+              <div className="mt-2 lg:mt-1">
+                <AboutVisual />
+              </div>
             </div>
           </div>
         </section>
