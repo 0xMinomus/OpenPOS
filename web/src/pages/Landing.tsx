@@ -235,10 +235,10 @@ export default function Landing() {
         <section id="beranda" className="overflow-hidden pt-[clamp(36px,5vw,92px)] pb-10">
           <div className="container mx-auto max-w-6xl px-5 md:px-8 text-center">
             <h1 className="hero-reveal mx-auto mt-8 text-[clamp(30px,8.5vw,40px)] font-normal leading-[1.08] tracking-[-0.025em] sm:text-[clamp(40px,5.2vw,60px)]">
-              Mesin kasir gratis<br />buat warung Anda.
+              Aplikasi kasir gratis<br />buat warung Anda.
             </h1>
             <p className="hero-reveal mx-auto mt-4 max-w-[520px] text-base leading-relaxed text-muted sm:mt-6 sm:text-lg">
-              Catat penjualan, jaga stok, cetak struk 58mm. Jalan di browser, bisa juga offline di Windows. Tanpa langganan, tanpa potongan.
+              Kelola produk, stok, dan penjualan dari satu dashboard sederhana. Cocok untuk toko kecil dan menengah. Tanpa biaya langganan, gratis seumur hidup.
             </p>
             <div className="hero-reveal mt-6 flex flex-wrap justify-center gap-3 sm:mt-8">
               <Link to="/daftar" className="rounded-full bg-jet px-6 py-3 text-[15px] font-medium text-paper transition hover:bg-[color-mix(in_oklch,var(--t-jet)_82%,white)] active:translate-y-px sm:px-7.5 sm:py-3.5 sm:text-base">
@@ -289,14 +289,14 @@ export default function Landing() {
             <div className="reveal max-w-[680px]">
               <p className="font-mono text-xs uppercase tracking-[0.08em] text-steel">Fitur</p>
               <h2 className="mt-5 text-[clamp(30px,3.8vw,46px)] font-normal leading-[1.14] tracking-[-0.025em]">
-                Cuma yang dipakai tiap hari.
+                Fitur yang dibutuhkan toko kecil, tanpa yang berlebihan.
               </h2>
             </div>
             <div className="mt-14 grid gap-8 md:grid-cols-3">
               {[
-                { mark: <path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z" />, t: 'Kasir yang ngebut', d: 'Ketik nama barang, pencet, bayar, cetak. Antrean jam makan siang kelar tanpa drama.' },
-                { mark: <path d="M12 2 4 6v12l8 4 8-4V6l-8-4zM4 6l8 4 8-4M12 10v10" />, t: 'Stok yang jujur', d: 'Tiap nota motong stok, refund balikin lagi. Tahu persis kapan harus kulakan.' },
-                { mark: <path d="M3 21h18M6 17v-6M11.5 17V8M17 17v-9" />, t: 'Laporan tanpa begadang', d: 'Omzet, barang laku, profit kebaca malam itu juga. Buku kas boleh pensiun.' },
+                { mark: <path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z" />, t: 'Kasir yang cepat', d: 'Cari produk lewat nama, SKU, atau barcode, lalu tambahkan ke keranjang, terima pembayaran, dan cetak struk. Satu transaksi selesai dalam hitungan detik.' },
+                { mark: <path d="M12 2 4 6v12l8 4 8-4V6l-8-4zM4 6l8 4 8-4M12 10v10" />, t: 'Produk dan stok real-time', d: 'Stok berkurang otomatis setiap transaksi dan kembali saat refund. Anda tidak akan kehabisan stok tanpa sadar atau menumpuk barang yang tidak terjual.' },
+                { mark: <path d="M3 21h18M6 17v-6M11.5 17V8M17 17v-9" />, t: 'Laporan yang rapi', d: 'Omzet harian, produk terlaris, dan profit terlihat langsung dari dashboard. Tidak perlu menghitung manual di buku kas.' },
               ].map((f, i) => (
                 <div key={f.t} className="feature reveal group" data-delay={i}>
                   <span className="mb-5 grid h-9 w-9 place-items-center text-fog transition-colors duration-150 group-hover:text-jet">
@@ -315,14 +315,14 @@ export default function Landing() {
             <div className="reveal max-w-[680px]">
               <p className="font-mono text-xs uppercase tracking-[0.08em] text-white/70">Cara Kerja</p>
               <h2 className="mt-5 text-[clamp(30px,3.8vw,46px)] font-normal leading-[1.14] tracking-[-0.025em] text-white">
-                Tiga langkah, sepuluh menit.
+                Dari mendaftar sampai transaksi pertama, hanya tiga langkah.
               </h2>
             </div>
             <div className="mt-14 grid gap-8 md:grid-cols-3">
               {[
-                { n: '01', t: 'Daftar, langsung jadi toko', d: 'Satu formulir. Akun, toko, dan kasir awal kebentuk sekaligus.' },
-                { n: '02', t: 'Masukin barang', d: 'Ketik satu-satu atau lempar file CSV isi ratusan produk.' },
-                { n: '03', t: 'Jualan', d: 'Buka kasir, terima tunai, QRIS, atau transfer, cetak struk. Stok ngikut sendiri.' },
+                { n: '01', t: 'Buat akun dan toko', d: 'Daftar sekali. Akun admin dan data toko langsung dibuat bersamaan. Tanpa kartu kredit, tanpa biaya, dan tanpa masa percobaan.' },
+                { n: '02', t: 'Tambah produk dan stok', d: 'Masukkan produk beserta harga dan stok awal, atau impor ratusan baris sekaligus lewat file CSV.' },
+                { n: '03', t: 'Mulai berjualan', d: 'Buka menu kasir, cari produk, selesaikan pembayaran, lalu cetak struk. Stok otomatis terbarui di dashboard.' },
               ].map((s, i) => (
                 <div key={s.n} className="step reveal" data-delay={i}>
                   <span className="mb-5 block font-mono text-[26px] text-white/60">{s.n}</span>
@@ -370,7 +370,7 @@ export default function Landing() {
                 Kenapa kami bikin ini.
               </h2>
               <p className="mt-6 text-lg leading-relaxed text-muted">
-                Kami cuma dua orang. Satu ngoding tampilan, satu ngoding server. Ide awalnya simpel: kasir yang ibu kami pun bisa pakai, dan gratis beneran. Bukan gratis 14 hari.
+                Kami cuma dua orang. Andika ngoding tampilan, Adrr ngoding server. Tidak ada tim marketing, tidak ada investor. Kalau ada bug, yang benerin ya kami juga. Enaknya: tidak ada yang maksa pasang harga.
               </p>
               <p className="mt-4 text-lg leading-relaxed text-muted">
                 Kodenya terbuka di GitHub. Silakan intip, silakan pakai:
@@ -384,9 +384,9 @@ export default function Landing() {
 
         <section id="daftar" className="section border-t border-border py-16 text-center">
           <div className="container mx-auto max-w-[640px] px-5 md:px-8">
-            <h2 className="reveal text-[clamp(30px,3.8vw,46px)] font-normal leading-[1.14] tracking-[-0.025em]">Buka toko Anda, gratis.</h2>
+            <h2 className="reveal text-[clamp(30px,3.8vw,46px)] font-normal leading-[1.14] tracking-[-0.025em]">Coba dulu, daftar belakangan.</h2>
             <p className="reveal mx-auto mt-4 mb-8 max-w-[520px] text-lg leading-relaxed text-muted" data-delay="1">
-              Satu menit daftar. Tidak ada kartu kredit, tidak ada sales yang nelpon.
+              Demo di atas bisa diklik-klik tanpa akun. Kalau cocok, baru bikin toko. Satu menit, tanpa kartu kredit.
             </p>
             <Link
               to="/daftar"
