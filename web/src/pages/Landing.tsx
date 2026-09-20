@@ -13,16 +13,14 @@ function GhMark({ className = 'size-4' }: { className?: string }) {
 }
 
 const TESTIMONIALS = [
-  { initial: 'S', name: 'Bu Sari', role: 'Pemilik toko kelontong · Java', quote: 'Dulu omzet harian saya hitung dari buku kas setiap malam. Sekarang cukup buka dashboard. Stok langsung berkurang tiap transaksi dan struk tercetak otomatis, jadi saya tidak perlu pusing lagi.' },
-  { initial: 'J', name: 'Pak Joko', role: 'Pemilik toko sembako · Surabaya', quote: 'Saya sudah tidak mencatat manual lagi. Sekarang tinggal buka ponsel, semua produk dan stok terlihat jelas. Kasir baru juga langsung bisa dipakai tanpa ribet.' },
-  { initial: 'R', name: 'Bu Ratna', role: 'Pemilik toko kosmetik · Bandung', quote: 'Refund dulu membuat pusing. Sekarang cukup sekali klik dan stok kembali otomatis. Pelanggan juga senang karena struknya jelas dan rapi.' },
-  { initial: 'B', name: 'Pak Bambang', role: 'Pemilik toko elektronik · Semarang', quote: 'Yang paling saya sukai adalah laporannya. Setiap malam saya bisa melihat produk mana yang laku dan mana yang harus diisi ulang, sehingga keputusan belanja lebih pasti.' },
-  { initial: 'D', name: 'Bu Dewi', role: 'Pemilik toko pakaian · Yogyakarta', quote: 'Kasirnya cepat, pelanggan tidak menunggu lama saat toko ramai. Pembayaran QRIS, transfer, dan tunai tersedia semua, dan gratis pula.' },
-  { initial: 'H', name: 'Pak Hendra', role: 'Pemilik minimarket · Makassar', quote: 'Karyawan saya diberi akses terbatas, hanya bisa bertransaksi. Data tetap aman dan saya masih bisa memantau omzet dari rumah.' },
-  { initial: 'S', name: 'Bu Siti', role: 'Pemilik toko kelontong · Malang', quote: 'Dulu saya sering kehabisan stok tanpa sadar. Sekarang stok yang menipis langsung terlihat di dashboard, jadi saya bisa membeli barang sebelum habis.' },
-  { initial: 'A', name: 'Pak Agus', role: 'Pemilik toko aksesoris · Denpasar', quote: 'Mudah dipelajari, orang awam seperti saya pun langsung bisa memakainya. Setiap transaksi tercatat otomatis dan tidak ada lagi uang yang terlewat.' },
-  { initial: 'M', name: 'Bu Melati', role: 'Pemilik toko kosmetik · Medan', quote: 'Struk bisa dicetak atau dikirim digital. Pelanggan makin percaya dan toko terlihat profesional meskipun hanya toko kecil.' },
-  { initial: 'R', name: 'Pak Rudi', role: 'Pemilik toko elektronik · Palembang', quote: 'Seminggu memakai, langsung terbiasa. Import produk dari Excel juga mudah, ratusan barang masuk sekaligus tanpa salah tulis.' },
+  { initial: 'S', name: 'Bu Sari', role: 'Toko kelontong · Sleman', quote: 'Selisih kembalian dua ribu itu yang paling bikin kesal. Sekarang kembalian dihitung mesin, tutup buku lima menit selesai.' },
+  { initial: 'J', name: 'Pak Joko', role: 'Toko sembako · Surabaya', quote: 'Anak saya yang masih SMA jaga toko tiap sore. Sehari diajarin, besoknya sudah lancar sendiri.' },
+  { initial: 'R', name: 'Bu Ratna', role: 'Toko kosmetik · Bandung', quote: 'Lipstik salah shade tinggal klik refund, stok balik, pelanggan pulang senyum. Dulu saya catat di kertas, kertasnya yang hilang.' },
+  { initial: 'B', name: 'Pak Bambang', role: 'Toko elektronik · Semarang', quote: 'Kabel data laku 40 pcs seminggu, saya baru tahu dari laporan. Sekarang stoknya saya dobelin tiap kulakan.' },
+  { initial: 'D', name: 'Bu Dewi', role: 'Toko pakaian · Yogyakarta', quote: 'Sabtu sore pembeli numpuk, bayar QRIS sama tunai gantian, tidak ada yang ngomel nunggu lama.' },
+  { initial: 'H', name: 'Pak Hendra', role: 'Minimarket · Makassar', quote: 'Karyawan cuma bisa jualan, tidak bisa utak-atik harga. Saya pantau omzet dari rumah.' },
+  { initial: 'S', name: 'Bu Siti', role: 'Toko kelontong · Malang', quote: 'Gula tinggal dua kilo baru ketahuan pas ada yang borong. Sekarang peringatan menipisnya muncul duluan.' },
+  { initial: 'A', name: 'Pak Agus', role: 'Toko aksesoris · Denpasar', quote: 'Saya gaptek. Tapi kalau cuma pencet gambar barang terus terima uang, itu saya bisa.' },
 ]
 
 interface GhProfile {
@@ -79,7 +77,7 @@ function GhCard({ user, role, cta }: { user: GhProfile; role: string; cta: { lab
   return (
     <div className="h-full">
       <div
-        className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-dove bg-paper text-fg shadow-[rgba(15,23,42,0.12)_0_18px_40px_-24px] transition duration-300 hover:-translate-y-1.5 hover:border-jet hover:shadow-[rgba(26,118,209,0.22)_0_18px_48px_-20px]"
+          className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-dove bg-paper text-fg shadow-[rgba(15,23,42,0.12)_0_18px_40px_-24px] transition duration-300 hover:-translate-y-1.5 hover:border-steel"
       >
         <div className="flex items-center gap-2 border-b border-dove bg-cream px-4 py-2.5" aria-hidden="true">
           <span className="size-2.5 rounded-full bg-[#ff5f57]" />
@@ -237,10 +235,10 @@ export default function Landing() {
         <section id="beranda" className="overflow-hidden pt-[clamp(36px,5vw,92px)] pb-10">
           <div className="container mx-auto max-w-6xl px-5 md:px-8 text-center">
             <h1 className="hero-reveal mx-auto mt-8 text-[clamp(30px,8.5vw,40px)] font-normal leading-[1.08] tracking-[-0.025em] sm:text-[clamp(40px,5.2vw,60px)]">
-              Aplikasi kasir gratis<br />untuk toko Anda.
+              Mesin kasir gratis<br />buat warung Anda.
             </h1>
             <p className="hero-reveal mx-auto mt-4 max-w-[520px] text-base leading-relaxed text-muted sm:mt-6 sm:text-lg">
-              Kelola produk, stok, dan penjualan dari satu dashboard sederhana. Tanpa biaya langganan, cocok untuk toko kecil dan menengah.
+              Catat penjualan, jaga stok, cetak struk 58mm. Jalan di browser, bisa juga offline di Windows. Tanpa langganan, tanpa potongan.
             </p>
             <div className="hero-reveal mt-6 flex flex-wrap justify-center gap-3 sm:mt-8">
               <Link to="/daftar" className="rounded-full bg-jet px-6 py-3 text-[15px] font-medium text-paper transition hover:bg-[color-mix(in_oklch,var(--t-jet)_82%,white)] active:translate-y-px sm:px-7.5 sm:py-3.5 sm:text-base">
@@ -291,14 +289,14 @@ export default function Landing() {
             <div className="reveal max-w-[680px]">
               <p className="font-mono text-xs uppercase tracking-[0.08em] text-steel">Fitur</p>
               <h2 className="mt-5 text-[clamp(30px,3.8vw,46px)] font-normal leading-[1.14] tracking-[-0.025em]">
-                Fitur yang dibutuhkan toko kecil, tanpa yang berlebihan.
+                Cuma yang dipakai tiap hari.
               </h2>
             </div>
             <div className="mt-14 grid gap-8 md:grid-cols-3">
               {[
-                { mark: <path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z" />, t: 'Kasir yang cepat', d: 'Cari produk lewat nama, SKU, atau barcode, lalu tambahkan ke keranjang, terima pembayaran, dan cetak struk. Satu transaksi selesai dalam hitungan detik.' },
-                { mark: <path d="M12 2 4 6v12l8 4 8-4V6l-8-4zM4 6l8 4 8-4M12 10v10" />, t: 'Produk dan stok real-time', d: 'Stok berkurang otomatis setiap transaksi dan kembali saat refund. Anda tidak akan kehabisan stok tanpa sadar atau menumpuk barang yang tidak terjual.' },
-                { mark: <path d="M3 21h18M6 17v-6M11.5 17V8M17 17v-9" />, t: 'Laporan yang rapi', d: 'Omzet harian, produk terlaris, dan profit terlihat langsung dari dashboard. Tidak perlu menghitung manual di buku kas.' },
+                { mark: <path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z" />, t: 'Kasir yang ngebut', d: 'Ketik nama barang, pencet, bayar, cetak. Antrean jam makan siang kelar tanpa drama.' },
+                { mark: <path d="M12 2 4 6v12l8 4 8-4V6l-8-4zM4 6l8 4 8-4M12 10v10" />, t: 'Stok yang jujur', d: 'Tiap nota motong stok, refund balikin lagi. Tahu persis kapan harus kulakan.' },
+                { mark: <path d="M3 21h18M6 17v-6M11.5 17V8M17 17v-9" />, t: 'Laporan tanpa begadang', d: 'Omzet, barang laku, profit kebaca malam itu juga. Buku kas boleh pensiun.' },
               ].map((f, i) => (
                 <div key={f.t} className="feature reveal group" data-delay={i}>
                   <span className="mb-5 grid h-9 w-9 place-items-center text-fog transition-colors duration-150 group-hover:text-jet">
@@ -312,19 +310,19 @@ export default function Landing() {
           </div>
         </section>
 
-        <section id="cara-kerja" className="section border-t border-transparent bg-[#1a76d1]">
+        <section id="cara-kerja" className="section border-t border-transparent bg-charcoal">
           <div className="container mx-auto max-w-6xl px-5 md:px-8">
             <div className="reveal max-w-[680px]">
               <p className="font-mono text-xs uppercase tracking-[0.08em] text-white/70">Cara Kerja</p>
               <h2 className="mt-5 text-[clamp(30px,3.8vw,46px)] font-normal leading-[1.14] tracking-[-0.025em] text-white">
-                Dari mendaftar sampai transaksi pertama, hanya tiga langkah.
+                Tiga langkah, sepuluh menit.
               </h2>
             </div>
             <div className="mt-14 grid gap-8 md:grid-cols-3">
               {[
-                { n: '01', t: 'Buat akun dan toko', d: 'Daftar sekali. Akun admin dan data toko langsung dibuat bersamaan. Tanpa kartu kredit, tanpa biaya, dan tanpa masa percobaan.' },
-                { n: '02', t: 'Tambah produk dan stok', d: 'Masukkan produk beserta harga dan stok awal, atau impor ratusan baris sekaligus lewat file CSV.' },
-                { n: '03', t: 'Mulai berjualan', d: 'Buka menu kasir, cari produk, selesaikan pembayaran, lalu cetak struk. Stok otomatis terbarui di dashboard.' },
+                { n: '01', t: 'Daftar, langsung jadi toko', d: 'Satu formulir. Akun, toko, dan kasir awal kebentuk sekaligus.' },
+                { n: '02', t: 'Masukin barang', d: 'Ketik satu-satu atau lempar file CSV isi ratusan produk.' },
+                { n: '03', t: 'Jualan', d: 'Buka kasir, terima tunai, QRIS, atau transfer, cetak struk. Stok ngikut sendiri.' },
               ].map((s, i) => (
                 <div key={s.n} className="step reveal" data-delay={i}>
                   <span className="mb-5 block font-mono text-[26px] text-white/60">{s.n}</span>
@@ -341,7 +339,7 @@ export default function Landing() {
             <div className="reveal mb-8 max-w-[680px]">
               <p className="font-mono text-xs uppercase tracking-[0.08em] text-steel">Kata mereka</p>
               <h2 className="mt-5 text-[clamp(30px,3.8vw,46px)] font-normal leading-[1.14] tracking-[-0.025em]">
-                Dipakai toko-toko kecil di seluruh Indonesia.
+                Kata yang pakai tiap hari.
               </h2>
             </div>
             <div className="marquee-wrap reveal" data-delay="1">
@@ -369,13 +367,13 @@ export default function Landing() {
             <div className="reveal mx-auto max-w-[680px] text-center">
               <p className="font-mono text-xs uppercase tracking-[0.08em] text-steel">Tentang</p>
               <h2 className="mt-5 text-[clamp(30px,3.8vw,46px)] font-normal leading-[1.14] tracking-[-0.025em]">
-                Sederhana untuk siapa pun, andal untuk bisnis yang bertumbuh.
+                Kenapa kami bikin ini.
               </h2>
               <p className="mt-6 text-lg leading-relaxed text-muted">
-                OpenPOS lahir dari masalah yang sering terjadi. Mayoritas UMKM di Indonesia masih mencatat penjualan di buku kas atau Excel, sementara aplikasi kasir yang ada umumnya berbayar per bulan dan terlalu rumit untuk dipelajari.
+                Kami cuma dua orang. Satu ngoding tampilan, satu ngoding server. Ide awalnya simpel: kasir yang ibu kami pun bisa pakai, dan gratis beneran. Bukan gratis 14 hari.
               </p>
               <p className="mt-4 text-lg leading-relaxed text-muted">
-                Kami membuatnya berbeda. Antarmuka kasir yang sederhana, cukup untuk operasional harian toko kecil, dan gratis selamanya. Dibangun terbuka oleh dua orang ini:
+                Kodenya terbuka di GitHub. Silakan intip, silakan pakai:
               </p>
             </div>
             <div className="mt-10">
@@ -386,9 +384,9 @@ export default function Landing() {
 
         <section id="daftar" className="section border-t border-border py-16 text-center">
           <div className="container mx-auto max-w-[640px] px-5 md:px-8">
-            <h2 className="reveal text-[clamp(30px,3.8vw,46px)] font-normal leading-[1.14] tracking-[-0.025em]">Mulai berjualan hari ini tanpa biaya langganan.</h2>
+            <h2 className="reveal text-[clamp(30px,3.8vw,46px)] font-normal leading-[1.14] tracking-[-0.025em]">Buka toko Anda, gratis.</h2>
             <p className="reveal mx-auto mt-4 mb-8 max-w-[520px] text-lg leading-relaxed text-muted" data-delay="1">
-              Daftar dalam satu menit. Buat toko, tambah produk, lalu terima pembayaran pertama Anda. Gratis selamanya.
+              Satu menit daftar. Tidak ada kartu kredit, tidak ada sales yang nelpon.
             </p>
             <Link
               to="/daftar"
