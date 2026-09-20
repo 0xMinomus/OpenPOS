@@ -7,6 +7,14 @@ import { Receipt } from '../lib/receipt'
 import { NumInput, Button, Modal } from '../lib/ui'
 import { Skeleton } from '@/components/ui/skeleton'
 
+// Nominal cepat tunai: ketuk untuk menambah ke Jumlah dibayar.
+const CASH_QUICK: { v: number; label: string }[] = [
+  { v: 500, label: '500' }, { v: 1000, label: '1rb' },
+  { v: 2000, label: '2rb' }, { v: 5000, label: '5rb' },
+  { v: 10000, label: '10rb' }, { v: 20000, label: '20rb' },
+  { v: 50000, label: '50rb' }, { v: 100000, label: '100rb' },
+]
+
 const METHODS: PayMethod[] = ['Cash', 'Bank Transfer', 'QRIS', 'E-Wallet', 'Card']
 
 interface CartLine { product: Product; qty: number }
@@ -236,16 +244,32 @@ export default function Pos() {
                 Uang Pas
               </label>
               {!exactCash && (
-                <label className="flex flex-col gap-1.5 text-[13px] font-medium text-steel">
-                  Jumlah dibayar
-                  <NumInput
-                    value={paid}
-                    onValue={setPaid}
-                    placeholder="0"
-                    autoFocus
-                    className="rounded-md border border-border bg-paper px-3.5 py-2.5 text-[15px] focus:border-jet focus:outline-none"
-                  />
-                </label>
+                <>
+                  <label className="flex flex-col gap-1.5 text-[13px] font-medium text-steel">
+                    Jumlah dibayar
+                    <NumInput
+                      value={paid}
+                      onValue={setPaid}
+                      placeholder="0"
+                      autoFocus
+                      className="rounded-md border border-border bg-paper px-3.5 py-2.5 text-[15px] focus:border-jet focus:outline-none"
+                    />
+                  </label>
+                  <div>
+                    <p className="mb-2 text-[13px] font-medium text-steel">Tambah cepat</p>
+                    <div className="grid grid-cols-4 gap-2">
+                      {CASH_QUICK.map((q) => (
+                        <button
+                          key={q.v} type="button"
+                          onClick={() => setPaid(String((Number(paid) || 0) + q.v))}
+                          className="rounded-lg border border-dove bg-paper px-2 py-2 font-mono text-xs tabular-nums text-fg transition outline-none hover:border-jet hover:text-jet focus-visible:ring-2 focus-visible:ring-ring active:translate-y-px"
+                        >
+                          +{q.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
               )}
             </div>
           ) : (

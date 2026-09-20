@@ -403,19 +403,13 @@ export function DatePicker({ value, onChange, label = 'Pilih tanggal', placehold
               )
             })}
           </div>
-          <div className="mt-2 flex items-center justify-between border-t border-dove pt-2">
-            <button
-              type="button" onClick={() => { setView([today[0], today[1]]); pick(todayISO) }}
-              className="text-[13px] font-medium text-jet hover:underline"
-            >
-              Hari ini
-            </button>
-            {value && (
+          {value && (
+            <div className="mt-2 flex items-center justify-end border-t border-dove pt-2">
               <button type="button" onClick={() => { onChange(''); setOpen(false) }} className="text-[13px] text-ember hover:underline">
                 Hapus filter
               </button>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       )}
     </div>
