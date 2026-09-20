@@ -29,6 +29,10 @@ const payConfig = {
   Card: { label: 'Card', color: 'var(--chart-5)' },
 } as const
 
+function localDay(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
 function dayLabel(iso: string): string {
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso)
   if (!m) return iso
@@ -57,6 +61,15 @@ export default function Dashboard() {
   // Placeholder kalender = hari lokal browser ini.
   const _now = new Date()
   const todayISO = `${_now.getFullYear()}-${String(_now.getMonth() + 1).padStart(2, '0')}-${String(_now.getDate()).padStart(2, '0')}`
+  // Analitik backend kadang tak dikirim untuk kasir (sales7/methods/top).
+  // sales7 7 entri = backend implementasi; selain itu hitung di frontend
+  // dari transaksi sendiri (kasir di-scope server; admin = se-toko).
+  const adminPre = data as DashboardAdmin | undefined
+  const chartsMode: 'loading' | 'be' | 'fb' =
+    !data ? 'loading' : (adminPre?.sales7?.length === 7 ? 'be' : 'fb')
+  const cashierCharts = useCache(`cashier-charts:${sessionKey}:${date || 'today'}:${chartsMode}`, () =>
+    chartsMode === 'fb' ? buildOwnCharts(date || todayISO) : Promise.resolve(null),
+    'Gagal memuat grafik.')
 
   const isAdmin = s.role === 'admin'
   if (err && !data) return <p className="rounded-lg bg-sand px-3.5 py-2.5 text-[13px] text-ember">{err}</p>
@@ -65,14 +78,18 @@ export default function Dashboard() {
   const today = data.today
   const admin = data as DashboardAdmin
   // sales7 backend = 7 tanggal berjalan; label dari tanggal asli (bukan index).
-  // Kasir ikut dapat sales7/methods/top dari backend (scope transaksinya sendiri);
-  // backend live yang belum mengirim → fallback [].
-  const sales7 = (admin.sales7 ?? []).map((d) => ({ label: dayLabel(d.date), omzet: d.omzet }))
+  // Chart pakai backend bila lengkap; bila tidak, fallback buildOwnCharts
+  // dihitung dari transaksi sendiri.
+  const fb = chartsMode === 'fb' ? cashierCharts.data : null
+  const sales7src = chartsMode === 'be' ? admin.sales7 : (fb?.sales7 ?? [])
+  const methodSrc = chartsMode === 'be' ? (admin.methods ?? []) : (fb?.methods ?? [])
+  const topSrc = chartsMode === 'be' ? (admin.top_products ?? []) : (fb?.top_products ?? [])
+  const sales7 = sales7src.map((d) => ({ label: dayLabel(d.date), omzet: d.omzet }))
   const payData = (Object.entries(payConfig) as [keyof typeof payConfig, (typeof payConfig)[keyof typeof payConfig]][])
-        .map(([name, cfg]) => ({ name, total: (admin.methods ?? []).find((m) => m.method === name)?.total ?? 0, fill: cfg.color }))
+        .map(([name, cfg]) => ({ name, total: methodSrc.find((m) => m.method === name)?.total ?? 0, fill: cfg.color }))
         .filter((d) => d.total > 0)
   const payTotal = payData.reduce((n, d) => n + d.total, 0)
-  const topProducts = (admin.top_products ?? []).slice(0, 5)
+  const topProducts = topSrc.slice(0, 5)
 
   const avgTrx = today.trx_count > 0 ? Math.round(today.omzet / today.trx_count) : 0
   const kpis: { label: string; value: string; icon: React.ComponentType<{ className?: string }>; href?: string }[] = isAdmin
@@ -431,6 +448,43 @@ export default function Dashboard() {
       )}
     </div>
   )
+}
+
+// Grafik kasir dari transaksi sendiri (fallback bila backend tak kirim
+// analitik). Batas 5 halaman x 200 = 1000 trx terakhir; cukup untuk UMKM.
+async function buildOwnCharts(ref: string) {
+  const items: Trx[] = []
+  for (let pg = 1; pg <= 5; pg++) {
+    const d = await apiListTransactions({ page: pg, limit: 200 })
+    items.push(...d.items)
+    if (items.length >= d.total) break
+  }
+  const done = items.filter((t) => t.status === 'completed')
+  const base = new Date(`${ref}T12:00:00`)
+  const sales7 = Array.from({ length: 7 }, (_, i) => {
+    const dd = new Date(base)
+    dd.setDate(base.getDate() - (6 - i))
+    const key = localDay(dd)
+    return { date: key, omzet: done.filter((t) => localDay(new Date(t.created_at)) === key).reduce((n, t) => n + t.total, 0) }
+  })
+  const byMethod = new Map<string, number>()
+  for (const t of done.filter((t) => localDay(new Date(t.created_at)) === ref)) {
+    byMethod.set(t.method, (byMethod.get(t.method) ?? 0) + t.total)
+  }
+  const top = new Map<string, { name: string; qty: number; revenue: number }>()
+  for (const t of done.filter((t) => localDay(new Date(t.created_at)) === ref)) {
+    for (const it of t.items) {
+      const cur = top.get(it.product_id) ?? { name: it.name, qty: 0, revenue: 0 }
+      cur.qty += it.qty
+      cur.revenue += it.qty * it.price
+      top.set(it.product_id, cur)
+    }
+  }
+  return {
+    sales7,
+    methods: [...byMethod].map(([method, total]) => ({ method, total })),
+    top_products: [...top].map(([product_id, v]) => ({ product_id, ...v })).sort((a, b) => b.qty - a.qty).slice(0, 5),
+  }
 }
 
 // KPI satu surface + footer "Lihat detail" menyatu (§13). Tanpa warna-warni.
