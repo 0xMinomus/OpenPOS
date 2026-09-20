@@ -1,11 +1,12 @@
 // Produk — Operate surface. Katalog + filter kategori + CRUD + CSV.
 // Token font/warna milik sistem (tidak ada token baru di file ini).
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Download, FolderPlus, Plus, Search, Upload } from 'lucide-react'
+import { Download, FolderPlus, Pencil, Plus, Power, Search, Trash2, Upload } from 'lucide-react'
 import { apiCreateCategory, apiCreateProduct, apiDeleteCategory, apiDeleteProduct, apiListCategories, apiListProducts, apiSetProductActive, apiUpdateProduct, fetchAll, type Category, type Product } from '../lib/api'
+import { PageHeader } from '../lib/PageHeader'
 import { useCache } from '../lib/cache'
 import { exportCSV, fmtRp, useDB } from '../lib/store'
-import { NumInput, Button, Empty, Input, Modal, PageHead, Pager, Pill, SkeletonRows, Td, Th } from '../lib/ui'
+import { NumInput, Button, Empty, Input, Modal, Pager, Pill, SkeletonRows, Td, Th } from '../lib/ui'
 import { Skeleton } from '@/components/ui/skeleton'
 
 interface Draft {
@@ -213,7 +214,7 @@ export default function Produk() {
 
   return (
     <>
-      <PageHead
+      <PageHeader
         title="Produk"
         sub={
           !products
@@ -222,7 +223,8 @@ export default function Produk() {
               ? `${filtered?.length ?? 0} dari ${products.length} produk ditampilkan`
               : `${products.length} produk · ${activeCats.length} kategori aktif`
         }
-        right={
+        crumb="Produk"
+        actions={(
           <div className="flex flex-wrap gap-2">
             <Button variant="ghost" onClick={exportList}><Download className="size-4" />Export</Button>
             <Button variant="ghost" onClick={() => fileRef.current?.click()}><Upload className="size-4" />Import</Button>
@@ -230,7 +232,7 @@ export default function Produk() {
             <Button onClick={() => setEditing({ ...emptyDraft })}><Plus className="size-4" />Tambah Produk</Button>
             <input ref={fileRef} type="file" accept=".csv" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) onImportFile(f); e.target.value = '' }} />
           </div>
-        }
+        )}
       />
 
       {(err || prod.err) && <p className="mb-4 rounded-lg bg-sand px-3.5 py-2.5 text-[13px] text-ember">{err || prod.err}</p>}
@@ -312,10 +314,10 @@ export default function Produk() {
                       <Td right><StockCell stock={p.stock} unit={p.unit} /></Td>
                       <Td><Pill tone={p.active ? 'ok' : 'muted'}>{p.active ? 'Aktif' : 'Nonaktif'}</Pill></Td>
                       <Td>
-                        <div className="flex justify-end gap-2.5 text-[13px]">
-                          <button className="font-medium text-jet hover:underline" onClick={() => setEditing({ id: p.id, name: p.name, sku: p.sku, barcode: p.barcode, categoryId: p.category_id ?? '', buyPrice: String(p.buy_price), sellPrice: String(p.sell_price), stock: String(p.stock), unit: p.unit })}>Ubah</button>
-                          <button className="text-muted hover:underline" onClick={() => toggleActive(p)}>{p.active ? 'Nonaktifkan' : 'Aktifkan'}</button>
-                          <button className="text-ember hover:underline" onClick={() => setDeleteFor(p)}>Hapus</button>
+                        <div className="flex items-center justify-end gap-1">
+                          <button title="Ubah" aria-label={`Ubah ${p.name}`} className="grid size-8 place-items-center rounded-md text-steel transition hover:bg-surface hover:text-fg" onClick={() => setEditing({ id: p.id, name: p.name, sku: p.sku, barcode: p.barcode, categoryId: p.category_id ?? '', buyPrice: String(p.buy_price), sellPrice: String(p.sell_price), stock: String(p.stock), unit: p.unit })}><Pencil className="size-4" /></button>
+                          <button title={p.active ? 'Nonaktifkan' : 'Aktifkan'} aria-label={`${p.active ? 'Nonaktifkan' : 'Aktifkan'} ${p.name}`} className="grid size-8 place-items-center rounded-md text-steel transition hover:bg-surface hover:text-fg" onClick={() => toggleActive(p)}><Power className="size-4" /></button>
+                          <button title="Hapus" aria-label={`Hapus ${p.name}`} className="grid size-8 place-items-center rounded-md text-steel transition hover:bg-surface hover:text-ember" onClick={() => setDeleteFor(p)}><Trash2 className="size-4" /></button>
                         </div>
                       </Td>
                     </tr>

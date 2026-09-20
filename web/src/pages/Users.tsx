@@ -12,9 +12,10 @@ import {
   apiCreateUser, apiDeleteUser, apiGetReport, apiListActivity, apiListTransactions, apiListUsers, apiRenameUser, apiSetUserActive,
   setCachedAccounts, type ActivityItem, type Page, type ReportBundle, type Trx, type User,
 } from '../lib/api'
+import { PageHeader } from '../lib/PageHeader'
 import { useCache } from '../lib/cache'
 import { exportCSV, fmtDate, fmtInv, fmtRp, fmtTime, useDB } from '../lib/store'
-import { Button, Input, Modal, PageHead, Pager, Pill, Td, Th } from '../lib/ui'
+import { Button, Input, Modal, Pager, Pill, Td, Th } from '../lib/ui'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
@@ -364,11 +365,11 @@ export default function Users() {
   }
 
   const cards = [
-    { icon: UsersRound, box: 'bg-sand text-steel', label: 'Total Pengguna', value: String(total), sub: 'Semua akun terdaftar' },
-    { icon: UserRound, box: 'bg-sand text-steel', label: 'Kasir Aktif', value: String(activeCashiers), sub: `Dari ${cashiers.length} akun kasir` },
-    { icon: ShieldCheck, box: 'bg-success-bg text-sprout', label: 'Admin', value: String(admins), sub: 'Akun dengan akses penuh' },
+    { icon: UsersRound, box: 'bg-surface text-steel', label: 'Total Pengguna', value: String(total), sub: 'Semua akun terdaftar' },
+    { icon: UserRound, box: 'bg-surface text-steel', label: 'Kasir Aktif', value: String(activeCashiers), sub: `Dari ${cashiers.length} akun kasir` },
+    { icon: ShieldCheck, box: 'bg-surface text-steel', label: 'Admin', value: String(admins), sub: 'Akun dengan akses penuh' },
     {
-      icon: UserX, box: inactive > 0 ? 'bg-ember/10 text-ember' : 'bg-sand text-steel',
+      icon: UserX, box: 'bg-surface text-steel',
       label: 'Akun Nonaktif', value: String(inactive),
       sub: inactive > 0 ? `${inactive} akun perlu perhatian` : 'Tidak ada akun nonaktif',
     },
@@ -376,10 +377,11 @@ export default function Users() {
 
   return (
     <>
-      <PageHead
+      <PageHeader
         title="User Management"
         sub="Kelola akun admin dan kasir, status akun, serta akses pengguna."
-        right={(
+        crumb="User Management"
+        actions={(
           <div className="flex gap-2">
             <Button variant="ghost" onClick={exportAll} disabled={!data}>
               <Download className="size-4" /> Export
@@ -707,3 +709,4 @@ export default function Users() {
     </>
   )
 }
+

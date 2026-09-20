@@ -609,12 +609,14 @@ export function apiResetPassword(email: string, code: string, newPassword: strin
   return request<{ message: string }>('POST', '/auth/forgot-password/reset', { email, code, new_password: newPassword }, false)
 }
 
-export function apiGetDashboard() {
-  return request<DashboardAdmin | DashboardCashier>('GET', '/dashboard')
+// date = hari lokal 'YYYY-MM-DD' (kontrak docs/API-CONTRACT-DASHBOARD-DATE.md).
+// Tanpa date = hari ini zona toko. Backend abaikan date tak valid (jangan 400).
+export function apiGetDashboard(date?: string) {
+  return request<DashboardAdmin | DashboardCashier>('GET', '/dashboard' + qs({ date }))
 }
 
-export function apiGetReport(period: string) {
-  return request<ReportBundle>('GET', '/reports' + qs({ period }))
+export function apiGetReport(period: string, date?: string) {
+  return request<ReportBundle>('GET', '/reports' + qs({ period, date }))
 }
 
 // ── util fetch ───────────────────────────────────────────────────────

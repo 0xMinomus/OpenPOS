@@ -2,7 +2,7 @@
 // Same Card/Button/Badge/Chart/Td/Th tokens as the rest of the app; no new identity.
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
-import { Banknote, Package, ReceiptText, Store, TriangleAlert } from 'lucide-react'
+import { BarChart3, House, Package, ReceiptText, ShoppingBag, TriangleAlert } from 'lucide-react'
 import { apiGetDashboard, apiListTransactions, type DashboardAdmin, type Trx } from '../lib/api'
 import { useCache } from '../lib/cache'
 import { fmtDate, fmtRp, fmtShort, fmtTime, useDB } from '../lib/store'
@@ -13,7 +13,7 @@ import { Bar, BarChart, CartesianGrid, Cell, LabelList, Pie, PieChart, XAxis, YA
 import { Button } from '@/components/ui/button'
 import { Empty, EmptyContent, EmptyDescription, EmptyTitle } from '@/components/ui/empty'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Pill, Td, Th } from '../lib/ui'
+import { DatePicker, Td, Th } from '../lib/ui'
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
 
@@ -27,13 +27,6 @@ const payConfig = {
   QRIS: { label: 'QRIS', color: 'var(--chart-3)' },
   'E-Wallet': { label: 'E-Wallet', color: 'var(--chart-4)' },
   Card: { label: 'Card', color: 'var(--chart-5)' },
-} as const
-
-const iconTint = {
-  blue: { color: 'text-[var(--chart-1)]', bg: 'bg-[color-mix(in_oklch,var(--chart-1)_12%,transparent)]' },
-  teal: { color: 'text-[var(--chart-2)]', bg: 'bg-[color-mix(in_oklch,var(--chart-2)_12%,transparent)]' },
-  amber: { color: 'text-[var(--chart-3)]', bg: 'bg-[color-mix(in_oklch,var(--chart-3)_14%,transparent)]' },
-  rose: { color: 'text-[var(--chart-5)]', bg: 'bg-[color-mix(in_oklch,var(--chart-5)_12%,transparent)]' },
 } as const
 
 function dayLabel(iso: string): string {
@@ -53,139 +46,261 @@ export default function Dashboard() {
   }, [])
   // Kunci sesi pemilik data: key cache memisahkan admin vs kasir.
   const sessionKey = `${s.id}:${s.role}`
-  const dash = useCache(`dash:${sessionKey}`, apiGetDashboard, 'Gagal memuat dashboard.')
-  const recent = useCache(`recent5:${sessionKey}`, () => apiListTransactions({ limit: 5 }))
+  // Tanggal pilihan ('' = hari ini). Key cache ikut tanggal agar kisaran
+  // berbeda tak tertukar; kontrak live: docs/API-CONTRACT-DASHBOARD-DATE.md.
+  const [date, setDate] = useState('')
+  const dash = useCache(`dash:${sessionKey}:${date || 'today'}`, () => apiGetDashboard(date || undefined), 'Gagal memuat dashboard.')
+  const recent = useCache(`recent5:${sessionKey}:${date || 'today'}`, () => apiListTransactions({ limit: 5, date: date || undefined }))
   const data = dash.data
   const err = dash.err
   const recentTrx = recent.data ? recent.data.items : recent.err ? [] : null
+  // Placeholder kalender = hari lokal browser ini.
+  const _now = new Date()
+  const todayISO = `${_now.getFullYear()}-${String(_now.getMonth() + 1).padStart(2, '0')}-${String(_now.getDate()).padStart(2, '0')}`
 
   const isAdmin = s.role === 'admin'
   if (err && !data) return <p className="rounded-lg bg-sand px-3.5 py-2.5 text-[13px] text-ember">{err}</p>
-  if (!data || data.role !== s.role) return <DashboardSkeleton admin={isAdmin} />
+  if (!data || data.role !== s.role) return <DashboardSkeleton />
 
   const today = data.today
   const admin = data as DashboardAdmin
   // sales7 backend = 7 tanggal berjalan; label dari tanggal asli (bukan index).
-  const sales7 = isAdmin
-    ? admin.sales7.map((d) => ({ label: dayLabel(d.date), omzet: d.omzet }))
-    : []
-  const payData = isAdmin
-    ? (Object.entries(payConfig) as [keyof typeof payConfig, (typeof payConfig)[keyof typeof payConfig]][])
-        .map(([name, cfg]) => ({ name, total: admin.methods.find((m) => m.method === name)?.total ?? 0, fill: cfg.color }))
+  // Kasir ikut dapat sales7/methods/top dari backend (scope transaksinya sendiri);
+  // backend live yang belum mengirim → fallback [].
+  const sales7 = (admin.sales7 ?? []).map((d) => ({ label: dayLabel(d.date), omzet: d.omzet }))
+  const payData = (Object.entries(payConfig) as [keyof typeof payConfig, (typeof payConfig)[keyof typeof payConfig]][])
+        .map(([name, cfg]) => ({ name, total: (admin.methods ?? []).find((m) => m.method === name)?.total ?? 0, fill: cfg.color }))
         .filter((d) => d.total > 0)
-    : []
   const payTotal = payData.reduce((n, d) => n + d.total, 0)
-  const topProducts = isAdmin ? admin.top_products.slice(0, 5) : []
+  const topProducts = (admin.top_products ?? []).slice(0, 5)
 
-  const kpis = [
-    { label: 'Omzet Hari Ini', value: fmtRp(today.omzet), icon: Banknote, tint: iconTint.blue, sub: null as React.ReactNode },
-    { label: 'Transaksi Hari Ini', value: String(today.trx_count), icon: ReceiptText, tint: iconTint.teal, sub: null as React.ReactNode },
-    { label: 'Produk Terjual', value: String(today.items_sold), icon: Package, tint: iconTint.amber, sub: null as React.ReactNode },
-    ...(isAdmin
-      ? [{
+  const avgTrx = today.trx_count > 0 ? Math.round(today.omzet / today.trx_count) : 0
+  const kpis: { label: string; value: string; icon: React.ComponentType<{ className?: string }>; href?: string }[] = isAdmin
+    ? [
+        { label: 'Omzet Hari Ini', value: fmtRp(today.omzet), icon: ShoppingBag, href: '/app/laporan' },
+        { label: 'Transaksi Hari Ini', value: String(today.trx_count), icon: ReceiptText, href: '/app/transaksi' },
+        { label: 'Produk Terjual', value: String(today.items_sold), icon: Package, href: '/app/laporan' },
+        {
           label: 'Stok Menipis',
           value: String(admin.today.low_stock ?? 0),
           icon: TriangleAlert,
-          tint: iconTint.rose,
-          sub: (admin.today.low_stock ?? 0) > 0 ? <Pill tone="warn">Perlu perhatian</Pill> : null as React.ReactNode,
-        }]
-      : []),
-  ]
+          href: '/app/stok',
+        },
+      ]
+    : [
+        { label: 'Total Penjualan Hari Ini', value: fmtRp(today.omzet), icon: ShoppingBag },
+        { label: 'Transaksi Hari Ini', value: String(today.trx_count), icon: ReceiptText },
+        { label: 'Produk Terjual', value: String(today.items_sold), icon: Package },
+        { label: 'Rata-rata Transaksi', value: fmtRp(avgTrx), icon: BarChart3 },
+      ]
 
   if (!isAdmin) {
     return (
-      <div className="space-y-5">
+      <div className="space-y-4">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Halo, {s.name}</h1>
             <p className="mt-1.5 text-sm text-muted-foreground">
               {today.trx_count > 0
-                ? `${today.trx_count} transaksi hari ini dengan omzet ${fmtRp(today.omzet)}.`
-                : 'Belum ada transaksi hari ini.'}
+                ? `${today.trx_count} transaksi ${date ? `pada ${fmtDate(date)}` : 'hari ini'} dengan total penjualan ${fmtRp(today.omzet)}.`
+                : date ? `Belum ada transaksi pada ${fmtDate(date)}.` : 'Belum ada transaksi hari ini.'}
             </p>
           </div>
-          <p className="text-sm text-muted-foreground">{fmtDate(new Date().toISOString())}</p>
+          <div className="w-44">
+            <DatePicker value={date} onChange={setDate} label="Pilih tanggal dashboard" placeholder={fmtDate(todayISO)} />
+          </div>
         </div>
 
-        <Card>
-          <CardContent className="flex flex-wrap items-center justify-between gap-4 p-5">
-            <div className="flex items-center gap-3">
-              <div className="grid size-11 shrink-0 place-items-center rounded-xl bg-[color-mix(in_oklch,var(--chart-omzet)_12%,transparent)]">
-                <Store className="size-5 text-[var(--chart-omzet)]" />
-              </div>
-              <div>
-                <p className="text-sm font-medium">Kasir siap</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">Mulai transaksi baru untuk pelanggan.</p>
-              </div>
-            </div>
-            <Button size="lg" render={<Link to="/app/pos" />}>Buka POS</Button>
-          </CardContent>
-        </Card>
-
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {kpis.map((k) => (
-            <StatCard key={k.label} label={k.label} value={k.value} sub={k.sub} icon={k.icon} tint={k.tint} />
+            <KpiCard key={k.label} label={k.label} value={k.value} icon={k.icon} />
           ))}
         </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0">
-            <div>
-              <CardTitle className="text-base">Transaksi Saya</CardTitle>
-              <CardDescription>Transaksi terbaru hari ini</CardDescription>
-            </div>
-            <Button variant="outline" size="sm" render={<Link to="/app/transaksi" />}>
-              Lihat semua
-            </Button>
-          </CardHeader>
-          <CardContent>
-            {recentTrx === null ? (
-              <RecentSkeleton rows={3} />
-            ) : recentTrx.length === 0 ? (
-              <div className="py-8 text-center">
-                <p className="text-sm text-muted-foreground">Belum ada transaksi. Mulai dari POS Kasir.</p>
-                <Button className="mt-4" render={<Link to="/app/pos" />}>Buka POS</Button>
+        <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
+          <Card>
+            <CardHeader className="border-b border-border/70 pb-4">
+              <div className="opc-panel-head">
+                <span className="opc-panel-ico" aria-hidden="true"><BarChart3 /></span>
+                <div>
+                  <CardTitle>Penjualan</CardTitle>
+                  <CardDescription>7 hari terakhir</CardDescription>
+                </div>
               </div>
-            ) : (
-              <RecentTable items={recentTrx} showCashier={false} />
-            )}
-          </CardContent>
-        </Card>
+            </CardHeader>
+            <CardContent className="pt-4">
+              <ChartContainer config={salesConfig} className="h-60 w-full [&_:focus]:outline-none">
+                <BarChart data={sales7} margin={{ top: 20, right: 12, bottom: 0, left: 0 }} barCategoryGap="25%">
+                  <CartesianGrid vertical={false} strokeDasharray="4 4" stroke="color-mix(in oklch, var(--foreground) 24%, transparent)" />
+                  <XAxis dataKey="label" interval="preserveStartEnd" minTickGap={16} tickLine={false} axisLine={false} tickMargin={8} tick={{ fontSize: 12 }} />
+                  <YAxis tickLine={false} axisLine={false} width={48} domain={[0, 'auto']} tickFormatter={(v: number) => fmtShort(v)} tick={{ fontSize: 12 }} className="fill-muted-foreground" />
+                  <ChartTooltip cursor={false} content={<ChartTooltipContent formatter={(v) => fmtRp(Number(v))} />} />
+                  <Bar dataKey="omzet" fill="var(--color-omzet)" radius={[6, 6, 0, 0]} maxBarSize={46} isAnimationActive={animate} animationDuration={650} animationEasing="ease-out">
+                    <LabelList dataKey="omzet" position="top" formatter={(v) => fmtShort(Number(v))} fontSize={12} className="fill-foreground font-medium" />
+                  </Bar>
+                </BarChart>
+              </ChartContainer>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <div className="opc-panel-head">
+                <span className="opc-panel-ico" aria-hidden="true"><Package /></span>
+                <div>
+                  <CardTitle>Metode Pembayaran</CardTitle>
+                  <CardDescription>Total pembayaran hari ini</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {payData.length === 0 ? (
+                <p className="py-12 text-center text-sm text-muted-foreground">Belum ada transaksi hari ini.</p>
+              ) : (
+                <div className="flex flex-col items-center gap-4 min-[420px]:flex-row min-[420px]:gap-5">
+                  <ChartContainer config={{}} className="relative h-44 w-full max-w-48 shrink-0">
+                    <PieChart>
+                      <ChartTooltip content={<ChartTooltipContent formatter={(v) => fmtRp(Number(v))} hideLabel />} />
+                      <Pie data={payData} dataKey="total" nameKey="name" innerRadius={52} outerRadius={74} paddingAngle={3} strokeWidth={0} isAnimationActive={animate} animationDuration={650} animationEasing="ease-out">
+                        {payData.map((d) => (
+                          <Cell key={d.name} fill={d.fill} />
+                        ))}
+                      </Pie>
+                    </PieChart>
+                    <div className="pointer-events-none absolute inset-0 grid place-items-center">
+                      <div className="text-center">
+                        <p className="text-sm font-semibold tabular-nums tracking-tight">{fmtShort(payTotal)}</p>
+                        <p className="text-[11px] text-muted-foreground">Total Penjualan</p>
+                      </div>
+                    </div>
+                  </ChartContainer>
+                  <div className="w-full min-w-0 flex-1 space-y-2.5 text-[13px]">
+                    {payData.map((d) => (
+                      <div key={d.name} className="flex items-center justify-between gap-2">
+                        <span className="flex min-w-0 items-center gap-2">
+                          <span className="size-2.5 shrink-0 rounded-full" style={{ background: d.fill }} />
+                          <span className="leading-snug">{d.name}</span>
+                        </span>
+                        <span className="shrink-0 font-medium tabular-nums">
+                          {payTotal > 0 ? Math.round((d.total / payTotal) * 100) : 0}%
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid gap-4 lg:grid-cols-[1.6fr_1fr]">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0">
+              <div className="opc-panel-head">
+                <span className="opc-panel-ico" aria-hidden="true"><ReceiptText /></span>
+                <div>
+                  <CardTitle>Transaksi Saya</CardTitle>
+                  <CardDescription>Transaksi terbaru hari ini</CardDescription>
+                </div>
+              </div>
+              <Link to="/app/transaksi" className="opc-btn-sm">
+                Lihat semua
+              </Link>
+            </CardHeader>
+            <CardContent>
+              {recentTrx === null ? (
+                <RecentSkeleton rows={5} />
+              ) : recentTrx.length === 0 ? (
+                <div className="py-8 text-center">
+                  <p className="text-sm text-muted-foreground">Belum ada transaksi. Mulai dari POS Kasir.</p>
+                  <Button className="mt-4" render={<Link to="/app/pos" />}>Buka POS</Button>
+                </div>
+              ) : (
+                <RecentTable items={recentTrx} showCashier={false} />
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="space-y-0">
+              <div className="opc-panel-head">
+                <span className="opc-panel-ico" aria-hidden="true"><Package /></span>
+                <div>
+                  <CardTitle>Produk Terlaris</CardTitle>
+                  <CardDescription>Penjualan tertinggi hari ini</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {topProducts.length === 0 ? (
+                <p className="py-12 text-center text-sm text-muted-foreground">Belum ada penjualan hari ini.</p>
+              ) : (
+                <div>
+                  {topProducts.map((p, i) => (
+                    <div key={p.product_id} className="opc-rank">
+                      <span className="opc-rank-num">{String(i + 1).padStart(2, '0')}</span>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium">{p.name}</p>
+                        <p className="mt-0.5 text-xs tabular-nums text-muted-foreground">{p.qty} terjual</p>
+                      </div>
+                      <span className="shrink-0 text-sm font-medium tabular-nums">{fmtRp(p.revenue)}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Ringkasan toko</h1>
-          <p className="mt-1.5 text-sm text-muted-foreground">Pantau aktivitas dan performa toko Anda hari ini</p>
+          <h1>Dashboard</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{date ? `Menampilkan data ${fmtDate(date)}` : 'Pantau aktivitas dan performa toko Anda hari ini'}</p>
         </div>
-        <p className="text-sm text-muted-foreground">{fmtDate(new Date().toISOString())}</p>
+        <div className="flex flex-col items-end gap-2">
+          <nav className="opc-crumb" aria-label="Breadcrumb">
+            <House aria-hidden="true" />
+            <span>Home</span>
+            <span aria-hidden="true">›</span>
+            <span aria-current="page" className="text-foreground">Dashboard</span>
+          </nav>
+          <div className="w-44">
+            <DatePicker value={date} onChange={setDate} label="Pilih tanggal dashboard" placeholder={fmtDate(todayISO)} />
+          </div>
+        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {kpis.map((k) => (
-          <StatCard key={k.label} label={k.label} value={k.value} sub={k.sub} icon={k.icon} tint={k.tint} />
+          <KpiCard key={k.label} label={k.label} value={k.value} icon={k.icon} href={k.href} />
         ))}
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
         <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Penjualan</CardTitle>
-            <CardDescription>7 hari terakhir</CardDescription>
+          <CardHeader className="border-b border-border/70 pb-4">
+            <div className="opc-panel-head">
+              <span className="opc-panel-ico" aria-hidden="true"><BarChart3 /></span>
+              <div>
+                <CardTitle>Penjualan</CardTitle>
+                <CardDescription>7 hari terakhir</CardDescription>
+              </div>
+            </div>
           </CardHeader>
-          <CardContent>
-            <ChartContainer config={salesConfig} className="h-56 w-full [&_:focus]:outline-none">
-              <BarChart data={sales7} margin={{ top: 16, right: 8, bottom: 0, left: 8 }} barCategoryGap="30%">
-                <CartesianGrid vertical={false} strokeDasharray="4 4" stroke="color-mix(in oklch, var(--foreground) 18%, transparent)" />
-                <XAxis dataKey="label" interval="preserveStartEnd" minTickGap={16} tickLine={false} axisLine={false} tickMargin={10} tick={{ fontSize: 12 }} />
-                <YAxis tickLine={false} axisLine={false} width={44} domain={[0, 'auto']} tickFormatter={(v: number) => fmtShort(v)} tick={{ fontSize: 11 }} className="font-mono text-xs" />
+          <CardContent className="pt-4">
+            <ChartContainer config={salesConfig} className="h-60 w-full [&_:focus]:outline-none">
+              <BarChart data={sales7} margin={{ top: 20, right: 12, bottom: 0, left: 0 }} barCategoryGap="25%">
+                <CartesianGrid vertical={false} strokeDasharray="4 4" stroke="color-mix(in oklch, var(--foreground) 24%, transparent)" />
+                <XAxis dataKey="label" interval="preserveStartEnd" minTickGap={16} tickLine={false} axisLine={false} tickMargin={8} tick={{ fontSize: 12 }} />
+                <YAxis tickLine={false} axisLine={false} width={48} domain={[0, 'auto']} tickFormatter={(v: number) => fmtShort(v)} tick={{ fontSize: 12 }} className="fill-muted-foreground" />
                 <ChartTooltip cursor={false} content={<ChartTooltipContent formatter={(v) => fmtRp(Number(v))} />} />
-                <Bar dataKey="omzet" fill="var(--color-omzet)" radius={[6, 6, 0, 0]} maxBarSize={38} isAnimationActive={animate} animationDuration={650} animationEasing="ease-out">
-                  <LabelList dataKey="omzet" position="top" formatter={(v) => fmtShort(Number(v))} fontSize={11} className="fill-muted-foreground" />
+                <Bar dataKey="omzet" fill="var(--color-omzet)" radius={[6, 6, 0, 0]} maxBarSize={46} isAnimationActive={animate} animationDuration={650} animationEasing="ease-out">
+                  <LabelList dataKey="omzet" position="top" formatter={(v) => fmtShort(Number(v))} fontSize={12} className="fill-foreground font-medium" />
                 </Bar>
               </BarChart>
             </ChartContainer>
@@ -194,15 +309,20 @@ export default function Dashboard() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Metode Pembayaran</CardTitle>
-            <CardDescription>Total pembayaran hari ini</CardDescription>
+            <div className="opc-panel-head">
+              <span className="opc-panel-ico" aria-hidden="true"><Package /></span>
+              <div>
+                <CardTitle>Metode Pembayaran</CardTitle>
+                <CardDescription>Total pembayaran hari ini</CardDescription>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             {payData.length === 0 ? (
               <p className="py-12 text-center text-sm text-muted-foreground">Belum ada transaksi hari ini.</p>
             ) : (
-              <div className="space-y-4">
-                <ChartContainer config={{}} className="relative mx-auto h-44 w-full">
+              <div className="flex flex-col items-center gap-4 min-[420px]:flex-row min-[420px]:gap-5">
+                <ChartContainer config={{}} className="relative h-44 w-full max-w-48 shrink-0">
                   <PieChart>
                     <ChartTooltip content={<ChartTooltipContent formatter={(v) => fmtRp(Number(v))} hideLabel />} />
                     <Pie data={payData} dataKey="total" nameKey="name" innerRadius={52} outerRadius={74} paddingAngle={3} strokeWidth={0} isAnimationActive={animate} animationDuration={650} animationEasing="ease-out">
@@ -218,12 +338,12 @@ export default function Dashboard() {
                     </div>
                   </div>
                 </ChartContainer>
-                <div className="space-y-2">
+                <div className="w-full min-w-0 flex-1 space-y-2.5 text-[13px]">
                   {payData.map((d) => (
-                    <div key={d.name} className="flex items-center justify-between gap-3 text-sm">
+                    <div key={d.name} className="flex items-center justify-between gap-2">
                       <span className="flex min-w-0 items-center gap-2">
                         <span className="size-2.5 shrink-0 rounded-full" style={{ background: d.fill }} />
-                        <span className="truncate">{d.name}</span>
+                        <span className="leading-snug">{d.name}</span>
                       </span>
                       <span className="shrink-0 font-medium tabular-nums">
                         {payTotal > 0 ? Math.round((d.total / payTotal) * 100) : 0}%
@@ -240,13 +360,16 @@ export default function Dashboard() {
       <div className="grid gap-4 lg:grid-cols-[1.6fr_1fr]">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
-            <div>
-              <CardTitle className="text-base">Transaksi Terbaru</CardTitle>
-              <CardDescription>Transaksi terbaru hari ini</CardDescription>
+            <div className="opc-panel-head">
+              <span className="opc-panel-ico" aria-hidden="true"><ReceiptText /></span>
+              <div>
+                <CardTitle>Transaksi Terbaru</CardTitle>
+                <CardDescription>Transaksi terbaru hari ini</CardDescription>
+              </div>
             </div>
-            <Button variant="outline" size="sm" render={<Link to="/app/transaksi" />}>
+            <Link to="/app/transaksi" className="opc-btn-sm">
               Lihat semua
-            </Button>
+            </Link>
           </CardHeader>
           <CardContent>
             {recentTrx === null ? (
@@ -263,22 +386,25 @@ export default function Dashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
-            <div>
-              <CardTitle className="text-base">Produk Terlaris</CardTitle>
-              <CardDescription>Penjualan tertinggi hari ini</CardDescription>
+            <div className="opc-panel-head">
+              <span className="opc-panel-ico" aria-hidden="true"><Package /></span>
+              <div>
+                <CardTitle>Produk Terlaris</CardTitle>
+                <CardDescription>Penjualan tertinggi hari ini</CardDescription>
+              </div>
             </div>
-            <Button variant="outline" size="sm" render={<Link to="/app/laporan" />}>
+            <Link to="/app/laporan" className="opc-btn-sm">
               Lihat semua
-            </Button>
+            </Link>
           </CardHeader>
           <CardContent>
             {topProducts.length === 0 ? (
               <p className="py-12 text-center text-sm text-muted-foreground">Belum ada penjualan hari ini.</p>
             ) : (
-              <div className="space-y-4">
+              <div>
                 {topProducts.map((p, i) => (
-                  <div key={p.product_id} className="flex items-baseline gap-3">
-                    <span className="w-6 shrink-0 font-mono text-xs text-muted-foreground">{String(i + 1).padStart(2, '0')}</span>
+                  <div key={p.product_id} className="opc-rank">
+                    <span className="opc-rank-num">{String(i + 1).padStart(2, '0')}</span>
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium">{p.name}</p>
                       <p className="mt-0.5 text-xs tabular-nums text-muted-foreground">{p.qty} terjual</p>
@@ -307,25 +433,29 @@ export default function Dashboard() {
   )
 }
 
-function StatCard({ label, value, sub, icon: Icon, tint }: {
+// KPI satu surface + footer "Lihat detail" menyatu (§13). Tanpa warna-warni.
+function KpiCard({ label, value, icon: Icon, href }: {
   label: string
   value: string
-  sub: React.ReactNode
   icon: React.ComponentType<{ className?: string }>
-  tint: { color: string; bg: string }
+  href?: string
 }) {
   return (
-    <Card>
-      <CardContent className="p-5">
-        <div className="flex items-center justify-between gap-3">
-          <span className="text-[13px] font-medium text-muted-foreground">{label}</span>
-          <span className={`grid size-9 shrink-0 place-items-center rounded-lg ${tint.bg}`}>
-            <Icon className={`size-4.5 ${tint.color}`} />
-          </span>
+    <Card className="opc-kpi">
+      <div className="opc-kpi-body">
+        <span className="opc-kpi-ico" aria-hidden="true">
+          <Icon />
+        </span>
+        <div className="min-w-0">
+          <p className="opc-kpi-val tabular-nums">{value}</p>
+          <p className="opc-kpi-label">{label}</p>
         </div>
-        <p className="mt-3 text-[28px] font-semibold leading-none tabular-nums tracking-tight">{value}</p>
-        {sub && <div className="mt-2.5">{sub}</div>}
-      </CardContent>
+      </div>
+      {href && (
+        <Link to={href} className="opc-kpi-foot">
+          Lihat detail <span aria-hidden="true">&nbsp;→</span>
+        </Link>
+      )}
     </Card>
   )
 }
@@ -356,7 +486,7 @@ function RecentTable({ items, showCashier }: { items: Trx[]; showCashier: boolea
   )
 }
 
-function DashboardSkeleton({ admin }: { admin: boolean }) {
+function DashboardSkeleton() {
   return (
     <div className="space-y-6" aria-busy="true" aria-label="Memuat dashboard">
       <div className="flex flex-wrap items-end justify-between gap-3">
@@ -367,23 +497,8 @@ function DashboardSkeleton({ admin }: { admin: boolean }) {
         <Skeleton className="h-4 w-24" />
       </div>
 
-      {!admin && (
-        <Card>
-          <CardContent className="flex flex-wrap items-center justify-between gap-4 p-5">
-            <div className="flex items-center gap-3">
-              <Skeleton className="size-11 rounded-xl" />
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-3 w-48" />
-              </div>
-            </div>
-            <Skeleton className="h-12 w-32 rounded-full" />
-          </CardContent>
-        </Card>
-      )}
-
-      <div className={`grid gap-4 ${admin ? 'sm:grid-cols-2 xl:grid-cols-4' : 'sm:grid-cols-3'}`}>
-        {(admin ? [0, 1, 2, 3] : [0, 1, 2]).map((i) => (
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {[0, 1, 2, 3].map((i) => (
           <Card key={i}>
             <CardContent className="space-y-3 p-5">
               <div className="flex items-center justify-between">
@@ -396,8 +511,7 @@ function DashboardSkeleton({ admin }: { admin: boolean }) {
         ))}
       </div>
 
-      {admin && (
-        <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
+      <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
           <Card>
             <CardHeader>
               <Skeleton className="h-5 w-32" />
@@ -430,10 +544,8 @@ function DashboardSkeleton({ admin }: { admin: boolean }) {
             </CardContent>
           </Card>
         </div>
-      )}
 
-      {admin ? (
-        <div className="grid gap-4 lg:grid-cols-[1.6fr_1fr]">
+      <div className="grid gap-4 lg:grid-cols-[1.6fr_1fr]">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0">
               <div className="space-y-2">
@@ -474,24 +586,6 @@ function DashboardSkeleton({ admin }: { admin: boolean }) {
             </CardContent>
           </Card>
         </div>
-      ) : (
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0">
-            <div className="space-y-2">
-              <Skeleton className="h-5 w-36" />
-              <Skeleton className="h-4 w-28" />
-            </div>
-            <Skeleton className="h-8 w-24 rounded-md" />
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2" aria-hidden="true">
-              {[0, 1, 2].map((i) => (
-                <Skeleton key={i} className="h-11 w-full rounded-md" />
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
     </div>
   )
 }
@@ -516,3 +610,4 @@ function TrxBadge({ status }: { status: string }) {
   const b = map[status] ?? { label: status, className: 'bg-muted text-muted-foreground' }
   return <Badge className={b.className}>{b.label}</Badge>
 }
+

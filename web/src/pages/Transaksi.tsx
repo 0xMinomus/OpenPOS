@@ -3,10 +3,11 @@
 import { useMemo, useState } from 'react'
 import { Banknote, CalendarDays, ReceiptText, Search, Sigma } from 'lucide-react'
 import { apiGetDashboard, apiListTransactions, apiRefundTransaction, fetchAll, type Trx } from '../lib/api'
+import { PageHeader } from '../lib/PageHeader'
 import { useCache } from '../lib/cache'
 import { exportCSV, fmtDate, fmtRp, fmtTime, useDB } from '../lib/store'
-import { NumInput, Button, DatePicker, Empty, Modal, PageHead, Pager, SkeletonRows, StatusPill, Td, Th, TrxItems } from '../lib/ui'
-import { Card, CardContent } from '@/components/ui/card'
+import { NumInput, Button, DatePicker, Empty, Modal, Pager, SkeletonRows, StatusPill, Td, Th, TrxItems } from '../lib/ui'
+import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 
 const PAGE = 10
@@ -100,38 +101,46 @@ export default function Transaksi() {
 
   const isAdmin = s.role === 'admin'
   const cards = [
-    { label: 'Total Transaksi', value: sum ? String(sum.n) : null, icon: ReceiptText, tint: 'text-[var(--chart-1)] bg-[color-mix(in_oklch,var(--chart-1)_12%,transparent)]' },
-    { label: 'Total Penjualan', value: sum ? fmtRp(sum.omzet) : null, icon: Banknote, tint: 'text-[var(--t-sprout)] bg-[color-mix(in_oklch,var(--t-sprout)_12%,transparent)]' },
-    { label: 'Transaksi Hari Ini', value: dash.data ? String(dash.data.today.trx_count) : null, icon: CalendarDays, tint: 'text-[var(--chart-2)] bg-[color-mix(in_oklch,var(--chart-2)_12%,transparent)]' },
-    { label: 'Rata-rata Transaksi', value: sum ? fmtRp(sum.avg) : null, icon: Sigma, tint: 'text-[var(--chart-3)] bg-[color-mix(in_oklch,var(--chart-3)_14%,transparent)]' },
+    { label: 'Total Transaksi', value: sum ? String(sum.n) : null, icon: ReceiptText },
+    { label: 'Total Penjualan', value: sum ? fmtRp(sum.omzet) : null, icon: Banknote },
+    { label: 'Transaksi Hari Ini', value: dash.data ? String(dash.data.today.trx_count) : null, icon: CalendarDays },
+    { label: 'Rata-rata Transaksi', value: sum ? fmtRp(sum.avg) : null, icon: Sigma },
   ]
 
   return (
     <>
-      <PageHead
+      <PageHeader
         title="Transaksi"
         sub={s.role === 'cashier' ? 'Transaksi yang Anda buat sendiri.' : 'Kelola dan pantau seluruh transaksi penjualan.'}
-        right={<Button variant="ghost" onClick={exportList}>Export CSV</Button>}
+        crumb="Transaksi"
+        actions={(
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="w-44">
+              <DatePicker value={date} onChange={(v) => { setDate(v); setPage(0) }} label="Filter tanggal" placeholder="Semua tanggal" />
+            </div>
+            <Button variant="ghost" onClick={exportList}>Export CSV</Button>
+          </div>
+        )}
       />
 
       {(err || list.err) && <p className="mb-4 rounded-lg bg-sand px-3.5 py-2.5 text-[13px] text-ember">{err || list.err}</p>}
 
       <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
         {cards.map((c) => (
-          <Card key={c.label}>
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between gap-3">
-                <span className="text-[13px] font-medium text-muted-foreground">{c.label}</span>
-                <span className={`grid size-9 shrink-0 place-items-center rounded-lg ${c.tint}`}>
-                  <c.icon className="size-4.5" />
-                </span>
+          <Card key={c.label} className="opc-stat">
+            <div className="opc-stat-body">
+              <span className="opc-kpi-ico" aria-hidden="true">
+                <c.icon />
+              </span>
+              <div className="min-w-0">
+                {c.value === null ? (
+                  <Skeleton className="h-6 w-24" />
+                ) : (
+                  <p className="opc-stat-val tabular-nums" title={c.value}>{c.value}</p>
+                )}
+                <p className="opc-stat-label">{c.label}</p>
               </div>
-              {c.value === null ? (
-                <Skeleton className="mt-3 h-7 w-24" />
-              ) : (
-                <p className="mt-3 truncate text-lg font-semibold leading-none tabular-nums tracking-tight sm:text-[28px]" title={c.value}>{c.value}</p>
-              )}
-            </CardContent>
+            </div>
           </Card>
         ))}
       </div>
@@ -144,9 +153,6 @@ export default function Transaksi() {
             aria-label="Cari transaksi"
             className="w-full rounded-md border border-border bg-paper py-2.5 pl-10 pr-3.5 text-sm focus:border-jet focus:outline-none"
           />
-        </div>
-        <div className="sm:w-60">
-          <DatePicker value={date} onChange={(v) => { setDate(v); setPage(0) }} label="Filter tanggal" placeholder="Semua tanggal" />
         </div>
       </div>
       <div className="mt-3 flex flex-wrap gap-2">

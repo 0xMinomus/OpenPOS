@@ -2,9 +2,10 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router'
 import { Banknote, BarChart3, Boxes, ChevronDown, ChevronUp, CircleCheck, Loader2, OctagonX, Package, ReceiptText, Sigma, TriangleAlert, TrendingUp, Wallet } from 'lucide-react'
 import { apiGetReport, apiListMovements, apiListProducts, apiListTransactions, fetchAll, type Movement, type Product, type ReportBundle, type Trx } from '../lib/api'
+import { PageHeader } from '../lib/PageHeader'
 import { useCache } from '../lib/cache'
 import { exportCSV, fmtDate, fmtInv, fmtRp, fmtShort, fmtTime } from '../lib/store'
-import { Button, PageHead, Pill, SkeletonRows, StatusPill, Td, Th } from '../lib/ui'
+import { Button, DatePicker, Pill, SkeletonRows, StatusPill, Td, Th } from '../lib/ui'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
@@ -47,19 +48,12 @@ const MOV_LABEL: Record<Movement['type'], string> = {
   sale: 'Penjualan', refund: 'Refund', adjust: 'Penyesuaian', initial: 'Stok awal',
 }
 
-const iconTint = {
-  blue: { color: 'text-[var(--chart-1)]', bg: 'bg-[color-mix(in_oklch,var(--chart-1)_12%,transparent)]' },
-  teal: { color: 'text-[var(--chart-2)]', bg: 'bg-[color-mix(in_oklch,var(--chart-2)_12%,transparent)]' },
-  amber: { color: 'text-[var(--chart-3)]', bg: 'bg-[color-mix(in_oklch,var(--chart-3)_14%,transparent)]' },
-  rose: { color: 'text-[var(--chart-5)]', bg: 'bg-[color-mix(in_oklch,var(--chart-5)_12%,transparent)]' },
-} as const
-
-function Kpi({ label, value, sub, icon: Icon, tint }: { label: string; value: string; sub: string; icon: React.ComponentType<{ className?: string }>; tint: { color: string; bg: string } }) {
+function Kpi({ label, value, sub, icon: Icon }: { label: string; value: string; sub: string; icon: React.ComponentType<{ className?: string }> }) {
   return (
     <Card>
       <CardContent className="relative min-h-32 p-5">
-        <span className={`absolute right-5 top-5 grid size-9 place-items-center rounded-lg ${tint.bg}`}>
-          <Icon className={`size-4.5 ${tint.color}`} />
+        <span className="absolute right-5 top-5 grid size-9 place-items-center rounded-lg bg-surface text-steel">
+          <Icon className="size-4.5" />
         </span>
         <div className="flex h-full flex-col justify-center pr-9">
           <span className="text-sm font-medium text-muted-foreground">{label}</span>
@@ -76,7 +70,7 @@ function ChartCard({ title, sub, action, children }: { title: string; sub: strin
     <Card>
       <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0">
         <div className="space-y-1.5">
-          <CardTitle className="text-base">{title}</CardTitle>
+          <CardTitle>{title}</CardTitle>
           <CardDescription>{sub}</CardDescription>
         </div>
         {action}
@@ -115,23 +109,22 @@ function tipLabel(label: any, payload?: any): any {
 }
 
 // Selisih % vs periode pembanding. Null bila tak terdefinisi (prev<=0) → fallback sub biasa.
-function delta(cur: number, prev: number | undefined): string | null {
+function delta(cur: number, prev: number | undefined, ref = 'kemarin'): string | null {
   if (prev === undefined || prev <= 0 || !Number.isFinite(cur)) return null
   const pct = Math.round(((cur - prev) / prev) * 100)
-  if (pct === 0) return '±0% dari kemarin'
-  return `${pct > 0 ? '↑' : '↓'} ${Math.abs(pct)}% dari kemarin`
+  if (pct === 0) return `±0% dari ${ref}`
+  return `${pct > 0 ? '↑' : '↓'} ${Math.abs(pct)}% dari ${ref}`
 }
 
 // KPI dengan komparasi ↑↓ (dipakai tab sales & profit; tab lain tetap pakai Kpi).
 // invert: panah dibalik (untuk metrik biaya — naik = memburuk).
-function DeltaKpi({ label, value, sub, compare, invert, icon: Icon, tint }: {
+function DeltaKpi({ label, value, sub, compare, invert, icon: Icon }: {
   label: string
   value: string
   sub: string
   compare: string | null
   invert?: boolean
   icon: React.ComponentType<{ className?: string }>
-  tint: { color: string; bg: string }
 }) {
   const dir = invert && compare ? compare.replace(/↑/g, '⇅').replace(/↓/g, '↑').replace(/⇅/g, '↓') : compare
   const up = dir?.startsWith('↑') ?? false
@@ -140,8 +133,8 @@ function DeltaKpi({ label, value, sub, compare, invert, icon: Icon, tint }: {
   return (
     <Card>
       <CardContent className="relative min-h-32 p-5">
-        <span className={`absolute right-5 top-5 grid size-9 place-items-center rounded-lg ${tint.bg}`}>
-          <Icon className={`size-4.5 ${tint.color}`} />
+        <span className="absolute right-5 top-5 grid size-9 place-items-center rounded-lg bg-surface text-steel">
+          <Icon className="size-4.5" />
         </span>
         <div className="flex h-full flex-col justify-center pr-9">
           <span className="text-sm font-medium text-muted-foreground">{label}</span>
@@ -156,23 +149,28 @@ function DeltaKpi({ label, value, sub, compare, invert, icon: Icon, tint }: {
 export default function Laporan() {
   const [period, setPeriod] = useState<Period>('today')
   const [tab, setTab] = useState<'sales' | 'products' | 'profit' | 'stock'>('sales')
+  // Tanggal kustom ('' = ikut periode). Data hari itu 00:00–23:59, pembanding
+  // = H-1-nya. Kontrak live: docs/API-CONTRACT-DASHBOARD-DATE.md.
+  const [date, setDate] = useState('')
   // Animasi chart hidup hanya saat mount; refresh/pindah tab tak me-restartnya.
   const [animate, setAnimate] = useState(true)
   useEffect(() => {
     const t = setTimeout(() => setAnimate(false), 900)
     return () => clearTimeout(t)
   }, [])
-  const rep = useCache<ReportBundle>(`report:${period}`, () => apiGetReport(period), 'Gagal memuat laporan.')
+  const rep = useCache<ReportBundle>(`report:${date || period}`, () => apiGetReport(date ? 'today' : period, date || undefined), 'Gagal memuat laporan.')
   const data = rep.data
   const err = rep.err
   // Pembanding "kemarin" hanya terdefinisi untuk periode hari ini (API tak punya
   // periode lalu untuk kemarin/minggu/bulan/semua) — dipakai tab sales & profit.
-  const needPrev = (tab === 'sales' || tab === 'profit') && period === 'today'
+  const needPrev = (tab === 'sales' || tab === 'profit') && (period === 'today' || date)
   const prevRep = useCache<ReportBundle | null>(
-    `reportprev:${tab}:${period}`,
-    () => ((tab === 'sales' || tab === 'profit') && period === 'today' ? apiGetReport('yesterday') : Promise.resolve(null)),
+    `reportprev:${tab}:${date || period}`,
+    () => (needPrev ? apiGetReport('yesterday', date || undefined) : Promise.resolve(null)),
   )
   const prev = needPrev ? prevRep.data : null
+  // Kata pembanding mengikuti mode: periode = "kemarin", tanggal kustom = "sebelumnya" (H-1).
+  const banding = date ? 'sebelumnya' : 'kemarin'
   // Katalog untuk join kategori + hitung produk aktif (tab Produk & Stok).
   const catRep = useCache<Product[] | null>(
     `lapcats:${tab}`,
@@ -184,7 +182,7 @@ export default function Laporan() {
     () => (tab === 'stock' ? apiListMovements({ limit: 5 }).then((r) => r.items) : Promise.resolve([])),
   )
   const [prodAll, setProdAll] = useState(false)
-  useEffect(() => { setProdAll(false) }, [period])
+  useEffect(() => { setProdAll(false) }, [period, date])
   const catMap = useMemo(() => {
     const m = new Map<string, { category: string; active: boolean }>()
     for (const p of catRep.data ?? []) m.set(p.id, { category: p.category_name ?? 'Tanpa kategori', active: p.active })
@@ -193,12 +191,12 @@ export default function Laporan() {
   // Data per jam untuk periode 1 hari: t.date laporan hanya tanggal, jadi ambil
   // jam dari daftar transaksi harian (created_at) — endpoint existing, tanpa API baru.
   // HPP per slot = Σ buy_price × qty per item (TrxItem existing).
-  const needHourly = (tab === 'sales' || tab === 'profit') && (period === 'today' || period === 'yesterday')
-  const dayStr = period === 'yesterday' ? localDayISO(1) : localDayISO(0)
+  const needHourly = (tab === 'sales' || tab === 'profit') && (period === 'today' || period === 'yesterday' || date)
+  const dayStr = date || (period === 'yesterday' ? localDayISO(1) : localDayISO(0))
   const hourRep = useCache<Trx[] | null>(
-    `reporthour:${tab}:${period}:${dayStr}`,
-    () => ((tab === 'sales' || tab === 'profit') && (period === 'today' || period === 'yesterday')
-      ? fetchAll<Trx>((pg) => apiListTransactions({ date: period === 'yesterday' ? localDayISO(1) : localDayISO(0), page: pg, limit: 200 }))
+    `reporthour:${tab}:${date || period}:${dayStr}`,
+    () => (needHourly
+      ? fetchAll<Trx>((pg) => apiListTransactions({ date: dayStr, page: pg, limit: 200 }))
       : Promise.resolve(null)),
   )
   const hourly = needHourly ? hourRep.data : undefined
@@ -209,7 +207,7 @@ export default function Laporan() {
   const switching = (rep.loading && data !== null) || auxLoading
   const switchingText = auxLoading && !(rep.loading && data !== null)
     ? `Memuat tab ${tabLabel}…`
-    : `Memuat periode ${PERIODS.find((p) => p.id === period)?.label}…`
+    : date ? `Memuat tanggal ${fmtDate(date)}…` : `Memuat periode ${PERIODS.find((p) => p.id === period)?.label}…`
 
   const daily = useMemo(() => {
     if (!data) return []
@@ -277,11 +275,11 @@ export default function Laporan() {
     if (!data || data.transactions.length === 0) return []
     const out: string[] = []
     const omzet = data.summary.omzet
-    if (period === 'today' && prev && prev.summary.omzet > 0 && omzet > 0) {
+    if ((period === 'today' || date) && prev && prev.summary.omzet > 0 && omzet > 0) {
       const cur = Math.round((data.summary.gross_profit / omzet) * 100)
       const pr = Math.round((prev.summary.gross_profit / prev.summary.omzet) * 100)
       const d = cur - pr
-      out.push(`Margin profit hari ini ${cur}%, ${d === 0 ? 'sama seperti kemarin' : d > 0 ? `naik ${d}% dibanding kemarin` : `turun ${Math.abs(d)}% dibanding kemarin`}.`)
+      out.push(`Margin profit ${date ? 'tanggal ini' : 'hari ini'} ${cur}%, ${d === 0 ? `sama seperti ${banding}` : d > 0 ? `naik ${d}% dibanding ${banding}` : `turun ${Math.abs(d)}% dibanding ${banding}`}.`)
     }
     if (catMap.size > 0 && data.summary.gross_profit > 0) {
       const byCat = new Map<string, number>()
@@ -299,7 +297,7 @@ export default function Laporan() {
     const fat = [...data.products].filter((p) => p.revenue > 0).sort((a, b) => (b.profit / b.revenue) - (a.profit / a.revenue))[0]
     if (fat && fat.profit > 0) out.push(`${fat.name} margin tertinggi ${Math.round((fat.profit / fat.revenue) * 100)}% (${fmtRp(fat.profit)} profit).`)
     return out.slice(0, 5)
-  }, [data, period, prev, catMap, prodProfit])
+  }, [data, period, date, prev, catMap, prodProfit])
   // Donut kategori: gabung agregat laporan + kategori katalog; 4 teratas + Lainnya.
   const catDonut = useMemo(() => {
     if (!data) return []
@@ -371,25 +369,40 @@ export default function Laporan() {
 
   if (err && !data) return (
     <>
-      <PageHead title="Laporan" sub="Ringkasan performa toko Anda." right={<Button variant="ghost" onClick={exportTab}>Export CSV</Button>} />
+      <PageHeader title="Laporan" sub="Ringkasan performa toko Anda." crumb="Laporan" actions={(
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="w-44">
+            <DatePicker value={date} onChange={setDate} label="Pilih tanggal laporan" placeholder="Semua periode" />
+          </div>
+          <Button variant="ghost" onClick={exportTab}>Export CSV</Button>
+        </div>
+      )} />
       <p className="rounded-lg bg-sand px-3.5 py-2.5 text-[13px] text-ember">{err}</p>
     </>
   )
 
   return (
     <>
-      <PageHead
+      <PageHeader
         title="Laporan"
         sub="Ringkasan performa toko Anda."
-        right={<Button variant="ghost" onClick={exportTab}>Export CSV</Button>}
+        crumb="Laporan"
+        actions={(
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="w-44">
+              <DatePicker value={date} onChange={setDate} label="Pilih tanggal laporan" placeholder="Semua periode" />
+            </div>
+            <Button variant="ghost" onClick={exportTab}>Export CSV</Button>
+          </div>
+        )}
       />
 
-      <div>
+      <div className="mb-4">
         <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="group" aria-label="Periode laporan">
           {PERIODS.map((p) => (
             <button
               key={p.id}
-              onClick={() => setPeriod(p.id)}
+              onClick={() => { setPeriod(p.id); setDate('') }}
               aria-pressed={period === p.id}
               className={`shrink-0 rounded-full border px-3.5 py-1.5 text-[13px] transition ${period === p.id ? 'border-jet bg-jet font-medium text-paper' : 'border-dove bg-paper text-muted hover:border-jet hover:text-fg'}`}
             >
@@ -398,7 +411,7 @@ export default function Laporan() {
           ))}
         </div>
 
-        <div className="mt-2.5 inline-flex max-w-full gap-1 overflow-x-auto rounded-xl bg-surface p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="tablist" aria-label="Jenis laporan">
+        <div className="mt-2.5 inline-flex max-w-full gap-1 overflow-x-auto rounded-xl border border-dove bg-paper p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="tablist" aria-label="Jenis laporan">
           {(['sales', 'products', 'profit', 'stock'] as const).map((t) => (
             <button
               key={t}
@@ -426,8 +439,8 @@ export default function Laporan() {
           {tab === 'sales' && (
             <div className="space-y-5">
               <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                <DeltaKpi label="Total Penjualan" value={fmtRp(data.summary.omzet)} sub={`${data.summary.trx_count} transaksi`} compare={delta(data.summary.omzet, prev?.summary.omzet)} icon={Banknote} tint={iconTint.blue} />
-                <DeltaKpi label="Jumlah Transaksi" value={String(data.summary.trx_count)} sub="selesai dalam periode ini" compare={delta(data.summary.trx_count, prev?.summary.trx_count)} icon={ReceiptText} tint={iconTint.teal} />
+                <DeltaKpi label="Total Penjualan" value={fmtRp(data.summary.omzet)} sub={`${data.summary.trx_count} transaksi`} compare={delta(data.summary.omzet, prev?.summary.omzet, banding)} icon={Banknote} />
+                <DeltaKpi label="Jumlah Transaksi" value={String(data.summary.trx_count)} sub="selesai dalam periode ini" compare={delta(data.summary.trx_count, prev?.summary.trx_count, banding)} icon={ReceiptText} />
                 <DeltaKpi
                   label="Rata-rata Transaksi"
                   value={fmtRp(data.summary.trx_count > 0 ? Math.round(data.summary.omzet / data.summary.trx_count) : 0)}
@@ -435,10 +448,11 @@ export default function Laporan() {
                   compare={delta(
                     data.summary.trx_count > 0 ? Math.round(data.summary.omzet / data.summary.trx_count) : 0,
                     prev && prev.summary.trx_count > 0 ? Math.round(prev.summary.omzet / prev.summary.trx_count) : undefined,
+                    banding,
                   )}
-                  icon={Sigma} tint={iconTint.amber}
+                  icon={Sigma}
                 />
-                <DeltaKpi label="Produk Terjual" value={String(data.summary.items_sold)} sub="satuan produk" compare={delta(data.summary.items_sold, prev?.summary.items_sold)} icon={Package} tint={iconTint.rose} />
+                <DeltaKpi label="Produk Terjual" value={String(data.summary.items_sold)} sub="satuan produk" compare={delta(data.summary.items_sold, prev?.summary.items_sold, banding)} icon={Package} />
               </div>
 
               <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
@@ -585,14 +599,14 @@ export default function Laporan() {
           {tab === 'products' && (
             <div className="space-y-5">
               <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                <Kpi label="Qty Terjual" value={String(data.products.reduce((n, p) => n + p.qty, 0))} sub="total satuan" icon={Package} tint={iconTint.blue} />
-                <Kpi label="Produk Terjual" value={String(data.products.length)} sub="jenis berbeda terjual" icon={Boxes} tint={iconTint.teal} />
-                <Kpi label="Pendapatan Produk" value={fmtRp(data.products.reduce((n, p) => n + p.revenue, 0))} sub="dari semua produk" icon={Banknote} tint={iconTint.amber} />
+                <Kpi label="Qty Terjual" value={String(data.products.reduce((n, p) => n + p.qty, 0))} sub="total satuan" icon={Package} />
+                <Kpi label="Produk Terjual" value={String(data.products.length)} sub="jenis berbeda terjual" icon={Boxes} />
+                <Kpi label="Pendapatan Produk" value={fmtRp(data.products.reduce((n, p) => n + p.revenue, 0))} sub="dari semua produk" icon={Banknote} />
                 <Kpi
                   label="Produk Aktif"
                   value={catRep.data ? String([...catMap.values()].filter((c) => c.active).length) : '…'}
                   sub={catRep.data ? `dari ${catMap.size} produk` : 'memuat katalog…'}
-                  icon={CircleCheck} tint={iconTint.rose}
+                  icon={CircleCheck}
                 />
               </div>
 
@@ -722,7 +736,7 @@ export default function Laporan() {
           {tab === 'profit' && (
             <div className="space-y-5">
               <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                <DeltaKpi label="Profit Kotor" value={fmtRp(data.summary.gross_profit)} sub={`dari omzet ${fmtRp(data.summary.omzet)}`} compare={delta(data.summary.gross_profit, prev?.summary.gross_profit)} icon={TrendingUp} tint={iconTint.blue} />
+                <DeltaKpi label="Profit Kotor" value={fmtRp(data.summary.gross_profit)} sub={`dari omzet ${fmtRp(data.summary.omzet)}`} compare={delta(data.summary.gross_profit, prev?.summary.gross_profit, banding)} icon={TrendingUp} />
                 <DeltaKpi
                   label="Margin Profit"
                   value={data.summary.omzet > 0 ? `${Math.round((data.summary.gross_profit / data.summary.omzet) * 100)}%` : '0%'}
@@ -730,12 +744,12 @@ export default function Laporan() {
                   compare={(() => {
                     if (!prev || prev.summary.omzet <= 0 || data.summary.omzet <= 0) return null
                     const d = Math.round((data.summary.gross_profit / data.summary.omzet) * 100) - Math.round((prev.summary.gross_profit / prev.summary.omzet) * 100)
-                    return d === 0 ? '±0% dari kemarin' : `${d > 0 ? '↑' : '↓'} ${Math.abs(d)}% dari kemarin`
+                    return d === 0 ? `±0% dari ${banding}` : `${d > 0 ? '↑' : '↓'} ${Math.abs(d)}% dari ${banding}`
                   })()}
-                  icon={BarChart3} tint={iconTint.teal}
+                  icon={BarChart3}
                 />
-                <DeltaKpi label="Pendapatan" value={fmtRp(data.summary.omzet)} sub="total penjualan" compare={delta(data.summary.omzet, prev?.summary.omzet)} icon={Banknote} tint={iconTint.amber} />
-                <DeltaKpi label="HPP" value={fmtRp(data.transactions.reduce((n, t) => n + t.hpp, 0))} sub="modal barang terjual" compare={delta(data.transactions.reduce((n, t) => n + t.hpp, 0), prev ? prev.transactions.reduce((n, t) => n + t.hpp, 0) : undefined)} invert icon={Wallet} tint={iconTint.rose} />
+                <DeltaKpi label="Pendapatan" value={fmtRp(data.summary.omzet)} sub="total penjualan" compare={delta(data.summary.omzet, prev?.summary.omzet, banding)} icon={Banknote} />
+                <DeltaKpi label="HPP" value={fmtRp(data.transactions.reduce((n, t) => n + t.hpp, 0))} sub="modal barang terjual" compare={delta(data.transactions.reduce((n, t) => n + t.hpp, 0), prev ? prev.transactions.reduce((n, t) => n + t.hpp, 0) : undefined, banding)} invert icon={Wallet} />
               </div>
 
               <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
@@ -852,15 +866,15 @@ export default function Laporan() {
           {tab === 'stock' && (
             <div className="space-y-5">
               <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                <Kpi label="Nilai Stok" value={fmtRp(data.stock.reduce((n, s) => n + s.stock_value, 0))} sub="total modal di gudang" icon={Wallet} tint={iconTint.blue} />
+                <Kpi label="Nilai Stok" value={fmtRp(data.stock.reduce((n, s) => n + s.stock_value, 0))} sub="total modal di gudang" icon={Wallet} />
                 <Kpi
                   label="Total Produk"
                   value={catRep.data ? String([...catMap.values()].filter((c) => c.active).length) : '…'}
                   sub={catRep.data ? `dari ${catMap.size} produk` : 'memuat katalog…'}
-                  icon={Package} tint={iconTint.teal}
+                  icon={Package}
                 />
-                <Kpi label="Stok Menipis" value={String(stockStatus.menipis)} sub="Perlu perhatian" icon={TriangleAlert} tint={iconTint.amber} />
-                <Kpi label="Stok Habis" value={String(stockStatus.habis)} sub="Perlu segera restock" icon={OctagonX} tint={iconTint.rose} />
+                <Kpi label="Stok Menipis" value={String(stockStatus.menipis)} sub="Perlu perhatian" icon={TriangleAlert} />
+                <Kpi label="Stok Habis" value={String(stockStatus.habis)} sub="Perlu segera restock" icon={OctagonX} />
               </div>
 
               <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
