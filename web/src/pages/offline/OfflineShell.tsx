@@ -1,11 +1,10 @@
 import { useEffect, useState, type ComponentType } from 'react'
 import { Link, Outlet, useLocation } from 'react-router'
-import { LayoutDashboard, Store, Package, Boxes, ReceiptText, BarChart3, Settings, Archive, Menu, X } from 'lucide-react'
+import { Archive, BarChart3, Boxes, LayoutDashboard, Moon, Package, PanelLeftClose, PanelLeftOpen, ReceiptText, Settings, Store, Sun } from 'lucide-react'
 import '../../redesign/classic.css'
-import { useLocalDB, createAccount, hasAccount } from '../../lib/localdb'
+import { createAccount, hasAccount, useLocalDB } from '../../lib/localdb'
 import { setSession, useDB, useTheme } from '../../lib/store'
 import { Button, Input, Logo } from '../../lib/ui'
-import { Sun, Moon } from 'lucide-react'
 
 const MENU: { label: string; to: string; icon: ComponentType<{ className?: string }>; group: 'UTAMA' | 'MANAJEMEN' | 'PENGATURAN' }[] = [
   { label: 'Dashboard', to: '/', icon: LayoutDashboard, group: 'UTAMA' },
@@ -24,12 +23,18 @@ function isMenuActive(pathname: string, to: string) {
   return pathname === to || (to !== '/' && pathname.startsWith(to))
 }
 
+function initials(name: string) {
+  const parts = name.trim().split(/\s+/)
+  return ((parts[0]?.[0] ?? '') + (parts[1]?.[0] ?? '')).toUpperCase() || '?'
+}
+
 export default function OfflineShell() {
   const db = useLocalDB()
   const { session } = useDB()
   const [theme, setTheme] = useTheme()
   const loc = useLocation()
   const [navOpen, setNavOpen] = useState(false)
+  const [collapsed, setCollapsed] = useState(false)
 
   // Drawer mobile: tutup otomatis tiap pindah halaman.
   useEffect(() => { setNavOpen(false) }, [loc.pathname])
@@ -50,98 +55,86 @@ export default function OfflineShell() {
 
   if (!hasAccount()) return <Onboarding />
 
-  return (
-    <div className="offline-app op-classic flex min-h-screen bg-background">
-      {/* Overlay drawer (mobile saja) */}
-      {navOpen && (
-        <div className="fixed inset-0 z-30 bg-black/50 md:hidden" onClick={() => setNavOpen(false)} aria-hidden="true" />
-      )}
-      <aside className={`fixed inset-y-0 left-0 z-40 flex w-72 shrink-0 flex-col border-r border-sidebar-border bg-sidebar pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] transition-transform duration-200 ease-out md:static md:z-auto md:w-60 md:translate-x-0 md:pt-0 md:pb-0 ${navOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="flex h-12 items-center gap-2.5 px-4 pt-4 md:pt-2">
-          <Logo className="h-8 w-auto shrink-0" />
-          <span className="grid min-w-0 flex-1 text-left leading-tight">
-            <span className="truncate text-sm font-semibold text-sidebar-foreground">{db.settings.storeName || 'Toko Saya'}</span>
-          </span>
-          <button
-            onClick={() => setNavOpen(false)}
-            aria-label="Tutup navigasi"
-            className="grid size-9 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground md:hidden"
-          >
-            <X className="size-5" />
-          </button>
-        </div>
-        <nav className="flex flex-1 flex-col gap-6 overflow-y-auto px-4 py-4" aria-label="Navigasi utama">
-          {GROUP_ORDER.map((g) => (
-            <div key={g}>
-              <p className="mb-2 flex items-center gap-2.5 px-3 text-[11px] font-medium tracking-[0.12em] text-muted-foreground uppercase">
-                {g}
-                {g !== 'UTAMA' && <span aria-hidden="true" className="h-px flex-1 bg-sidebar-border" />}
-              </p>
-              <ul className="flex flex-col gap-1">
-                {MENU.filter((m) => m.group === g).map((m) => {
-                  const active = isMenuActive(loc.pathname, m.to)
-                  return (
-                    <li key={m.to}>
-                      <Link
-                        to={m.to}
-                        aria-current={active ? 'page' : undefined}
-                        className={`relative flex h-11 items-center gap-3 rounded-[10px] px-3.5 text-sm transition-colors outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring ${active
-                          ? 'bg-sidebar-accent font-medium text-sidebar-accent-foreground'
-                          : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-                          }`}
-                      >
-                        {active && (
-                          <span aria-hidden="true" className="absolute top-1/2 left-0 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-[var(--t-jet)]" />
-                        )}
-                        <m.icon className="size-[18px] shrink-0" />
-                        <span className="truncate">{m.label}</span>
-                      </Link>
-                    </li>
-                  )
-                })}
-              </ul>
-            </div>
-          ))}
-        </nav>
-        <div className="px-4 pb-4">
-          <div className="flex w-full items-center gap-2.5 rounded-xl border border-sidebar-border bg-background p-2.5 text-left text-sm">
-            <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-sidebar-accent text-sm font-semibold text-sidebar-accent-foreground" aria-hidden="true">
-              {(db.settings.ownerName || '?').charAt(0).toUpperCase()}
-            </span>
-            <span className="grid min-w-0 flex-1 text-left leading-tight">
-              <span className="truncate font-medium text-sidebar-foreground">{db.settings.ownerName || '—'}</span>
-              <span className="truncate text-xs text-muted-foreground">Pemilik toko</span>
-            </span>
-          </div>
-        </div>
-      </aside>
+  // Ikon toggle mengikuti status: tertutup→buka, terbuka→tutup.
+  const narrow = typeof window !== 'undefined' && window.innerWidth < 768
+  const navExpanded = narrow ? navOpen : !collapsed
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-20 flex min-h-[calc(3.5rem+env(safe-area-inset-top))] items-center justify-between gap-3 border-b bg-background px-4 pt-[env(safe-area-inset-top)] pb-3 lg:px-6">
-          <div className="flex min-w-0 items-center gap-1.5">
-            <button
-              onClick={() => setNavOpen(true)}
-              aria-label="Buka navigasi"
-              className="grid size-10 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground md:hidden"
-            >
-              <Menu className="size-5" />
-            </button>
-            <div className="min-w-0">
-              <p className="truncate text-sm font-medium">{db.settings.storeName}</p>
-              <p className="font-mono text-[11px] text-muted-foreground">Mode offline · data di perangkat</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              aria-label={theme === 'dark' ? 'Tema terang' : 'Tema gelap'}
-              className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-            >
-              {theme === 'dark' ? <Sun className="size-4" /> : <Moon className="size-4" />}
-            </button>
+  return (
+    <div className={`opc-shell op-classic${navOpen ? ' nav-open' : ''}${collapsed ? ' nav-collapsed' : ''}`}>
+      <div className="opc-toprow">
+        <Link to="/" className="opc-brand" aria-label="Dashboard">
+          <Logo tone="dark" className="h-[26px] w-auto shrink-0" />
+          <span>{db.settings.storeName || 'Toko Saya'}</span>
+        </Link>
+        <header className="opc-topbar">
+          <button
+            className="opc-iconbtn"
+            onClick={() => {
+              if (window.innerWidth < 768) setNavOpen((v) => !v)
+              else setCollapsed((v) => !v)
+            }}
+            aria-label="Buka/tutup navigasi"
+            aria-expanded={navExpanded}
+          >
+            <span key={navExpanded ? 'open' : 'closed'} className="opc-icopop">
+              {navExpanded ? <PanelLeftClose className="size-5" strokeWidth={1.5} /> : <PanelLeftOpen className="size-5" strokeWidth={1.5} />}
+            </span>
+          </button>
+          <button
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            aria-label={theme === 'dark' ? 'Ganti ke tema terang' : 'Ganti ke tema gelap'}
+            title={theme === 'dark' ? 'Tema terang' : 'Tema gelap'}
+            className="opc-iconbtn"
+          >
+            {theme === 'dark' ? <Sun className="size-5" strokeWidth={1.5} /> : <Moon className="size-5" strokeWidth={1.5} />}
+          </button>
+          <div className="ml-auto flex items-center">
+            <span className="hidden font-mono text-[11px] text-muted-foreground sm:block">Mode offline · data di perangkat</span>
           </div>
         </header>
-        <main className="w-full min-w-0 flex-1 space-y-4 overflow-x-clip p-4 sm:space-y-6 lg:p-6">
+      </div>
+
+      <div className="opc-body">
+        <aside className="opc-sidebar" aria-label="Navigasi utama">
+          <nav className="opc-nav">
+            {GROUP_ORDER.map((g) => {
+              const items = MENU.filter((m) => m.group === g)
+              if (items.length === 0) return null
+              return (
+                <div key={g}>
+                  <p className="opc-group-label">{g}</p>
+                  <ul>
+                    {items.map((m) => {
+                      const active = isMenuActive(loc.pathname, m.to)
+                      return (
+                        <li key={m.to}>
+                          <Link to={m.to} aria-current={active ? 'page' : undefined} className={`opc-link${active ? ' active' : ''}`}>
+                            <m.icon className="" />
+                            <span>{m.label}</span>
+                          </Link>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                </div>
+              )
+            })}
+          </nav>
+          <div className="opc-sidefoot">
+            <div className="opc-sideuser" aria-label="Pemilik toko">
+              <span className="opc-avatar opc-avatar-initials" aria-hidden="true">
+                {initials(db.settings.ownerName || '?')}
+              </span>
+              <span className="grid min-w-0 flex-1 leading-tight">
+                <span className="truncate text-sm font-medium text-white">{db.settings.ownerName || '—'}</span>
+                <small className="truncate">Pemilik toko</small>
+              </span>
+            </div>
+          </div>
+        </aside>
+        <div className="opc-scrim" onClick={() => setNavOpen(false)} aria-hidden="true" />
+
+        <main className="opc-main">
           <Outlet />
         </main>
       </div>
