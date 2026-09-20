@@ -54,19 +54,29 @@ export default function Unduh() {
 
   return (
     <div className="landing-light bg-bg text-fg">
+      <style>{`
+        @keyframes ud-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+        .ud-in { opacity: 0; animation: ud-rise 0.55s cubic-bezier(0.2,0,0,1) both; }
+        .ud-1 { animation-delay: 0.04s; }
+        .ud-2 { animation-delay: 0.1s; }
+        .ud-3 { animation-delay: 0.16s; }
+        .ud-4 { animation-delay: 0.24s; }
+        .ud-5 { animation-delay: 0.32s; }
+        @media (prefers-reduced-motion: reduce) { .ud-in { animation: none; opacity: 1; } }
+      `}</style>
       <Navbar logoTone="light" />
       <main>
         <section className="pt-[clamp(48px,7vw,96px)] pb-14 md:pb-20">
           <div className="mx-auto max-w-[600px] px-5 md:px-8">
-            <p className="text-center font-mono text-[11px] uppercase tracking-[0.14em] text-steel">Unduh</p>
-            <h1 className="mx-auto mt-5 text-center text-[clamp(34px,5vw,52px)] font-medium leading-[1.06] tracking-[-0.03em] text-fg">
+            <p className="ud-in ud-1 text-center font-mono text-[11px] uppercase tracking-[0.14em] text-steel">Unduh</p>
+            <h1 className="ud-in ud-2 mx-auto mt-5 text-center text-[clamp(34px,5vw,52px)] font-normal leading-[1.08] tracking-[-0.025em] text-fg">
               Kasir offline,<br />di perangkat Anda.
             </h1>
-            <p className="mx-auto mt-5 max-w-[460px] text-center text-[15px] leading-relaxed text-muted sm:text-base">
+            <p className="ud-in ud-3 mx-auto mt-5 max-w-[460px] text-center text-[15px] leading-relaxed text-muted sm:text-base">
               Tanpa internet, tanpa langganan. Data tersimpan di perangkat sendiri.
             </p>
 
-            <div className="mt-10 divide-y divide-dove rounded-2xl border border-dove bg-paper">
+            <div className="ud-in ud-4 mt-10 divide-y divide-dove rounded-2xl border border-dove bg-paper">
               <div className="flex items-center gap-4 px-5 py-5 sm:px-6">
                 <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-fg/[0.04] text-jet">
                   <WinIcon />
@@ -74,6 +84,7 @@ export default function Unduh() {
                 <div className="min-w-0 flex-1">
                   <p className="text-[15px] font-medium text-fg">Windows</p>
                   <p className="mt-0.5 font-mono text-xs text-steel">10 / 11 · 64-bit · .exe</p>
+                  <p className="mt-1.5 text-[13px] leading-relaxed text-muted">Installer resmi dari GitHub OpenPOS. Terpasang seperti aplikasi biasa.</p>
                 </div>
                 <button
                   onClick={downloadWindows}
@@ -91,6 +102,7 @@ export default function Unduh() {
                 <div className="min-w-0 flex-1">
                   <p className="text-[15px] font-medium text-fg">Android</p>
                   <p className="mt-0.5 font-mono text-xs text-steel">8.0+ · .apk</p>
+                  <p className="mt-1.5 text-[13px] leading-relaxed text-muted">File resmi dari situs ini. Izinkan instalasi manual sekali saat pertama pasang.</p>
                 </div>
                 <a
                   href="/openpos.apk"
@@ -109,7 +121,7 @@ export default function Unduh() {
               </p>
             )}
 
-            <p className="mt-6 text-center font-mono text-xs leading-relaxed text-steel">
+            <p className="ud-in ud-5 mt-6 text-center font-mono text-xs leading-relaxed text-steel">
               gratis · offline · data milik Anda
             </p>
             <p className="mt-5 text-center text-[13px] leading-relaxed text-muted">
