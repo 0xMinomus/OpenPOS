@@ -370,10 +370,13 @@ export default function Landing() {
                 Kenapa kami bikin ini.
               </h2>
               <p className="mt-6 text-lg leading-relaxed text-muted">
-                Kami cuma dua orang. Andika ngoding tampilan, Adrr ngoding server. Tidak ada tim marketing, tidak ada investor. Kalau ada bug, yang benerin ya kami juga. Enaknya: tidak ada yang maksa pasang harga.
+                Kami membangun OpenPOS sebagai tim kecil dengan fokus yang sederhana: membuat sistem POS yang bisa digunakan dengan mudah, dikembangkan secara terbuka, dan tetap dapat diakses tanpa biaya yang memberatkan.
               </p>
               <p className="mt-4 text-lg leading-relaxed text-muted">
-                Kodenya terbuka di GitHub. Silakan intip, silakan pakai:
+                Seluruh proses pengembangan, mulai dari tampilan, sistem, hingga perbaikan bug, kami kerjakan sendiri. Karena itu, kami punya kebebasan untuk menjaga OpenPOS tetap terbuka dan berkembang berdasarkan kebutuhan pengguna, bukan tekanan bisnis atau investor.
+              </p>
+              <p className="mt-4 text-lg leading-relaxed text-muted">
+                Kode OpenPOS tersedia secara terbuka di GitHub. Siapa pun dapat melihat, mempelajari, menggunakan, maupun ikut mengembangkannya.
               </p>
             </div>
             <div className="mt-10">
@@ -384,9 +387,9 @@ export default function Landing() {
 
         <section id="daftar" className="section border-t border-border py-16 text-center">
           <div className="container mx-auto max-w-[640px] px-5 md:px-8">
-            <h2 className="reveal text-[clamp(30px,3.8vw,46px)] font-normal leading-[1.14] tracking-[-0.025em]">Coba dulu, daftar belakangan.</h2>
+            <h2 className="reveal text-[clamp(30px,3.8vw,46px)] font-normal leading-[1.14] tracking-[-0.025em]">Mulai berjualan hari ini tanpa biaya langganan.</h2>
             <p className="reveal mx-auto mt-4 mb-8 max-w-[520px] text-lg leading-relaxed text-muted" data-delay="1">
-              Demo di atas bisa diklik-klik tanpa akun. Kalau cocok, baru bikin toko. Satu menit, tanpa kartu kredit.
+              Daftar dalam satu menit. Buat toko, tambah produk, lalu terima pembayaran pertama Anda. Gratis selamanya.
             </p>
             <Link
               to="/daftar"
