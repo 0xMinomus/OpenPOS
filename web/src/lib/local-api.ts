@@ -226,10 +226,13 @@ function todayKey(): string {
   return dayKey(new Date().toISOString())
 }
 
-export function apiGetDashboard(): Promise<DashboardAdmin> {
+export function apiGetDashboard(date?: string): Promise<DashboardAdmin> {
   const db = getLocalDB()
-  const tk = todayKey()
-  const todayTrx = db.transactions.filter((t) => t.status === 'completed' && dayKey(t.created_at) === tk)
+  // date = hari lokal 'YYYY-MM-DD' (kalender dashboard); tanpa date = hari ini.
+  // sales7 = 7 hari berjalan berakhir di hari itu (ikut kontrak dashboard-date).
+  const ref = date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : todayKey()
+  const base = new Date(`${ref}T12:00:00`)
+  const todayTrx = db.transactions.filter((t) => t.status === 'completed' && dayKey(t.created_at) === ref)
   const omzet = todayTrx.reduce((n, t) => n + t.total, 0)
   const items_sold = todayTrx.reduce((n, t) => n + t.items.reduce((m, i) => m + i.qty, 0), 0)
   const low_stock = db.products.filter((p) => p.active && p.stock <= 5).length
@@ -240,8 +243,8 @@ export function apiGetDashboard(): Promise<DashboardAdmin> {
   }
   const sales7 = []
   for (let i = 6; i >= 0; i--) {
-    const d = new Date()
-    d.setDate(d.getDate() - i)
+    const d = new Date(base)
+    d.setDate(base.getDate() - i)
     const k = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
     sales7.push({ date: k, omzet: byDay.get(k) ?? 0 })
   }
@@ -275,8 +278,17 @@ export function apiGetDashboard(): Promise<DashboardAdmin> {
   })
 }
 
-function periodRange(period: string): [Date, Date] | null {
-  const now = new Date()
+function periodRange(period: string, date?: string): [Date, Date] | null {
+  // date = jangkar hari lokal 'YYYY-MM-DD' (kalender laporan); 'today' = hari
+  // itu 00:00–23:59, 'yesterday' = H-1-nya. Period lain abaikan date.
+  const valid = date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : null
+  const anchor = valid ? new Date(`${valid}T12:00:00`) : new Date()
+  if (valid && (period === 'today' || period === 'yesterday')) {
+    const start = new Date(anchor.getFullYear(), anchor.getMonth(), anchor.getDate())
+    if (period === 'yesterday') start.setDate(start.getDate() - 1)
+    return [start, new Date(start.getTime() + 86400000)]
+  }
+  const now = anchor
   const start = new Date(now.getFullYear(), now.getMonth(), now.getDate())
   if (period === 'today') return [start, new Date(start.getTime() + 86400000)]
   if (period === 'yesterday') return [new Date(start.getTime() - 86400000), start]
@@ -289,9 +301,9 @@ function periodRange(period: string): [Date, Date] | null {
   return null
 }
 
-export function apiGetReport(period: string): Promise<ReportBundle> {
+export function apiGetReport(period: string, date?: string): Promise<ReportBundle> {
   const db = getLocalDB()
-  const range = periodRange(period)
+  const range = periodRange(period, date)
   const trxs = db.transactions.filter((t) => {
     if (t.status !== 'completed') return false
     if (!range) return true

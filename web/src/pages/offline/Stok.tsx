@@ -4,9 +4,10 @@ import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { Check, ChevronDown, CircleCheck, OctagonX, Package, Search, TriangleAlert } from 'lucide-react'
 import { apiAdjustStock, apiListCategories, apiListMovements, apiListProducts, fetchAll, type Category, type Movement, type Product } from '../../lib/local-api'
+import { PageHeader } from '../../lib/PageHeader'
 import { useCache } from '../../lib/cache'
 import { fmtDate, fmtTime, useDB } from '../../lib/store'
-import { NumInput, Button, Empty, Input, Modal, PageHead, Pager, Pill, SkeletonRows, Td, Th } from '../../lib/ui'
+import { NumInput, Button, Empty, Input, Modal, Pager, Pill, SkeletonRows, Td, Th } from '../../lib/ui'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
@@ -99,17 +100,17 @@ export default function Stok() {
   }
 
   const stats = [
-    { label: 'Total Produk', value: counts.total, icon: Package, tint: 'text-[var(--chart-1)] bg-[color-mix(in_oklch,var(--chart-1)_12%,transparent)]' },
-    { label: 'Stok Aman', value: counts.aman, icon: CircleCheck, tint: 'text-[var(--t-sprout)] bg-[color-mix(in_oklch,var(--t-sprout)_12%,transparent)]' },
-    { label: 'Stok Menipis', value: counts.menipis, icon: TriangleAlert, tint: 'text-[var(--t-sunbeam)] bg-[color-mix(in_oklch,var(--t-sunbeam)_14%,transparent)]' },
-    { label: 'Stok Habis', value: counts.habis, icon: OctagonX, tint: 'text-[var(--t-ember)] bg-[color-mix(in_oklch,var(--t-ember)_12%,transparent)]' },
+    { label: 'Total Produk', value: counts.total, icon: Package },
+    { label: 'Stok Aman', value: counts.aman, icon: CircleCheck },
+    { label: 'Stok Menipis', value: counts.menipis, icon: TriangleAlert },
+    { label: 'Stok Habis', value: counts.habis, icon: OctagonX },
   ]
 
   const catLabel = !catFilter ? 'Semua kategori' : catFilter === NONE ? 'Tanpa kategori' : cats.find((c) => c.id === catFilter)?.name ?? 'Semua kategori'
 
   return (
     <>
-      <PageHead title="Stok" sub="Pantau ketersediaan dan pergerakan stok barang." />
+      <PageHeader title="Stok" sub="Pantau ketersediaan dan pergerakan stok barang." crumb="Stok" />
 
       {(err || prod.err) && <p className="mb-4 rounded-lg bg-sand px-3.5 py-2.5 text-[13px] text-ember">{err || prod.err}</p>}
 
@@ -128,16 +129,16 @@ export default function Stok() {
           ))
         ) : (
           stats.map((s) => (
-            <Card key={s.label}>
-              <CardContent className="p-4 sm:p-5">
-                <div className="flex items-center justify-between gap-2 sm:gap-3">
-                  <span className="min-w-0 text-[13px] font-medium leading-snug text-muted-foreground">{s.label}</span>
-                  <span className={`grid size-9 shrink-0 place-items-center rounded-lg ${s.tint}`}>
-                    <s.icon className="size-4.5" />
-                  </span>
+            <Card key={s.label} className="opc-stat">
+              <div className="opc-stat-body">
+                <span className="opc-kpi-ico" aria-hidden="true">
+                  <s.icon />
+                </span>
+                <div className="min-w-0">
+                  <p className="opc-stat-val tabular-nums" title={String(s.value)}>{s.value}</p>
+                  <p className="opc-stat-label">{s.label}</p>
                 </div>
-                <p className="mt-3 truncate text-xl font-semibold leading-none tabular-nums tracking-tight sm:text-[28px]" title={String(s.value)}>{s.value}</p>
-              </CardContent>
+              </div>
             </Card>
           ))
         )}

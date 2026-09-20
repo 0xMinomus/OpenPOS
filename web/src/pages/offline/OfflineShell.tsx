@@ -1,6 +1,7 @@
 import { useEffect, useState, type ComponentType } from 'react'
 import { Link, Outlet, useLocation } from 'react-router'
 import { LayoutDashboard, Store, Package, Boxes, ReceiptText, BarChart3, Settings, Archive, Menu, X } from 'lucide-react'
+import '../../redesign/classic.css'
 import { useLocalDB, createAccount, hasAccount } from '../../lib/localdb'
 import { setSession, useDB, useTheme } from '../../lib/store'
 import { Button, Input, Logo } from '../../lib/ui'
@@ -50,7 +51,7 @@ export default function OfflineShell() {
   if (!hasAccount()) return <Onboarding />
 
   return (
-    <div className="offline-app flex min-h-screen bg-background">
+    <div className="offline-app op-classic flex min-h-screen bg-background">
       {/* Overlay drawer (mobile saja) */}
       {navOpen && (
         <div className="fixed inset-0 z-30 bg-black/50 md:hidden" onClick={() => setNavOpen(false)} aria-hidden="true" />
