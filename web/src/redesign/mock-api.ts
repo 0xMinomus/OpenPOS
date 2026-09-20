@@ -97,15 +97,42 @@ export async function apiGetDashboard(date?: string): Promise<DashboardAdmin | D
   // mock selalu role admin → dashboard kasir stuck skeleton selamanya.
   const me = authed()
   if (me.role === 'cashier') {
-    const mine = t0.filter((t) => t.cashier_name === me.name)
+    const mine = done.filter((t) => t.cashier_name === me.name)
+    const mineToday = t0.filter((t) => t.cashier_name === me.name)
+    const sales7Mine = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(base)
+      d.setDate(base.getDate() - (6 - i))
+      const key = localDay(d)
+      return {
+        date: key,
+        omzet: mine.filter((t) => localDay(new Date(t.created_at)) === key).reduce((n, t) => n + t.total, 0),
+      }
+    })
+    const byMethodMine = new Map<string, number>()
+    for (const t of mineToday) byMethodMine.set(t.method, (byMethodMine.get(t.method) ?? 0) + t.total)
+    const topMine = new Map<string, { name: string; qty: number; revenue: number }>()
+    for (const t of mineToday) {
+      for (const it of t.items) {
+        const cur = topMine.get(it.product_id) ?? { name: it.name, qty: 0, revenue: 0 }
+        cur.qty += it.qty
+        cur.revenue += it.qty * it.price
+        topMine.set(it.product_id, cur)
+      }
+    }
     return {
       role: 'cashier',
       today: {
-        omzet: mine.reduce((n, t) => n + t.total, 0),
-        trx_count: mine.length,
-        items_sold: mine.reduce((n, t) => n + t.items.reduce((m, i) => m + i.qty, 0), 0),
+        omzet: mineToday.reduce((n, t) => n + t.total, 0),
+        trx_count: mineToday.length,
+        items_sold: mineToday.reduce((n, t) => n + t.items.reduce((m, i) => m + i.qty, 0), 0),
       },
       recent: recent.filter((t) => t.cashier_name === me.name),
+      sales7: sales7Mine,
+      methods: [...byMethodMine].map(([method, total]) => ({ method, total })),
+      top_products: [...topMine]
+        .map(([product_id, v]) => ({ product_id, ...v }))
+        .sort((a, b) => b.qty - a.qty)
+        .slice(0, 5),
     }
   }
   return {

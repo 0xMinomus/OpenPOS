@@ -255,6 +255,11 @@ export interface DashboardCashier {
   role: 'cashier'
   today: { omzet: number; trx_count: number; items_sold: number }
   recent: { id: string; cashier_name: string; total: number; status: Trx['status']; time: string }[]
+  // Opsional: mock /demo mengembalikannya (scope kasir sendiri);
+  // backend live boleh tidak mengirim — dashboard fallback ke [].
+  sales7?: { date: string; omzet: number }[]
+  methods?: { method: string; total: number }[]
+  top_products?: { product_id: string; name: string; qty: number; revenue: number }[]
 }
 
 export interface ReportBundle {
