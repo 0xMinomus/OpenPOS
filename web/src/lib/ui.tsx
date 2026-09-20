@@ -30,12 +30,15 @@ export function TrxItems({ items, className }: { items: TrxItem[]; className?: s
 // Varian auto menumpuk kedua gambar + preload (lihat index.html)
 // sehingga ganti tema hanya crossfade opacity — tanpa flicker jaringan.
 export function Logo({ className = 'h-8 w-auto', tone = 'auto' }: { className?: string; tone?: 'auto' | 'light' | 'dark' }) {
-  if (tone === 'dark') return <img src="/Logo-Putih.png" alt="OpenPOS" draggable={false} className={className} />
-  if (tone === 'light') return <img src="/Logo-Hitam.png" alt="OpenPOS" draggable={false} className={className} />
+  // BASE_URL = '/' di cloud, './' di bundle offline (file://) — path absolut
+  // '/Logo-*.png' tak resolve di Electron, jadi prefix ikut base.
+  const base = import.meta.env.BASE_URL || '/'
+  if (tone === 'dark') return <img src={`${base}Logo-Putih.png`} alt="OpenPOS" draggable={false} className={className} />
+  if (tone === 'light') return <img src={`${base}Logo-Hitam.png`} alt="OpenPOS" draggable={false} className={className} />
   return (
     <span className={`relative inline-flex shrink-0 ${className}`} role="img" aria-label="OpenPOS">
-      <img src="/Logo-Hitam.png" alt="" aria-hidden="true" draggable={false} className="h-full w-auto transition-opacity duration-150 dark:opacity-0" />
-      <img src="/Logo-Putih.png" alt="" aria-hidden="true" draggable={false} className="absolute inset-0 h-full w-auto opacity-0 transition-opacity duration-150 dark:opacity-100" />
+      <img src={`${base}Logo-Hitam.png`} alt="" aria-hidden="true" draggable={false} className="h-full w-auto transition-opacity duration-150 dark:opacity-0" />
+      <img src={`${base}Logo-Putih.png`} alt="" aria-hidden="true" draggable={false} className="absolute inset-0 h-full w-auto opacity-0 transition-opacity duration-150 dark:opacity-100" />
     </span>
   )
 }
