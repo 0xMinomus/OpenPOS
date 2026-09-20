@@ -13,14 +13,16 @@ function GhMark({ className = 'size-4' }: { className?: string }) {
 }
 
 const TESTIMONIALS = [
-  { initial: 'S', name: 'Bu Sari', role: 'Toko kelontong · Sleman', quote: 'Selisih kembalian dua ribu itu yang paling bikin kesal. Sekarang kembalian dihitung mesin, tutup buku lima menit selesai.' },
-  { initial: 'J', name: 'Pak Joko', role: 'Toko sembako · Surabaya', quote: 'Anak saya yang masih SMA jaga toko tiap sore. Sehari diajarin, besoknya sudah lancar sendiri.' },
-  { initial: 'R', name: 'Bu Ratna', role: 'Toko kosmetik · Bandung', quote: 'Lipstik salah shade tinggal klik refund, stok balik, pelanggan pulang senyum. Dulu saya catat di kertas, kertasnya yang hilang.' },
-  { initial: 'B', name: 'Pak Bambang', role: 'Toko elektronik · Semarang', quote: 'Kabel data laku 40 pcs seminggu, saya baru tahu dari laporan. Sekarang stoknya saya dobelin tiap kulakan.' },
-  { initial: 'D', name: 'Bu Dewi', role: 'Toko pakaian · Yogyakarta', quote: 'Sabtu sore pembeli numpuk, bayar QRIS sama tunai gantian, tidak ada yang ngomel nunggu lama.' },
-  { initial: 'H', name: 'Pak Hendra', role: 'Minimarket · Makassar', quote: 'Karyawan cuma bisa jualan, tidak bisa utak-atik harga. Saya pantau omzet dari rumah.' },
-  { initial: 'S', name: 'Bu Siti', role: 'Toko kelontong · Malang', quote: 'Gula tinggal dua kilo baru ketahuan pas ada yang borong. Sekarang peringatan menipisnya muncul duluan.' },
-  { initial: 'A', name: 'Pak Agus', role: 'Toko aksesoris · Denpasar', quote: 'Saya gaptek. Tapi kalau cuma pencet gambar barang terus terima uang, itu saya bisa.' },
+  { initial: 'S', name: 'Bu Sari', role: 'Pemilik toko kelontong · Java', quote: 'Dulu omzet harian saya hitung dari buku kas setiap malam. Sekarang cukup buka dashboard. Stok langsung berkurang tiap transaksi dan struk tercetak otomatis, jadi saya tidak perlu pusing lagi.' },
+  { initial: 'J', name: 'Pak Joko', role: 'Pemilik toko sembako · Surabaya', quote: 'Saya sudah tidak mencatat manual lagi. Sekarang tinggal buka ponsel, semua produk dan stok terlihat jelas. Kasir baru juga langsung bisa dipakai tanpa ribet.' },
+  { initial: 'R', name: 'Bu Ratna', role: 'Pemilik toko kosmetik · Bandung', quote: 'Refund dulu membuat pusing. Sekarang cukup sekali klik dan stok kembali otomatis. Pelanggan juga senang karena struknya jelas dan rapi.' },
+  { initial: 'B', name: 'Pak Bambang', role: 'Pemilik toko elektronik · Semarang', quote: 'Yang paling saya sukai adalah laporannya. Setiap malam saya bisa melihat produk mana yang laku dan mana yang harus diisi ulang, sehingga keputusan belanja lebih pasti.' },
+  { initial: 'D', name: 'Bu Dewi', role: 'Pemilik toko pakaian · Yogyakarta', quote: 'Kasirnya cepat, pelanggan tidak menunggu lama saat toko ramai. Pembayaran QRIS, transfer, dan tunai tersedia semua, dan gratis pula.' },
+  { initial: 'H', name: 'Pak Hendra', role: 'Pemilik minimarket · Makassar', quote: 'Karyawan saya diberi akses terbatas, hanya bisa bertransaksi. Data tetap aman dan saya masih bisa memantau omzet dari rumah.' },
+  { initial: 'S', name: 'Bu Siti', role: 'Pemilik toko kelontong · Malang', quote: 'Dulu saya sering kehabisan stok tanpa sadar. Sekarang stok yang menipis langsung terlihat di dashboard, jadi saya bisa membeli barang sebelum habis.' },
+  { initial: 'A', name: 'Pak Agus', role: 'Pemilik toko aksesoris · Denpasar', quote: 'Mudah dipelajari, orang awam seperti saya pun langsung bisa memakainya. Setiap transaksi tercatat otomatis dan tidak ada lagi uang yang terlewat.' },
+  { initial: 'M', name: 'Bu Melati', role: 'Pemilik toko kosmetik · Medan', quote: 'Struk bisa dicetak atau dikirim digital. Pelanggan makin percaya dan toko terlihat profesional meskipun hanya toko kecil.' },
+  { initial: 'R', name: 'Pak Rudi', role: 'Pemilik toko elektronik · Palembang', quote: 'Seminggu memakai, langsung terbiasa. Import produk dari Excel juga mudah, ratusan barang masuk sekaligus tanpa salah tulis.' },
 ]
 
 interface GhProfile {
@@ -339,7 +341,7 @@ export default function Landing() {
             <div className="reveal mb-8 max-w-[680px]">
               <p className="font-mono text-xs uppercase tracking-[0.08em] text-steel">Kata mereka</p>
               <h2 className="mt-5 text-[clamp(30px,3.8vw,46px)] font-normal leading-[1.14] tracking-[-0.025em]">
-                Kata yang pakai tiap hari.
+                Dipakai toko-toko kecil di seluruh Indonesia.
               </h2>
             </div>
             <div className="marquee-wrap reveal" data-delay="1">
