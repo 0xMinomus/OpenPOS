@@ -281,6 +281,16 @@ export default function Pos() {
               <span className="font-mono font-medium tabular-nums">{fmtRp(change)}</span>
             </div>
           )}
+          <div className="space-y-1.5 text-sm">
+            <div className="flex justify-between">
+              <span className="text-muted">Diskon</span>
+              <span className="font-mono tabular-nums">&minus;{fmtRp(discount)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted">Pajak{taxPct > 0 ? ` (${taxPct}%)` : ''}</span>
+              <span className="font-mono tabular-nums">+{fmtRp(tax)}</span>
+            </div>
+          </div>
           <div className="flex justify-between border-t border-dove pt-3 text-[15px]">
             <span>Total</span>
             <span className="font-mono font-medium tabular-nums">{fmtRp(total)}</span>
