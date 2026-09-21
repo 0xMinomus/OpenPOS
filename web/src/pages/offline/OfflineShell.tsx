@@ -28,6 +28,21 @@ function initials(name: string) {
   return ((parts[0]?.[0] ?? '') + (parts[1]?.[0] ?? '')).toUpperCase() || '?'
 }
 
+// Jam 24 jam + detik dan tanggal ikut lokal device. Putih di semua tema.
+function OfflineClock() {
+  const [now, setNow] = useState(() => new Date())
+  useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), 1000)
+    return () => clearInterval(t)
+  }, [])
+  const p = (n: number) => String(n).padStart(2, '0')
+  return (
+    <span className="hidden font-mono text-[11px] tabular-nums text-white sm:block">
+      {now.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} · {p(now.getHours())}:{p(now.getMinutes())}:{p(now.getSeconds())}
+    </span>
+  )
+}
+
 export default function OfflineShell() {
   const db = useLocalDB()
   const { session } = useDB()
@@ -89,7 +104,7 @@ export default function OfflineShell() {
             {theme === 'dark' ? <Sun className="size-5" strokeWidth={1.5} /> : <Moon className="size-5" strokeWidth={1.5} />}
           </button>
           <div className="ml-auto flex items-center">
-            <span className="hidden font-mono text-[11px] text-muted-foreground sm:block">Mode offline · data di perangkat</span>
+            <OfflineClock />
           </div>
         </header>
       </div>
