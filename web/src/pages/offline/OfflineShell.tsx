@@ -136,7 +136,7 @@ export default function OfflineShell() {
             })}
           </nav>
           <div className="opc-sidefoot">
-            <div className="opc-sideuser" aria-label="Pemilik toko">
+            <div className="opc-sideuser opc-sideuser-static" aria-label="Pemilik toko">
               <span className="opc-avatar opc-avatar-initials" aria-hidden="true">
                 {initials(db.settings.ownerName || '?')}
               </span>
