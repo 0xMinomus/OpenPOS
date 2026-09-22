@@ -297,20 +297,15 @@ export default function Masuk() {
                   <button type="submit" disabled={busy || fPw1.length < 8 || fPw1 !== fPw2} className="flex-1 rounded-full bg-jet py-3 text-[15px] font-medium text-paper hover:opacity-85 disabled:opacity-40">{busy ? 'Memproses…' : 'Ubah kata sandi'}</button>
                 ) : null}
               </div>
-              {fMsg && !fDone && fStep !== 'email' && (
-                <div className="flex items-center justify-center gap-4 text-[13px]">
-                  {fStep === 'newpw' && (
-                    <button type="button" onClick={() => { setFStep('otp'); setErr('') }} className="text-muted hover:underline">Ubah kode</button>
-                  )}
-                  <button
-                    type="button"
-                    onClick={sendForgotOtp}
-                    disabled={cooldown > 0 || busy}
-                    className="text-muted hover:underline disabled:opacity-50"
-                  >
-                    {cooldown > 0 ? `Kirim ulang dalam ${cooldown} detik` : 'Kirim ulang kode'}
-                  </button>
-                </div>
+              {fMsg && !fDone && fStep === 'otp' && (
+                <button
+                  type="button"
+                  onClick={sendForgotOtp}
+                  disabled={cooldown > 0 || busy}
+                  className="text-center text-[13px] text-muted hover:underline disabled:opacity-50"
+                >
+                  {cooldown > 0 ? `Kirim ulang dalam ${cooldown} detik` : 'Kirim ulang kode'}
+                </button>
               )}
             </form>
           ) : needPasscode ? (
@@ -408,7 +403,7 @@ export default function Masuk() {
           )}
 
           <p className="mt-4 text-center text-[13px] text-muted">
-            Halaman ini khusus pemilik toko. Kasir tidak perlu login, admin menambahkannya dari menu User Management.
+            Masuk dengan akun Anda untuk melanjutkan. Admin dapat mengelola akun kasir di menu User Management.
           </p>
           <p className="mt-6 border-t border-dove pt-5 text-center text-sm text-muted">
             Belum punya akun? <Link to="/daftar" className="font-medium text-jet hover:underline">Buat akun gratis</Link>
