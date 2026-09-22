@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
-import { ApiError, apiGoogleLogin, apiHasActiveCashiers, apiLogin, apiResetPassword, apiSendOtp, apiSendPasswordResetOtp } from '../lib/api'
+import { ApiError, apiGoogleLogin, apiHasActiveCashiers, apiLogin, apiResetPassword, apiSendOtp, apiSendPasswordResetOtp, apiVerifyPasswordResetOtp } from '../lib/api'
 import { setSession, toSession } from '../lib/store'
 import { GoogleButton } from '../lib/google'
 import Navbar from './Navbar'
@@ -24,6 +24,10 @@ export default function Masuk() {
   const [fPw2, setFPw2] = useState('')
   const [fMsg, setFMsg] = useState('')
   const [fDone, setFDone] = useState(false)
+  // Langkah lupa-sandi: email → otp (6 digit saja) → newpw (sandi baru).
+  // OTP divalidasi server saat reset (submit akhir); langkah otp hanya
+  // memastikan format 6 digit sebelum form sandi ditampilkan.
+  const [fStep, setFStep] = useState<'email' | 'otp' | 'newpw'>('email')
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
 
@@ -41,7 +45,12 @@ export default function Masuk() {
       setOtpMsg(`Kode OTP 6 digit terkirim ke ${em}.`)
       setCooldown(60)
     } catch (x) {
-      if (x instanceof ApiError && x.status === 429) setCooldown(60)
+      if (x instanceof ApiError && x.status === 429) {
+        setCooldown(60)
+        setOtpMsg('')
+        setErr('Terlalu sering meminta kode. Tunggu 60 detik lalu kirim ulang.')
+        return
+      }
       setOtpMsg('')
       setErr(x instanceof Error ? x.message : 'Gagal mengirim kode. Coba lagi.')
     }
@@ -67,6 +76,8 @@ export default function Masuk() {
         // Backend lama belum dukung OTP login — fallback form PIN.
         setNeedPasscode(true)
         setErr('')
+      } else if (x instanceof ApiError && x.status === 429) {
+        setErr('Terlalu sering mencoba masuk. Tunggu sebentar lalu coba lagi.')
       } else {
         setErr(x instanceof Error ? x.message : 'Gagal masuk. Coba lagi.')
       }
@@ -86,7 +97,11 @@ export default function Masuk() {
     } catch (x) {
       if (x instanceof ApiError && (x.status === 410 || x.status === 429)) setCooldown(0)
       if (x instanceof ApiError && x.code === 'otp_wrong') setOtp('')
-      setErr(x instanceof Error ? x.message : 'Kode salah. Coba lagi.')
+      if (x instanceof ApiError && x.status === 429) {
+        setErr('Terlalu banyak percobaan. Tunggu sebentar lalu kirim ulang kode.')
+      } else {
+        setErr(x instanceof Error ? x.message : 'Kode salah. Coba lagi.')
+      }
     } finally {
       setBusy(false)
     }
@@ -100,9 +115,15 @@ export default function Masuk() {
     try {
       await apiSendPasswordResetOtp(em)
       setFMsg(`Jika ${em} terdaftar, kode OTP 6 digit terkirim ke email tersebut.`)
+      setFStep('otp')
       setCooldown(60)
     } catch (x) {
-      if (x instanceof ApiError && x.status === 429) setCooldown(60)
+      if (x instanceof ApiError && x.status === 429) {
+        setCooldown(60)
+        setFMsg('')
+        setErr('Terlalu sering meminta kode. Tunggu 60 detik lalu kirim ulang.')
+        return
+      }
       setFMsg('')
       setErr(x instanceof Error ? x.message : 'Gagal mengirim kode. Coba lagi.')
     } finally {
@@ -110,9 +131,31 @@ export default function Masuk() {
     }
   }
 
-  async function submitForgot(e: React.FormEvent) {
+  // Langkah 2 → 3: verifikasi OTP ke server bila endpoint tersedia;
+  // backend lama (404) = lanjut langsung, error asli muncul di reset.
+  async function submitForgotOtp(e: React.FormEvent) {
     e.preventDefault()
     if (fOtp.length !== 6) return setErr('Masukkan kode OTP 6 digit.')
+    setErr(''); setBusy(true)
+    try {
+      await apiVerifyPasswordResetOtp(fEmail, fOtp)
+      setFStep('newpw')
+    } catch (x) {
+      if (x instanceof ApiError && x.status === 404) {
+        // Endpoint belum live — fallback perilaku lama.
+        setFStep('newpw')
+        return
+      }
+      if (x instanceof ApiError && (x.status === 410 || x.status === 429)) setCooldown(0)
+      if (x instanceof ApiError && x.status === 400) setFOtp('')
+      setErr(x instanceof Error ? x.message : 'Kode salah. Coba lagi.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function submitForgot(e: React.FormEvent) {
+    e.preventDefault()
     if (fPw1.length < 8) return setErr('Kata sandi baru minimal 8 karakter.')
     if (fPw1 !== fPw2) return setErr('Konfirmasi kata sandi tidak cocok.')
     setErr(''); setBusy(true)
@@ -123,7 +166,11 @@ export default function Masuk() {
       setEmail(fEmail); setPassword('')
     } catch (x) {
       if (x instanceof ApiError && (x.status === 410 || x.status === 429)) setCooldown(0)
-      if (x instanceof ApiError && x.status === 400) setFOtp('')
+      if (x instanceof ApiError && (x.status === 400 || x.status === 410 || x.status === 429)) {
+        // Kode salah/kedaluwarsa/limit — balik ke langkah OTP agar user
+        // kirim ulang atau masukkan ulang tanpa kehilangan email.
+        setFOtp(''); setFStep('otp')
+      }
       setErr(x instanceof Error ? x.message : 'Gagal mengganti kata sandi.')
     } finally {
       setBusy(false)
@@ -207,55 +254,63 @@ export default function Masuk() {
           )}
 
           {forgot ? (
-            <form onSubmit={submitForgot} className="flex flex-col gap-4" noValidate>
+            <form onSubmit={fStep === 'otp' ? submitForgotOtp : fStep === 'newpw' ? submitForgot : undefined} className="flex flex-col gap-4" noValidate>
               <div className="rounded-lg bg-surface px-3.5 py-3 text-[13px] text-muted">
                 {fDone ? fMsg : (fMsg || 'Masukkan email akun. Kode OTP 6 digit dikirim ke email tersebut.')}
                 {!fDone && <span className="mt-1 block text-xs text-fog">Kode berlaku 10 menit dan hanya bisa dicoba 3 kali.</span>}
               </div>
-              {!fMsg ? (
+              {fStep === 'email' && !fDone ? (
                 <label className="flex flex-col gap-1.5 text-[13px] font-medium text-steel">
                   Email
                   <input value={fEmail} onChange={(e) => setFEmail(e.target.value)} type="text" autoComplete="username" autoFocus placeholder="nama@tokosaya.com" className="rounded-md border border-border bg-paper px-3.5 py-3 text-[15px] focus:border-jet focus:outline-none" />
                 </label>
-              ) : !fDone && (
+              ) : fStep === 'otp' && !fDone ? (
+                <label className="flex flex-col gap-1.5 text-[13px] font-medium text-steel">
+                  Kode OTP
+                  <input
+                    value={fOtp}
+                    onChange={(e) => setFOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    type="text" inputMode="numeric" autoComplete="one-time-code" autoFocus
+                    placeholder="••••••"
+                    className="rounded-md border border-border bg-paper px-3.5 py-3 text-center font-mono text-xl tracking-[0.5em] focus:border-jet focus:outline-none"
+                  />
+                </label>
+              ) : fStep === 'newpw' && !fDone ? (
                 <>
                   <label className="flex flex-col gap-1.5 text-[13px] font-medium text-steel">
-                    Kode OTP
-                    <input
-                      value={fOtp}
-                      onChange={(e) => setFOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                      type="text" inputMode="numeric" autoComplete="one-time-code" autoFocus
-                      placeholder="••••••"
-                      className="rounded-md border border-border bg-paper px-3.5 py-3 text-center font-mono text-xl tracking-[0.5em] focus:border-jet focus:outline-none"
-                    />
-                  </label>
-                  <label className="flex flex-col gap-1.5 text-[13px] font-medium text-steel">
                     Kata sandi baru
-                    <input value={fPw1} onChange={(e) => setFPw1(e.target.value)} type="password" autoComplete="new-password" placeholder="Minimal 8 karakter" className="rounded-md border border-border bg-paper px-3.5 py-3 text-[15px] focus:border-jet focus:outline-none" />
+                    <input value={fPw1} onChange={(e) => setFPw1(e.target.value)} type="password" autoComplete="new-password" autoFocus placeholder="Minimal 8 karakter" className="rounded-md border border-border bg-paper px-3.5 py-3 text-[15px] focus:border-jet focus:outline-none" />
                   </label>
                   <label className="flex flex-col gap-1.5 text-[13px] font-medium text-steel">
                     Konfirmasi kata sandi baru
                     <input value={fPw2} onChange={(e) => setFPw2(e.target.value)} type="password" autoComplete="new-password" placeholder="Ulangi kata sandi baru" className="rounded-md border border-border bg-paper px-3.5 py-3 text-[15px] focus:border-jet focus:outline-none" />
                   </label>
                 </>
-              )}
+              ) : null}
               <div className="flex gap-3">
-                <button type="button" onClick={() => { setForgot(false); setFMsg(''); setFDone(false); setErr('') }} className="flex-1 rounded-full border border-dove py-3 text-[15px] font-medium text-jet hover:border-jet">Kembali</button>
-                {!fMsg ? (
+                <button type="button" onClick={() => { setForgot(false); setFMsg(''); setFDone(false); setFStep('email'); setErr('') }} className="flex-1 rounded-full border border-dove py-3 text-[15px] font-medium text-jet hover:border-jet">Kembali</button>
+                {fStep === 'email' && !fDone ? (
                   <button type="button" onClick={sendForgotOtp} disabled={busy} className="flex-1 rounded-full bg-jet py-3 text-[15px] font-medium text-paper hover:opacity-85 disabled:opacity-40">{busy ? 'Mengirim…' : 'Kirim kode'}</button>
-                ) : !fDone && (
-                  <button type="submit" disabled={busy || fOtp.length !== 6 || fPw1.length < 8 || fPw1 !== fPw2} className="flex-1 rounded-full bg-jet py-3 text-[15px] font-medium text-paper hover:opacity-85 disabled:opacity-40">{busy ? 'Memproses…' : 'Ubah kata sandi'}</button>
-                )}
+                ) : fStep === 'otp' && !fDone ? (
+                  <button type="submit" disabled={busy || fOtp.length !== 6} className="flex-1 rounded-full bg-jet py-3 text-[15px] font-medium text-paper hover:opacity-85 disabled:opacity-40">{busy ? 'Memproses…' : 'Lanjut'}</button>
+                ) : fStep === 'newpw' && !fDone ? (
+                  <button type="submit" disabled={busy || fPw1.length < 8 || fPw1 !== fPw2} className="flex-1 rounded-full bg-jet py-3 text-[15px] font-medium text-paper hover:opacity-85 disabled:opacity-40">{busy ? 'Memproses…' : 'Ubah kata sandi'}</button>
+                ) : null}
               </div>
-              {fMsg && !fDone && (
-                <button
-                  type="button"
-                  onClick={sendForgotOtp}
-                  disabled={cooldown > 0 || busy}
-                  className="text-center text-[13px] text-muted hover:underline disabled:opacity-50"
-                >
-                  {cooldown > 0 ? `Kirim ulang dalam ${cooldown} detik` : 'Kirim ulang kode'}
-                </button>
+              {fMsg && !fDone && fStep !== 'email' && (
+                <div className="flex items-center justify-center gap-4 text-[13px]">
+                  {fStep === 'newpw' && (
+                    <button type="button" onClick={() => { setFStep('otp'); setErr('') }} className="text-muted hover:underline">Ubah kode</button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={sendForgotOtp}
+                    disabled={cooldown > 0 || busy}
+                    className="text-muted hover:underline disabled:opacity-50"
+                  >
+                    {cooldown > 0 ? `Kirim ulang dalam ${cooldown} detik` : 'Kirim ulang kode'}
+                  </button>
+                </div>
               )}
             </form>
           ) : needPasscode ? (
@@ -343,7 +398,7 @@ export default function Masuk() {
               <label className="flex flex-col gap-1.5 text-[13px] font-medium text-steel">
                 <span className="flex items-center justify-between">
                   Kata sandi
-                  <button type="button" onClick={() => { setForgot(true); setFEmail(email); setErr(''); setFMsg(''); setFDone(false) }} className="font-normal text-muted hover:underline">Lupa password?</button>
+                  <button type="button" onClick={() => { setForgot(true); setFEmail(email); setFStep('email'); setFMsg(''); setFDone(false); setFOtp(''); setFPw1(''); setFPw2(''); setErr('') }} className="font-normal text-muted hover:underline">Lupa password?</button>
                 </span>
                 <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" autoComplete="current-password" placeholder="••••••••" className="rounded-md border border-border bg-paper px-3.5 py-3 text-[15px] focus:border-jet focus:outline-none" />
               </label>

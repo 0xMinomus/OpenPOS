@@ -599,10 +599,16 @@ export function apiUpdateSettings(s: StoreSettings) {
 }
 
 // Ganti kata sandi via OTP email (kontrak README backend §forgot-password).
-// Alur: send → reset {email, code, new_password}. Sukses mencabut semua
-// refresh token → pemanggil wajib logout + login ulang.
+// Alur: send → verify {email, code} → reset {email, code, new_password}.
+// verify opsional (pemanggil lama langsung reset tetap jalan), tapi dipakai
+// untuk pecah alur 3 langkah agar form sandi baru tidak muncul sebelum OTP
+// terverifikasi. Sukses reset mencabut semua refresh token.
 export function apiSendPasswordResetOtp(email: string) {
   return request<{ message: string }>('POST', '/auth/forgot-password/send', { email }, false)
+}
+
+export function apiVerifyPasswordResetOtp(email: string, code: string) {
+  return request<{ message: string }>('POST', '/auth/forgot-password/verify', { email, code }, false)
 }
 
 export function apiResetPassword(email: string, code: string, newPassword: string) {
