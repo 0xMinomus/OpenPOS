@@ -402,9 +402,6 @@ export default function Masuk() {
             </div>
           )}
 
-          <p className="mt-4 text-center text-[13px] text-muted">
-            Masuk dengan akun Anda untuk melanjutkan. Admin dapat mengelola akun kasir di menu User Management.
-          </p>
           <p className="mt-6 border-t border-dove pt-5 text-center text-sm text-muted">
             Belum punya akun? <Link to="/daftar" className="font-medium text-jet hover:underline">Buat akun gratis</Link>
           </p>
