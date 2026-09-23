@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { exportDB, replaceDB, resetDB, useLocalDB, validateImport } from '../../lib/localdb'
+import { downloadBlob } from '../../lib/store'
 import { Button, PageHead } from '../../lib/ui'
 import { Download, Upload } from 'lucide-react'
 
@@ -9,14 +10,12 @@ export default function OfflineBackup() {
   const [msg, setMsg] = useState('')
   const [err, setErr] = useState('')
 
-  function doExport() {
-    const blob = new Blob([exportDB()], { type: 'application/json' })
-    const a = document.createElement('a')
-    a.href = URL.createObjectURL(blob)
-    a.download = `openpos-backup-${new Date().toISOString().slice(0, 10)}.json`
-    a.click()
-    URL.revokeObjectURL(a.href)
-    setMsg('Backup diunduh. Simpan file ini — data semua tercakup (produk, kategori, transaksi, pengaturan).')
+  async function doExport() {
+    const ok = await downloadBlob(
+      `openpos-backup-${new Date().toISOString().slice(0, 10)}.json`,
+      new Blob([exportDB()], { type: 'application/json' }),
+    )
+    setMsg(ok ? 'Backup diunduh. Simpan file ini — data semua tercakup (produk, kategori, transaksi, pengaturan).' : 'Penyimpanan backup dibatalkan.')
     setErr('')
   }
 
