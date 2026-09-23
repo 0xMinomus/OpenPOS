@@ -3,12 +3,31 @@ import { Link, useNavigate } from 'react-router'
 import { ApiError, apiGoogleLogin, apiHasActiveCashiers, apiLogin, apiResetPassword, apiSendOtp, apiSendPasswordResetOtp, apiVerifyPasswordResetOtp } from '../lib/api'
 import { setSession, toSession } from '../lib/store'
 import { GoogleButton } from '../lib/google'
-import Navbar from './Navbar'
+import { LoginIcon } from './login-icons'
+
+const BARS = [
+  { d: 'Sen', h: 58, hot: false },
+  { d: 'Sel', h: 84, hot: false },
+  { d: 'Rab', h: 70, hot: false },
+  { d: 'Kam', h: 108, hot: false },
+  { d: 'Jum', h: 94, hot: false },
+  { d: 'Sab', h: 116, hot: true },
+  { d: 'Min', h: 102, hot: false },
+]
+
+const DMA = "font-['DM_Sans',system-ui,sans-serif]"
+const PJS = "font-['Plus_Jakarta_Sans',system-ui,sans-serif]"
 
 export default function Masuk() {
   const nav = useNavigate()
-  const [email, setEmail] = useState('')
+  const [email, setEmail] = useState(() => {
+    try { return localStorage.getItem('op_login_email') ?? '' } catch { return '' }
+  })
   const [password, setPassword] = useState('')
+  const [showPw, setShowPw] = useState(false)
+  const [remember, setRemember] = useState(() => {
+    try { return !!localStorage.getItem('op_login_email') } catch { return false }
+  })
   const [passcode, setPasscode] = useState('')
   const [needPasscode, setNeedPasscode] = useState(false)
   const [otp, setOtp] = useState('')
@@ -37,6 +56,17 @@ export default function Masuk() {
     return () => clearTimeout(t)
   }, [cooldown])
 
+  // "Ingat saya" = ingat email saja (prefill). Token tetap per-tab
+  // sessionStorage — tidak ada sesi abadi lintas browser ditutup.
+  async function afterLogin(user: Parameters<typeof toSession>[0]) {
+    setSession(toSession(user))
+    try {
+      if (remember) localStorage.setItem('op_login_email', email.trim().toLowerCase())
+      else localStorage.removeItem('op_login_email')
+    } catch { /* storage diblokir — abaikan */ }
+    nav((await apiHasActiveCashiers()) ? '/pilih-akun' : '/app', { replace: true })
+  }
+
   async function sendLoginOtp() {
     const em = email.trim().toLowerCase()
     setOtpMsg(''); setErr(''); setOtp('')
@@ -64,8 +94,7 @@ export default function Masuk() {
     setErr(''); setBusy(true)
     try {
       const r = await apiLogin(em, password)
-      setSession(toSession(r.user))
-      nav((await apiHasActiveCashiers()) ? '/pilih-akun' : '/app', { replace: true })
+      await afterLogin(r.user)
     } catch (x) {
       if (x instanceof ApiError && x.code === 'otp_required') {
         // Faktor kedua = OTP email (passcode tetap untuk pilih akun/switch).
@@ -92,8 +121,7 @@ export default function Masuk() {
     setErr(''); setBusy(true)
     try {
       const r = await apiLogin(email.trim().toLowerCase(), password, { otp })
-      setSession(toSession(r.user))
-      nav((await apiHasActiveCashiers()) ? '/pilih-akun' : '/app', { replace: true })
+      await afterLogin(r.user)
     } catch (x) {
       if (x instanceof ApiError && (x.status === 410 || x.status === 429)) setCooldown(0)
       if (x instanceof ApiError && x.code === 'otp_wrong') setOtp('')
@@ -177,12 +205,12 @@ export default function Masuk() {
     }
   }
 
-  async function submitPasscode(e: React.FormEvent) {    e.preventDefault()
+  async function submitPasscode(e: React.FormEvent) {
+    e.preventDefault()
     setErr(''); setBusy(true)
     try {
       const r = await apiLogin(email.trim().toLowerCase(), password, { passcode })
-      setSession(toSession(r.user))
-      nav((await apiHasActiveCashiers()) ? '/pilih-akun' : '/app', { replace: true })
+      await afterLogin(r.user)
     } catch (x) {
       setErr(x instanceof Error ? x.message : 'Passcode salah. Coba lagi.')
       setPasscode('')
@@ -195,10 +223,10 @@ export default function Masuk() {
     setErr(''); setBusy(true)
     try {
       const r = await apiGoogleLogin(credential)
-      setSession(toSession(r.user))
       // Akun yang baru dibuat detik ini → lengkapi nama toko + passcode.
       // Akun lama (Google dipakai untuk masuk) → langsung ke dashboard.
       const age = r.user.created_at ? Date.now() - new Date(r.user.created_at).getTime() : Infinity
+      setSession(toSession(r.user))
       if (age < 2 * 60 * 1000) {
         nav('/daftar?google=onboard', { replace: true })
       } else {
@@ -237,182 +265,357 @@ export default function Masuk() {
     }
   }
 
+  function startForgot() {
+    setForgot(true); setFEmail(email); setFStep('email')
+    setFMsg(''); setFDone(false); setFOtp(''); setFPw1(''); setFPw2(''); setErr('')
+  }
+
   return (
-    <div className="landing-light bg-bg text-fg">
-      <Navbar logoTone="light" />
-      <main className="relative grid min-h-[calc(100vh-116px)] place-items-center overflow-hidden px-4 py-8 sm:px-8 sm:py-12">
-        <section className="auth-card w-full max-w-105 rounded-2xl border border-dove bg-paper p-5 shadow-xl sm:p-10">
-          <p className="font-mono text-xs uppercase tracking-widest text-steel">Masuk · kasir</p>
-          <h1 className="mt-3 text-[clamp(32px,4vw,44px)] font-normal leading-[1.1] tracking-[-0.025em]">Selamat datang kembali</h1>
-          <p className="mt-2 mb-7 text-[15px] text-muted">Masuk ke toko Anda untuk mulai berjualan.</p>
-
-          {err && (
-            <p className="mb-4 flex items-start gap-2 rounded-lg bg-sand px-3.5 py-3 text-[13px]" role="alert">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" className="mt-0.5 flex-none text-ember"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>
-              {err}
-            </p>
-          )}
-
-          {forgot ? (
-            <form onSubmit={fStep === 'otp' ? submitForgotOtp : fStep === 'newpw' ? submitForgot : undefined} className="flex flex-col gap-4" noValidate>
-              <div className="rounded-lg bg-surface px-3.5 py-3 text-[13px] text-muted">
-                {fDone ? fMsg : (fMsg || 'Masukkan email akun. Kode OTP 6 digit dikirim ke email tersebut.')}
-                {!fDone && <span className="mt-1 block text-xs text-fog">Kode berlaku 10 menit dan hanya bisa dicoba 3 kali.</span>}
+    <div className="min-h-screen bg-[#F3EFE6] flex items-center justify-center">
+      <div className="box-border w-full max-w-[1440px] min-h-screen lg:h-[960px] lg:min-h-0 bg-[#F3EFE6] overflow-hidden relative flex flex-col lg:flex-row">
+        {/* ── Panel kiri: form auth ─────────────────────────── */}
+        <div className="box-border w-full lg:w-[620px] shrink-0 lg:h-[960px] bg-[#FFFEFA] relative order-1">
+          <div className="box-border w-full max-w-[440px] mx-auto px-6 py-12 lg:mx-0 lg:px-0 lg:py-0 lg:max-w-none lg:absolute lg:left-[90px] lg:top-[196px] lg:w-[440px] flex flex-col gap-[22px]">
+            <div className="flex flex-col gap-[9px]">
+              <div className={`text-[12px]/[16px] text-[#2F6FEB] ${PJS} font-extrabold tracking-[1px] whitespace-nowrap`}>
+                MASUK KE OPENPOS
               </div>
-              {fStep === 'email' && !fDone ? (
-                <label className="flex flex-col gap-1.5 text-[13px] font-medium text-steel">
-                  Email
-                  <input value={fEmail} onChange={(e) => setFEmail(e.target.value)} type="text" autoComplete="username" autoFocus placeholder="nama@tokosaya.com" className="rounded-md border border-border bg-paper px-3.5 py-3 text-[15px] focus:border-jet focus:outline-none" />
-                </label>
-              ) : fStep === 'otp' && !fDone ? (
-                <label className="flex flex-col gap-1.5 text-[13px] font-medium text-steel">
-                  Kode OTP
-                  <input
-                    value={fOtp}
-                    onChange={(e) => setFOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                    type="text" inputMode="numeric" autoComplete="one-time-code" autoFocus
-                    placeholder="••••••"
-                    className="rounded-md border border-border bg-paper px-3.5 py-3 text-center font-mono text-xl tracking-[0.5em] focus:border-jet focus:outline-none"
-                  />
-                </label>
-              ) : fStep === 'newpw' && !fDone ? (
-                <>
-                  <label className="flex flex-col gap-1.5 text-[13px] font-medium text-steel">
-                    Kata sandi baru
-                    <input value={fPw1} onChange={(e) => setFPw1(e.target.value)} type="password" autoComplete="new-password" autoFocus placeholder="Minimal 8 karakter" className="rounded-md border border-border bg-paper px-3.5 py-3 text-[15px] focus:border-jet focus:outline-none" />
-                  </label>
-                  <label className="flex flex-col gap-1.5 text-[13px] font-medium text-steel">
-                    Konfirmasi kata sandi baru
-                    <input value={fPw2} onChange={(e) => setFPw2(e.target.value)} type="password" autoComplete="new-password" placeholder="Ulangi kata sandi baru" className="rounded-md border border-border bg-paper px-3.5 py-3 text-[15px] focus:border-jet focus:outline-none" />
-                  </label>
-                </>
-              ) : null}
-              <div className="flex gap-3">
-                <button type="button" onClick={() => { setForgot(false); setFMsg(''); setFDone(false); setFStep('email'); setErr('') }} className="flex-1 rounded-full border border-dove py-3 text-[15px] font-medium text-jet hover:border-jet">Kembali</button>
-                {fStep === 'email' && !fDone ? (
-                  <button type="button" onClick={sendForgotOtp} disabled={busy} className="flex-1 rounded-full bg-jet py-3 text-[15px] font-medium text-paper hover:opacity-85 disabled:opacity-40">{busy ? 'Mengirim…' : 'Kirim kode'}</button>
-                ) : fStep === 'otp' && !fDone ? (
-                  <button type="submit" disabled={busy || fOtp.length !== 6} className="flex-1 rounded-full bg-jet py-3 text-[15px] font-medium text-paper hover:opacity-85 disabled:opacity-40">{busy ? 'Memproses…' : 'Lanjut'}</button>
-                ) : fStep === 'newpw' && !fDone ? (
-                  <button type="submit" disabled={busy || fPw1.length < 8 || fPw1 !== fPw2} className="flex-1 rounded-full bg-jet py-3 text-[15px] font-medium text-paper hover:opacity-85 disabled:opacity-40">{busy ? 'Memproses…' : 'Ubah kata sandi'}</button>
-                ) : null}
+              <div className={`text-[38px]/[43px] text-[#102033] ${DMA} font-normal`}>
+                Selamat datang kembali
               </div>
-              {fMsg && !fDone && fStep === 'otp' && (
-                <button
-                  type="button"
-                  onClick={sendForgotOtp}
-                  disabled={cooldown > 0 || busy}
-                  className="text-center text-[13px] text-muted hover:underline disabled:opacity-50"
-                >
-                  {cooldown > 0 ? `Kirim ulang dalam ${cooldown} detik` : 'Kirim ulang kode'}
-                </button>
-              )}
-            </form>
-          ) : needPasscode ? (
-            <form onSubmit={submitPasscode} className="flex flex-col gap-4" noValidate>
-              <div className="rounded-lg bg-surface px-3.5 py-3 text-[13px] text-muted">
-                Akun <strong className="text-fg">{email.trim().toLowerCase()}</strong> dilindungi passcode. Masukkan 5 angka untuk melanjutkan.
+              <div className={`text-[15px]/[23px] text-[#667085] ${PJS} font-normal`}>
+                {forgot ? 'Atur ulang kata sandi akun Anda.' : 'Lanjutkan kelola toko Anda dari terakhir kali.'}
               </div>
-              <label className="flex flex-col gap-1.5 text-[13px] font-medium text-steel">
-                Passcode
-                <input
-                  value={passcode}
-                  onChange={(e) => setPasscode(e.target.value.replace(/\D/g, '').slice(0, 5))}
-                  type="password" inputMode="numeric" autoFocus
-                  placeholder="•••••"
-                  className="rounded-md border border-border bg-paper px-3.5 py-3 text-center font-mono text-lg tracking-[0.5em] focus:border-jet focus:outline-none"
-                />
-              </label>
-              <div className="flex gap-3">
-                <button type="button" onClick={() => { setNeedPasscode(false); setErr('') }} className="flex-1 rounded-full border border-dove py-3 text-[15px] font-medium text-jet hover:border-jet">Kembali</button>
-                <button type="submit" disabled={passcode.length !== 5 || busy} className="flex-1 rounded-full bg-jet py-3 text-[15px] font-medium text-paper hover:opacity-85 disabled:opacity-40">Masuk</button>
-              </div>
-            </form>
-          ) : needOtp ? (
-            <form onSubmit={submitOtp} className="flex flex-col gap-4" noValidate>
-              <div className="rounded-lg bg-surface px-3.5 py-3 text-[13px] text-muted">
-                {otpMsg || 'Mengirim kode OTP…'}
-                <span className="mt-1 block text-xs text-fog">Kode berlaku 10 menit dan hanya bisa dicoba 3 kali.</span>
-              </div>
-              <label className="flex flex-col gap-1.5 text-[13px] font-medium text-steel">
-                Kode OTP
-                <input
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  type="text" inputMode="numeric" autoComplete="one-time-code" autoFocus
-                  placeholder="••••••"
-                  className="rounded-md border border-border bg-paper px-3.5 py-3 text-center font-mono text-xl tracking-[0.5em] focus:border-jet focus:outline-none"
-                />
-              </label>
-              <div className="flex gap-3">
-                <button type="button" onClick={() => { setNeedOtp(false); setOtp(''); setOtpMsg(''); setErr('') }} className="flex-1 rounded-full border border-dove py-3 text-[15px] font-medium text-jet hover:border-jet">Kembali</button>
-                <button type="submit" disabled={otp.length !== 6 || busy} className="flex-1 rounded-full bg-jet py-3 text-[15px] font-medium text-paper hover:opacity-85 disabled:opacity-40">{busy ? 'Memverifikasi…' : 'Masuk'}</button>
-              </div>
-              <button
-                type="button"
-                onClick={() => sendLoginOtp()}
-                disabled={cooldown > 0 || busy}
-                className="text-center text-[13px] text-muted hover:underline disabled:opacity-50"
-              >
-                {cooldown > 0 ? `Kirim ulang dalam ${cooldown} detik` : 'Kirim ulang kode'}
-              </button>
-            </form>
-          ) : googleCred ? (
-            <form onSubmit={submitGooglePasscode} className="flex flex-col gap-4" noValidate>
-              <div className="rounded-lg bg-surface px-3.5 py-3 text-[13px] text-muted">
-                Akun Google ini dilindungi passcode. Masukkan 5 angka untuk melanjutkan.
-              </div>
-              <label className="flex flex-col gap-1.5 text-[13px] font-medium text-steel">
-                Passcode
-                <input
-                  value={googlePin}
-                  onChange={(e) => setGooglePin(e.target.value.replace(/\D/g, '').slice(0, 5))}
-                  type="password" inputMode="numeric" autoFocus
-                  placeholder="•••••"
-                  className="rounded-md border border-border bg-paper px-3.5 py-3 text-center font-mono text-lg tracking-[0.5em] focus:border-jet focus:outline-none"
-                />
-              </label>
-              <div className="flex gap-3">
-                <button type="button" onClick={() => { setGoogleCred(''); setGooglePin(''); setErr('') }} className="flex-1 rounded-full border border-dove py-3 text-[15px] font-medium text-jet hover:border-jet">Batal</button>
-                <button type="submit" disabled={googlePin.length !== 5 || busy} className="flex-1 rounded-full bg-jet py-3 text-[15px] font-medium text-paper hover:opacity-85 disabled:opacity-40">Masuk</button>
-              </div>
-            </form>
-          ) : (
-            <div className="flex flex-col gap-4">
-              <GoogleButton onToken={handleGoogle} busy={busy} text="signin_with" />
-              <div className="flex items-center gap-3" aria-hidden="true">
-                <span className="h-px flex-1 bg-dove" />
-                <span className="text-xs text-fog">atau</span>
-                <span className="h-px flex-1 bg-dove" />
-              </div>
-              <form onSubmit={submit} className="flex flex-col gap-4" noValidate>
-              <label className="flex flex-col gap-1.5 text-[13px] font-medium text-steel">
-                Email
-                <input value={email} onChange={(e) => setEmail(e.target.value)} type="text" autoComplete="username" placeholder="nama@tokosaya.com" className="rounded-md border border-border bg-paper px-3.5 py-3 text-[15px] focus:border-jet focus:outline-none" />
-              </label>
-              <label className="flex flex-col gap-1.5 text-[13px] font-medium text-steel">
-                <span className="flex items-center justify-between">
-                  Kata sandi
-                  <button type="button" onClick={() => { setForgot(true); setFEmail(email); setFStep('email'); setFMsg(''); setFDone(false); setFOtp(''); setFPw1(''); setFPw2(''); setErr('') }} className="font-normal text-muted hover:underline">Lupa password?</button>
-                </span>
-                <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" autoComplete="current-password" placeholder="••••••••" className="rounded-md border border-border bg-paper px-3.5 py-3 text-[15px] focus:border-jet focus:outline-none" />
-              </label>
-              <button type="submit" disabled={busy} className="mt-1 rounded-full bg-jet py-3 text-[15px] font-medium text-paper hover:opacity-85 disabled:opacity-40">{busy ? 'Memproses…' : 'Masuk'}</button>
-              </form>
             </div>
-          )}
 
-          <p className="mt-6 border-t border-dove pt-5 text-center text-sm text-muted">
-            Belum punya akun? <Link to="/daftar" className="font-medium text-jet hover:underline">Buat akun gratis</Link>
+            {forgot ? (
+              <ForgotBody
+                fStep={fStep} fEmail={fEmail} setFEmail={setFEmail} fOtp={fOtp} setFOtp={setFOtp}
+                fPw1={fPw1} setFPw1={setFPw1} fPw2={fPw2} setFPw2={setFPw2}
+                fMsg={fMsg} fDone={fDone} err={err} busy={busy} cooldown={cooldown}
+                sendForgotOtp={sendForgotOtp} submitForgotOtp={submitForgotOtp} submitForgot={submitForgot}
+                back={() => { setForgot(false); setFMsg(''); setFDone(false); setFStep('email'); setErr('') }}
+              />
+            ) : needPasscode ? (
+              <CodeBody
+                title="Akun ini dilindungi passcode."
+                desc={<>Akun <strong>{email.trim().toLowerCase()}</strong> memerlukan 5 angka untuk melanjutkan.</>}
+                value={passcode} setValue={setPasscode} len={5} label="Passcode"
+                err={err} busy={busy} submit={submitPasscode} submitLabel="Masuk"
+                back={() => { setNeedPasscode(false); setErr('') }} backLabel="Kembali"
+              />
+            ) : needOtp ? (
+              <CodeBody
+                title="Verifikasi kode OTP."
+                desc={<>{otpMsg || 'Mengirim kode OTP…'}<span className="mt-1 block text-xs">Kode berlaku 10 menit dan hanya bisa dicoba 3 kali.</span></>}
+                value={otp} setValue={setOtp} len={6} label="Kode OTP"
+                err={err} busy={busy} submit={submitOtp} submitLabel={busy ? 'Memverifikasi…' : 'Masuk'}
+                back={() => { setNeedOtp(false); setOtp(''); setOtpMsg(''); setErr('') }} backLabel="Kembali"
+                resend={sendLoginOtp} cooldown={cooldown}
+              />
+            ) : googleCred ? (
+              <CodeBody
+                title="Akun Google ini dilindungi passcode."
+                desc="Masukkan 5 angka untuk melanjutkan."
+                value={googlePin} setValue={setGooglePin} len={5} label="Passcode"
+                err={err} busy={busy} submit={submitGooglePasscode} submitLabel="Masuk"
+                back={() => { setGoogleCred(''); setGooglePin(''); setErr('') }} backLabel="Batal"
+              />
+            ) : (
+              <>
+                {/* Tombol Google kustom + lapisan GIS transparan di atasnya */}
+                <div className="relative w-full h-[52px] rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px]">
+                  <div className="absolute inset-0 flex flex-row gap-[12px] justify-center items-center" aria-hidden="true">
+                    <span className={`text-[17px]/[23px] text-[#4285F4] ${PJS} font-extrabold whitespace-nowrap`}>G</span>
+                    <span className={`text-[14px]/[19px] text-[#102033] ${PJS} font-bold whitespace-nowrap`}>
+                      {busy ? 'Memproses…' : 'Masuk dengan Google'}
+                    </span>
+                  </div>
+                  <div className="absolute inset-0 opacity-0 overflow-hidden [&>div]:h-full [&_div]:!h-full">
+                    <GoogleButton onToken={handleGoogle} busy={false} text="signin_with" />
+                  </div>
+                </div>
+
+                <div className="w-full flex flex-row gap-[12px] items-center" aria-hidden="true">
+                  <div className="flex-1 h-[1px] bg-[#DDD7CB]" />
+                  <div className={`text-[12px]/[16px] text-[#667085] ${PJS} font-medium whitespace-nowrap`}>atau gunakan email</div>
+                  <div className="flex-1 h-[1px] bg-[#DDD7CB]" />
+                </div>
+
+                {err && (
+                  <p role="alert" className={`text-[13px]/[19px] text-[#B42318] ${PJS} font-medium bg-[#FDECEA] rounded-[14px] px-4 py-3`}>
+                    {err}
+                  </p>
+                )}
+
+                <form onSubmit={submit} className="w-full flex flex-col gap-[16px]" noValidate>
+                  <label className="w-full flex flex-col gap-[8px]">
+                    <span className={`text-[13px]/[18px] text-[#102033] ${PJS} font-bold whitespace-nowrap`}>Email</span>
+                    <span className="w-full h-[54px] flex flex-row p-[0px_16px] items-center rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] focus-within:outline-[#2F6FEB] focus-within:outline-2">
+                      <LoginIcon name="mail" size={18} className="shrink-0" />
+                      <input
+                        value={email} onChange={(e) => setEmail(e.target.value)}
+                        type="text" autoComplete="username" placeholder="nama@tokosaya.com"
+                        className={`ml-3 flex-1 min-w-0 bg-transparent outline-none text-[14px]/[19px] text-[#102033] ${PJS} font-medium placeholder:text-[#98A2B3]`}
+                      />
+                    </span>
+                  </label>
+                  <div className="w-full flex flex-col gap-[8px]">
+                    <div className="w-full flex flex-row justify-between items-center">
+                      <span className={`text-[13px]/[18px] text-[#102033] ${PJS} font-bold whitespace-nowrap`}>Kata sandi</span>
+                      <button type="button" onClick={startForgot} className={`text-[13px]/[18px] text-[#2F6FEB] ${PJS} font-bold whitespace-nowrap hover:underline`}>
+                        Lupa kata sandi?
+                      </button>
+                    </div>
+                    <div className="w-full h-[54px] flex flex-row gap-[10px] p-[0px_16px] items-center rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] focus-within:outline-[#2F6FEB] focus-within:outline-2">
+                      <LoginIcon name="lock" size={18} className="shrink-0" />
+                      <input
+                        value={password} onChange={(e) => setPassword(e.target.value)}
+                        type={showPw ? 'text' : 'password'} autoComplete="current-password" placeholder="••••••••"
+                        className={`flex-1 min-w-0 bg-transparent outline-none text-[14px]/[19px] text-[#102033] ${PJS} font-medium placeholder:text-[#98A2B3] ${showPw ? '' : 'tracking-[2px] font-semibold text-[15px]/[20px]'}`}
+                      />
+                      <button type="button" onClick={() => setShowPw((v) => !v)} aria-label={showPw ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'} className="shrink-0">
+                        <LoginIcon name="eye" size={18} style={{ opacity: showPw ? 1 : 0.55 }} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <button type="button" onClick={() => setRemember((v) => !v)} className="w-fit flex flex-row gap-[10px] items-center" aria-pressed={remember}>
+                    <span className={`w-[18px] h-[18px] rounded-[5px] grid place-items-center ${remember ? 'bg-[#2F6FEB]' : 'bg-[#E9F0FF] outline outline-1 outline-[#2F6FEB] outline-offset-[-0.5px]'}`} aria-hidden="true">
+                      {remember && (
+                        <svg viewBox="0 0 12 12" width="11" height="11"><path d="M2 6.2 4.8 9 10 3.2" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                      )}
+                    </span>
+                    <span className={`text-[13px]/[18px] text-[#667085] ${PJS} font-medium whitespace-nowrap`}>Ingat saya di perangkat ini</span>
+                  </button>
+
+                  <button
+                    type="submit" disabled={busy}
+                    className={`w-full h-[54px] flex flex-row gap-[10px] justify-center items-center bg-[#2F6FEB] rounded-[14px] shadow-[0px_8px_20px_#2F6FEB33] text-[15px]/[20px] text-white ${PJS} font-extrabold whitespace-nowrap hover:brightness-110 disabled:opacity-50`}
+                  >
+                    {busy ? 'Memproses…' : 'Masuk ke toko'}
+                    {!busy && <LoginIcon name="arrow-right" size={18} className="shrink-0" />}
+                  </button>
+                </form>
+
+                <div className="w-full flex flex-row gap-[5px] justify-center items-center">
+                  <span className={`text-[14px]/[19px] text-[#667085] ${PJS} font-medium whitespace-nowrap`}>Belum punya akun?</span>
+                  <Link to="/daftar" className={`text-[14px]/[19px] text-[#2F6FEB] ${PJS} font-extrabold whitespace-nowrap hover:underline`}>
+                    Buat akun gratis
+                  </Link>
+                </div>
+              </>
+            )}
+          </div>
+
+          <div className="hidden lg:flex absolute left-[180px] top-[898px] flex-row gap-[7px] items-center">
+            <LoginIcon name="shield-check" size={15} className="shrink-0" />
+            <span className={`text-[12px]/[16px] text-[#7C8B9E] ${PJS} font-medium whitespace-nowrap`}>
+              Data Anda dienkripsi dan tersimpan aman.
+            </span>
+          </div>
+          <p className={`lg:hidden text-center px-6 pb-10 text-[12px]/[16px] text-[#7C8B9E] ${PJS} font-medium`}>
+            Data Anda dienkripsi dan tersimpan aman.
           </p>
-        </section>
-      </main>
-      <footer className="border-t border-border px-4 py-8 text-[13px] text-muted sm:py-14">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-center gap-1.5 text-center sm:flex-row sm:justify-between sm:text-left">
-          <span>© 2026 OpenPOS</span>
-          <span className="font-mono text-xs text-fog">gratis selamanya · untuk UMKM</span>
         </div>
-      </footer>
+
+        {/* ── Panel kanan: story ────────────────────────────── */}
+        <div className="hidden lg:block flex-1 h-[960px] bg-[#10243B] relative overflow-hidden order-2">
+          <div className="absolute left-[626px] top-[-96px] w-[310px] h-[310px] opacity-[0.08] bg-white rounded-full" />
+          <div className="absolute left-[548px] top-[732px] w-[220px] h-[220px] opacity-[0.1] bg-[#D9F28E] rounded-full" />
+
+          <div className="absolute left-[72px] top-[183px] w-[660px] flex flex-col gap-[22px]">
+            <div className={`text-[56px]/[58px] w-[620px] text-white ${DMA} font-semibold`}>
+              Kembali ke ritme toko Anda.
+            </div>
+            <div className={`text-[18px]/[28px] w-[590px] text-[#C9D4E1] ${PJS} font-medium`}>
+              Semua catatan kemarin sudah siap. Hari ini Anda tinggal melanjutkan langkah berikutnya.
+            </div>
+            <div className="w-fit flex flex-row gap-[22px] items-center">
+              <span className="w-fit flex flex-row gap-[8px] items-center">
+                <LoginIcon name="cloud-check" size={17} className="shrink-0" />
+                <span className={`text-[14px]/[19px] text-[#E6EDF5] ${PJS} font-bold whitespace-nowrap`}>Tersimpan otomatis</span>
+              </span>
+              <span className="w-fit flex flex-row gap-[8px] items-center">
+                <LoginIcon name="clock-3" size={17} className="shrink-0" />
+                <span className={`text-[14px]/[19px] text-[#E6EDF5] ${PJS} font-bold whitespace-nowrap`}>Siap saat dibutuhkan</span>
+              </span>
+            </div>
+          </div>
+
+          <div className="absolute left-[72px] top-[475px] w-[676px] h-[326px] bg-[#143F9D] rounded-[28px] shadow-[0px_18px_36px_#0A2A7138] outline outline-1 outline-[#FFFFFF24] outline-offset-[-0.5px]">
+            <div className={`absolute left-[28px] top-[26px] text-[11px]/[15px] text-[#BFD0FF] ${PJS} font-extrabold tracking-[1px] whitespace-nowrap`}>
+              RITME 7 HARI TERAKHIR
+            </div>
+            <div className={`absolute left-[28px] top-[52px] text-[34px]/[46px] text-white ${PJS} font-normal whitespace-nowrap`}>
+              Rp 18,6 jt
+            </div>
+            <div className="absolute left-[186px] top-[60px] w-fit flex flex-row gap-[5px] p-[7px_10px] items-center bg-[#D9F28E] rounded-[14px]">
+              <LoginIcon name="trending-up" size={14} className="shrink-0" />
+              <span className={`text-[12px]/[16px] text-[#10243B] ${PJS} font-extrabold whitespace-nowrap`}>+12%</span>
+            </div>
+            <div className={`absolute left-[28px] top-[102px] text-[12px]/[16px] text-[#BFD0FF] ${PJS} font-medium whitespace-nowrap`}>
+              Penjualan mingguan
+            </div>
+            <div className="absolute left-[28px] top-[142px] w-[600px] h-[150px] flex flex-row gap-[16px] items-end">
+              {BARS.map((b) => (
+                <div key={b.d} className="flex-1 h-[142px] flex flex-col gap-[9px] justify-end items-center">
+                  <div className={`w-[40px] shrink-0 rounded-[10px_10px_4px_4px] ${b.hot ? 'bg-[#D9F28E]' : 'bg-[#6F9CFF]'}`} style={{ height: b.h }} />
+                  <div className={`text-[11px]/[15px] ${b.hot ? 'text-white font-extrabold' : `text-[#BFD0FF] ${PJS} font-semibold`} ${PJS} whitespace-nowrap`}>
+                    {b.d}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="absolute left-[563px] top-[497px] w-fit flex flex-row gap-[8px] p-[11px_14px] items-center bg-[#FFFEFA] rounded-[18px] shadow-[0px_8px_18px_#0A2A7130]">
+            <LoginIcon name="package-check" size={17} className="shrink-0" />
+            <span className={`text-[12px]/[16px] text-[#274319] ${PJS} font-extrabold whitespace-nowrap`}>
+              Stok aman · 24 item
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
+  )
+}
+
+/* ── Blok kode OTP / passcode / PIN (login OTP, PIN fallback, PIN Google) ── */
+function CodeBody({ title, desc, value, setValue, len, label, err, busy, submit, submitLabel, back, backLabel, resend, cooldown }: {
+  title: string; desc: React.ReactNode; value: string; setValue: (v: string) => void; len: number; label: string;
+  err: string; busy: boolean; submit: (e: React.FormEvent) => void; submitLabel: string;
+  back: () => void; backLabel: string; resend?: () => void; cooldown?: number;
+}) {
+  return (
+    <>
+      {err && (
+        <p role="alert" className={`text-[13px]/[19px] text-[#B42318] ${PJS} font-medium bg-[#FDECEA] rounded-[14px] px-4 py-3`}>
+          {err}
+        </p>
+      )}
+      <form onSubmit={submit} className="w-full flex flex-col gap-[16px]" noValidate>
+        <div className={`text-[15px]/[23px] text-[#667085] ${PJS} font-normal`}>
+          <span className={`block text-[#102033] ${PJS} font-bold text-[15px]/[23px] mb-1`}>{title}</span>
+          {desc}
+        </div>
+        <label className="w-full flex flex-col gap-[8px]">
+          <span className={`text-[13px]/[18px] text-[#102033] ${PJS} font-bold whitespace-nowrap`}>{label}</span>
+          <input
+            value={value}
+            onChange={(e) => setValue(e.target.value.replace(/\D/g, '').slice(0, len))}
+            type="text" inputMode="numeric" autoComplete="one-time-code" autoFocus
+            placeholder={len === 5 ? '•••••' : '••••••'}
+            className={`w-full h-[54px] rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] focus-within:outline-[#2F6FEB] text-center font-mono ${len === 5 ? 'text-lg' : 'text-xl'} tracking-[0.5em] text-[#102033] placeholder:text-[#98A2B3] bg-transparent`}
+          />
+        </label>
+        <div className="flex gap-3">
+          <button
+            type="button" onClick={back}
+            className={`flex-1 h-[54px] rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] text-[15px]/[20px] text-[#102033] ${PJS} font-bold hover:outline-[#2F6FEB]`}
+          >
+            {backLabel}
+          </button>
+          <button
+            type="submit" disabled={value.length !== len || busy}
+            className={`flex-1 h-[54px] rounded-[14px] bg-[#2F6FEB] shadow-[0px_8px_20px_#2F6FEB33] text-[15px]/[20px] text-white ${PJS} font-extrabold hover:brightness-110 disabled:opacity-50`}
+          >
+            {submitLabel}
+          </button>
+        </div>
+        {resend && (
+          <button
+            type="button" onClick={resend} disabled={(cooldown ?? 0) > 0 || busy}
+            className={`text-center text-[13px] text-[#667085] ${PJS} hover:underline disabled:opacity-50`}
+          >
+            {(cooldown ?? 0) > 0 ? `Kirim ulang dalam ${cooldown} detik` : 'Kirim ulang kode'}
+          </button>
+        )}
+      </form>
+    </>
+  )
+}
+
+/* ── Blok lupa kata sandi 3 langkah ── */
+function ForgotBody({ fStep, fEmail, setFEmail, fOtp, setFOtp, fPw1, setFPw1, fPw2, setFPw2, fMsg, fDone, err, busy, cooldown, sendForgotOtp, submitForgotOtp, submitForgot, back }: {
+  fStep: 'email' | 'otp' | 'newpw'; fEmail: string; setFEmail: (v: string) => void;
+  fOtp: string; setFOtp: (v: string) => void; fPw1: string; setFPw1: (v: string) => void;
+  fPw2: string; setFPw2: (v: string) => void; fMsg: string; fDone: boolean;
+  err: string; busy: boolean; cooldown: number;
+  sendForgotOtp: () => void; submitForgotOtp: (e: React.FormEvent) => void; submitForgot: (e: React.FormEvent) => void;
+  back: () => void;
+}) {
+  return (
+    <>
+      {err && (
+        <p role="alert" className={`text-[13px]/[19px] text-[#B42318] ${PJS} font-medium bg-[#FDECEA] rounded-[14px] px-4 py-3`}>
+          {err}
+        </p>
+      )}
+      <form onSubmit={fStep === 'otp' ? submitForgotOtp : fStep === 'newpw' ? submitForgot : undefined} className="w-full flex flex-col gap-[16px]" noValidate>
+        <div className={`text-[13px]/[19px] text-[#667085] ${PJS} font-medium bg-[#F3EFE6] rounded-[14px] px-4 py-3`}>
+          {fDone ? fMsg : (fMsg || 'Masukkan email akun. Kode OTP 6 digit dikirim ke email tersebut.')}
+          {!fDone && <span className="mt-1 block text-xs">Kode berlaku 10 menit dan hanya bisa dicoba 3 kali.</span>}
+        </div>
+        {fStep === 'email' && !fDone ? (
+          <label className="w-full flex flex-col gap-[8px]">
+            <span className={`text-[13px]/[18px] text-[#102033] ${PJS} font-bold whitespace-nowrap`}>Email</span>
+            <span className="w-full h-[54px] flex flex-row p-[0px_16px] items-center rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] focus-within:outline-[#2F6FEB] focus-within:outline-2">
+              <LoginIcon name="mail" size={18} className="shrink-0" />
+              <input
+                value={fEmail} onChange={(e) => setFEmail(e.target.value)}
+                type="text" autoComplete="username" autoFocus placeholder="nama@tokosaya.com"
+                className={`ml-3 flex-1 min-w-0 bg-transparent outline-none text-[14px]/[19px] text-[#102033] ${PJS} font-medium placeholder:text-[#98A2B3]`}
+              />
+            </span>
+          </label>
+        ) : fStep === 'otp' && !fDone ? (
+          <label className="w-full flex flex-col gap-[8px]">
+            <span className={`text-[13px]/[18px] text-[#102033] ${PJS} font-bold whitespace-nowrap`}>Kode OTP</span>
+            <input
+              value={fOtp}
+              onChange={(e) => setFOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              type="text" inputMode="numeric" autoComplete="one-time-code" autoFocus
+              placeholder="••••••"
+              className="w-full h-[54px] rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] text-center font-mono text-xl tracking-[0.5em] text-[#102033] placeholder:text-[#98A2B3] bg-transparent"
+            />
+          </label>
+        ) : fStep === 'newpw' && !fDone ? (
+          <>
+            <label className="w-full flex flex-col gap-[8px]">
+              <span className={`text-[13px]/[18px] text-[#102033] ${PJS} font-bold whitespace-nowrap`}>Kata sandi baru</span>
+              <input value={fPw1} onChange={(e) => setFPw1(e.target.value)} type="password" autoComplete="new-password" autoFocus placeholder="Minimal 8 karakter" className={`w-full h-[54px] rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] px-4 text-[14px]/[19px] text-[#102033] ${PJS} font-medium placeholder:text-[#98A2B3] bg-transparent`} />
+            </label>
+            <label className="w-full flex flex-col gap-[8px]">
+              <span className={`text-[13px]/[18px] text-[#102033] ${PJS} font-bold whitespace-nowrap`}>Konfirmasi kata sandi baru</span>
+              <input value={fPw2} onChange={(e) => setFPw2(e.target.value)} type="password" autoComplete="new-password" placeholder="Ulangi kata sandi baru" className={`w-full h-[54px] rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] px-4 text-[14px]/[19px] text-[#102033] ${PJS} font-medium placeholder:text-[#98A2B3] bg-transparent`} />
+            </label>
+          </>
+        ) : null}
+        <div className="flex gap-3">
+          <button
+            type="button" onClick={back}
+            className={`flex-1 h-[54px] rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] text-[15px]/[20px] text-[#102033] ${PJS} font-bold hover:outline-[#2F6FEB]`}
+          >
+            Kembali
+          </button>
+          {fStep === 'email' && !fDone ? (
+            <button type="button" onClick={sendForgotOtp} disabled={busy} className={`flex-1 h-[54px] rounded-[14px] bg-[#2F6FEB] shadow-[0px_8px_20px_#2F6FEB33] text-[15px]/[20px] text-white ${PJS} font-extrabold hover:brightness-110 disabled:opacity-50`}>{busy ? 'Mengirim…' : 'Kirim kode'}</button>
+          ) : fStep === 'otp' && !fDone ? (
+            <button type="submit" disabled={busy || fOtp.length !== 6} className={`flex-1 h-[54px] rounded-[14px] bg-[#2F6FEB] shadow-[0px_8px_20px_#2F6FEB33] text-[15px]/[20px] text-white ${PJS} font-extrabold hover:brightness-110 disabled:opacity-50`}>{busy ? 'Memproses…' : 'Lanjut'}</button>
+          ) : fStep === 'newpw' && !fDone ? (
+            <button type="submit" disabled={busy || fPw1.length < 8 || fPw1 !== fPw2} className={`flex-1 h-[54px] rounded-[14px] bg-[#2F6FEB] shadow-[0px_8px_20px_#2F6FEB33] text-[15px]/[20px] text-white ${PJS} font-extrabold hover:brightness-110 disabled:opacity-50`}>{busy ? 'Memproses…' : 'Ubah kata sandi'}</button>
+          ) : null}
+        </div>
+        {fMsg && !fDone && fStep === 'otp' && (
+          <button
+            type="button" onClick={sendForgotOtp} disabled={cooldown > 0 || busy}
+            className={`text-center text-[13px] text-[#667085] ${PJS} hover:underline disabled:opacity-50`}
+          >
+            {cooldown > 0 ? `Kirim ulang dalam ${cooldown} detik` : 'Kirim ulang kode'}
+          </button>
+        )}
+      </form>
+    </>
   )
 }
