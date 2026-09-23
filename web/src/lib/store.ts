@@ -87,17 +87,28 @@ export function fmtTime(iso: string): string {
   return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
 }
 
-function downloadBlob(filename: string, blob: Blob) {
+export async function downloadBlob(filename: string, blob: Blob): Promise<boolean> {
+  // Di aplikasi Windows (Electron), tulis via main process + dialog Simpan —
+  // unduhan anchor dari file:// tidak reliabel (terinterupsi).
+  if (window.offline?.saveFile) {
+    try {
+      const r = await window.offline.saveFile(filename, await blob.arrayBuffer())
+      return r.saved
+    } catch {
+      return false
+    }
+  }
   const a = document.createElement('a')
   a.href = URL.createObjectURL(blob)
   a.download = filename
   a.click()
   URL.revokeObjectURL(a.href)
+  return true
 }
 
 export function exportCSV(filename: string, rows: string[][]) {
   const csv = rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n')
-  downloadBlob(filename, new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' }))
+  void downloadBlob(filename, new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' }))
 }
 
 export type ExcelAlign = 'left' | 'center' | 'right'
@@ -228,7 +239,7 @@ export async function exportExcel(filename: string, sheets: ExcelSheet[]) {
     })
   }
   const buf = await wb.xlsx.writeBuffer()
-  downloadBlob(
+  await downloadBlob(
     filename.endsWith('.xlsx') ? filename : `${filename}.xlsx`,
     new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }),
   )

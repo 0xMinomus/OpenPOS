@@ -1,4 +1,5 @@
-const { app, BrowserWindow, ipcMain } = require('electron')
+const { app, BrowserWindow, dialog, ipcMain } = require('electron')
+const fs = require('node:fs')
 const path = require('node:path')
 
 const SMOKE = process.argv.includes('--smoke')
@@ -7,6 +8,46 @@ ipcMain.on('offline:close', (e) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   if (win) win.close()
 })
+
+function saveFilters(ext) {
+  if (ext === '.xlsx') return [{ name: 'Excel (.xlsx)', extensions: ['xlsx'] }, { name: 'Semua file', extensions: ['*'] }]
+  if (ext === '.csv') return [{ name: 'CSV (.csv)', extensions: ['csv'] }, { name: 'Semua file', extensions: ['*'] }]
+  if (ext === '.json') return [{ name: 'JSON (.json)', extensions: ['json'] }, { name: 'Semua file', extensions: ['*'] }]
+  return [{ name: 'Semua file', extensions: ['*'] }]
+}
+
+function pickSavePath(win, filename) {
+  const safe = path.basename(String(filename || 'export'))
+  const opts = {
+    title: 'Simpan file',
+    defaultPath: path.join(app.getPath('downloads'), safe),
+    filters: saveFilters(path.extname(safe).toLowerCase()),
+  }
+  return win ? dialog.showSaveDialogSync(win, opts) : dialog.showSaveDialogSync(opts)
+}
+
+// Jalur utama penyimpanan dari renderer (Export CSV/Excel, Backup JSON):
+// dialog Simpan + tulis file. Deterministik, tak lewat pipeline download.
+ipcMain.handle('app:save-file', async (e, args) => {
+  try {
+    const win = BrowserWindow.fromWebContents(e.sender)
+    const savePath = pickSavePath(win, args && args.filename)
+    if (!savePath) return { saved: false }
+    fs.writeFileSync(savePath, Buffer.from(args.data))
+    return { saved: true, path: savePath }
+  } catch {
+    return { saved: false }
+  }
+})
+
+// Pengaman bila ada unduhan anchor lolos (jalur utama = app:save-file).
+function wireDownloads(win) {
+  win.webContents.session.on('will-download', (event, item) => {
+    const savePath = pickSavePath(win, item.getFilename())
+    if (!savePath) item.cancel()
+    else item.setSavePath(savePath)
+  })
+}
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -21,6 +62,7 @@ function createWindow() {
     },
   })
   win.loadFile(path.join(__dirname, '..', 'dist-offline', 'offline.html'))
+  wireDownloads(win)
   return win
 }
 
