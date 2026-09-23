@@ -6,8 +6,8 @@ import { Banknote, ReceiptText, Trophy, UsersRound } from 'lucide-react'
 import { apiGetReport, apiListUsers, type ReportBundle, type User } from '../lib/api'
 import { PageHeader } from '../lib/PageHeader'
 import { useCache } from '../lib/cache'
-import { exportCSV, fmtDate, fmtInv, fmtRp, fmtShort, useDB } from '../lib/store'
-import { Button, DatePicker, Empty, Td, Th } from '../lib/ui'
+import { exportCSV, exportExcel, fmtDate, fmtInv, fmtRp, fmtShort, useDB } from '../lib/store'
+import { DatePicker, Empty, ExportMenu, Td, Th } from '../lib/ui'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
@@ -137,11 +137,19 @@ export default function Karyawan() {
       : { label: 'Menurun', cls: 'bg-[color-mix(in_oklch,var(--chart-5)_14%,transparent)] text-[var(--chart-5)]' }
   }
 
-  function exportList() {
-    exportCSV(`karyawan-${date || period}.csv`, [
+  function karyawanRows(): string[][] {
+    return [
       ['kasir', 'omzet', 'transaksi', 'rata_rata', 'kontribusi_pct'],
       ...stats.map((r) => [r.name, String(r.omzet), String(r.trx), String(r.avg), totalOmzet > 0 ? String(Math.round((r.omzet / totalOmzet) * 100)) : '0']),
-    ])
+    ]
+  }
+
+  function exportListCSV() {
+    exportCSV(`karyawan-${date || period}.csv`, karyawanRows())
+  }
+
+  async function exportListExcel() {
+    await exportExcel(`karyawan-${date || period}.xlsx`, [{ name: 'Karyawan', rows: karyawanRows() }])
   }
 
   if (err && !data) return (
@@ -165,7 +173,7 @@ export default function Karyawan() {
             <div className="w-44">
               <DatePicker value={date} onChange={setDate} label="Pilih tanggal performa" placeholder="Semua periode" />
             </div>
-            <Button variant="ghost" onClick={exportList}>Export CSV</Button>
+            <ExportMenu onCSV={exportListCSV} onExcel={exportListExcel} />
           </div>
         )}
       />

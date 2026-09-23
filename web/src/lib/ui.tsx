@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react'
 import { useEffect, useRef, useState } from 'react'
-import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight, X } from 'lucide-react'
+import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight, Download, FileSpreadsheet, FileText, Upload, X } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import type { TrxItem } from './api'
 import { fmtDate } from './store'
 
@@ -70,8 +71,66 @@ export function Button({
   )
 }
 
-export function Input({
-  label, value, onChange, type = 'text', placeholder, required, hint,
+// Satu tombol dropdown untuk export dual-format (Excel + CSV).
+// Tampil persis seperti Button ghost agar konsisten di semua halaman.
+export function ExportMenu({ onCSV, onExcel, label = 'Export', disabled }: {
+  onCSV: () => void
+  onExcel: () => void
+  label?: string
+  disabled?: boolean
+}) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        disabled={disabled}
+        aria-label={`${label} data`}
+        className="inline-flex items-center justify-center gap-2 rounded-full border border-dove bg-transparent px-6 py-3 text-[15px] font-medium text-fg transition outline-none hover:border-jet active:translate-y-px disabled:cursor-not-allowed disabled:opacity-40 focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        <Download className="size-4" />{label}<ChevronDown className="size-4 text-fog" />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuLabel>Format file</DropdownMenuLabel>
+        <DropdownMenuItem onClick={onExcel}>
+          <FileSpreadsheet className="size-4" />Excel (.xlsx)
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={onCSV}>
+          <FileText className="size-4" />CSV (.csv)
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+
+// Satu tombol dropdown untuk import dual-format. Pilihan menentukan filter
+// file picker; parseImportFile tetap auto-deteksi isi apa pun yang dipilih.
+export function ImportMenu({ onPick, label = 'Import', disabled }: {
+  onPick: (kind: 'xlsx' | 'csv') => void
+  label?: string
+  disabled?: boolean
+}) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        disabled={disabled}
+        aria-label={`${label} data`}
+        className="inline-flex items-center justify-center gap-2 rounded-full border border-dove bg-transparent px-6 py-3 text-[15px] font-medium text-fg transition outline-none hover:border-jet active:translate-y-px disabled:cursor-not-allowed disabled:opacity-40 focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        <Upload className="size-4" />{label}<ChevronDown className="size-4 text-fog" />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuLabel>Format file</DropdownMenuLabel>
+        <DropdownMenuItem onClick={() => onPick('xlsx')}>
+          <FileSpreadsheet className="size-4" />Excel (.xlsx)
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => onPick('csv')}>
+          <FileText className="size-4" />CSV (.csv)
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+
+export function Input({  label, value, onChange, type = 'text', placeholder, required, hint,
 }: {
   label: string
   value: string | number

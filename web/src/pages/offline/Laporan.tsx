@@ -4,8 +4,8 @@ import { Banknote, BarChart3, Boxes, ChevronDown, ChevronUp, CircleCheck, Loader
 import { apiGetReport, apiListMovements, apiListProducts, apiListTransactions, fetchAll, type Movement, type Product, type ReportBundle, type Trx } from '../../lib/local-api'
 import { PageHeader } from '../../lib/PageHeader'
 import { useCache } from '../../lib/cache'
-import { exportCSV, fmtDate, fmtInv, fmtRp, fmtShort, fmtTime } from '../../lib/store'
-import { Button, DatePicker, Pill, SkeletonRows, StatusPill, Td, Th } from '../../lib/ui'
+import { exportCSV, exportExcel, fmtDate, fmtInv, fmtRp, fmtShort, fmtTime } from '../../lib/store'
+import { DatePicker, ExportMenu, Pill, SkeletonRows, StatusPill, Td, Th } from '../../lib/ui'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
@@ -342,29 +342,55 @@ export default function Laporan() {
     return [...top, { name: 'Lainnya', nilai: rest }]
   }, [stockRows])
 
-  function exportTab() {
+  function rowsSales(): string[][] {
+    if (!data) return []
+    return [
+      ['tanggal', 'id', 'kasir', 'metode', 'total'],
+      ...data.transactions.map((t) => [t.date, t.id, t.cashier, t.method, String(t.total)]),
+    ]
+  }
+
+  function rowsProducts(): string[][] {
+    if (!data) return []
+    return [
+      ['produk', 'sku', 'qty_terjual', 'pendapatan', 'profit'],
+      ...data.products.map((p) => [p.name, p.sku, String(p.qty), String(p.revenue), String(p.profit)]),
+    ]
+  }
+
+  function rowsStock(): string[][] {
+    if (!data) return []
+    return [
+      ['produk', 'sku', 'stok', 'harga_beli', 'harga_jual', 'nilai_stok'],
+      ...data.stock.map((s) => [s.name, s.sku, String(s.stock), String(s.buy_price), String(s.sell_price), String(s.stock_value)]),
+    ]
+  }
+
+  function rowsProfit(): string[][] {
+    if (!data) return []
+    return [
+      ['tanggal', 'id', 'kasir', 'total', 'hpp', 'profit'],
+      ...data.transactions.map((t) => [t.date, t.id, t.cashier, String(t.total), String(t.hpp), String(t.profit)]),
+    ]
+  }
+
+  function exportTabCSV() {
     if (!data) return
-    if (tab === 'sales') {
-      exportCSV(`laporan-penjualan-${period}.csv`, [
-        ['tanggal', 'id', 'kasir', 'metode', 'total'],
-        ...data.transactions.map((t) => [t.date, t.id, t.cashier, t.method, String(t.total)]),
-      ])
-    } else if (tab === 'products') {
-      exportCSV(`laporan-produk-${period}.csv`, [
-        ['produk', 'sku', 'qty_terjual', 'pendapatan', 'profit'],
-        ...data.products.map((p) => [p.name, p.sku, String(p.qty), String(p.revenue), String(p.profit)]),
-      ])
-    } else if (tab === 'stock') {
-      exportCSV(`laporan-stok.csv`, [
-        ['produk', 'sku', 'stok', 'harga_beli', 'harga_jual', 'nilai_stok'],
-        ...data.stock.map((s) => [s.name, s.sku, String(s.stock), String(s.buy_price), String(s.sell_price), String(s.stock_value)]),
-      ])
-    } else {
-      exportCSV(`laporan-profit-${period}.csv`, [
-        ['tanggal', 'id', 'kasir', 'total', 'hpp', 'profit'],
-        ...data.transactions.map((t) => [t.date, t.id, t.cashier, String(t.total), String(t.hpp), String(t.profit)]),
-      ])
-    }
+    if (tab === 'sales') exportCSV(`laporan-penjualan-${period}.csv`, rowsSales())
+    else if (tab === 'products') exportCSV(`laporan-produk-${period}.csv`, rowsProducts())
+    else if (tab === 'stock') exportCSV(`laporan-stok.csv`, rowsStock())
+    else exportCSV(`laporan-profit-${period}.csv`, rowsProfit())
+  }
+
+  // Excel selalu 1 workbook berisi keempat tab sekaligus — CSV tetap per tab aktif.
+  async function exportWorkbookExcel() {
+    if (!data) return
+    await exportExcel(`laporan-${period}.xlsx`, [
+      { name: 'Penjualan', rows: rowsSales() },
+      { name: 'Produk', rows: rowsProducts() },
+      { name: 'Stok', rows: rowsStock() },
+      { name: 'Profit', rows: rowsProfit() },
+    ])
   }
 
   if (err && !data) return (
@@ -374,7 +400,7 @@ export default function Laporan() {
           <div className="w-44">
             <DatePicker value={date} onChange={setDate} label="Pilih tanggal laporan" placeholder="Semua periode" />
           </div>
-          <Button variant="ghost" onClick={exportTab}>Export CSV</Button>
+          <ExportMenu onCSV={exportTabCSV} onExcel={exportWorkbookExcel} />
         </div>
       )} />
       <p className="rounded-lg bg-sand px-3.5 py-2.5 text-[13px] text-ember">{err}</p>
@@ -392,7 +418,7 @@ export default function Laporan() {
             <div className="w-44">
               <DatePicker value={date} onChange={setDate} label="Pilih tanggal laporan" placeholder="Semua periode" />
             </div>
-            <Button variant="ghost" onClick={exportTab}>Export CSV</Button>
+            <ExportMenu onCSV={exportTabCSV} onExcel={exportWorkbookExcel} />
           </div>
         )}
       />

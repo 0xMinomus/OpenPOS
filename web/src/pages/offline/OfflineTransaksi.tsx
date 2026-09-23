@@ -5,8 +5,8 @@ import { Banknote, CalendarDays, ReceiptText, Search, Sigma } from 'lucide-react
 import { apiGetDashboard, apiListTransactions, apiRefundTransaction, fetchAll, type Trx } from '../../lib/local-api'
 import { PageHeader } from '../../lib/PageHeader'
 import { useCache } from '../../lib/cache'
-import { exportCSV, fmtDate, fmtRp, fmtTime, useDB } from '../../lib/store'
-import { NumInput, Button, DatePicker, Empty, Modal, Pager, SkeletonRows, StatusPill, Td, Th, TrxItems } from '../../lib/ui'
+import { exportCSV, exportExcel, fmtDate, fmtRp, fmtTime, useDB } from '../../lib/store'
+import { NumInput, Button, DatePicker, Empty, ExportMenu, Modal, Pager, SkeletonRows, StatusPill, Td, Th, TrxItems } from '../../lib/ui'
 import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 
@@ -64,17 +64,29 @@ export default function Transaksi() {
   const pages = Math.max(1, Math.ceil(total / PAGE))
   const safePage = Math.min(page, pages - 1)
 
-  async function exportList() {
+  async function fetchFiltered(): Promise<Trx[]> {
     const all: Trx[] = []
     for (let p = 1; ; p++) {
       const r = await apiListTransactions({ q: q.trim() || undefined, method: method === 'Semua' ? undefined : method, date: date || undefined, page: p, limit: 200 })
       all.push(...r.items)
       if (all.length >= r.total) break
     }
-    exportCSV('transaksi.csv', [
+    return all
+  }
+
+  function trxRows(all: Trx[]): string[][] {
+    return [
       ['id', 'waktu', 'kasir', 'metode', 'subtotal', 'diskon', 'pajak', 'total', 'dibayar', 'kembalian', 'status'],
       ...all.map((t) => [t.id, t.created_at, t.cashier_name, t.method, String(t.subtotal), String(t.discount), String(t.tax), String(t.total), String(t.paid), String(t.change), t.status]),
-    ])
+    ]
+  }
+
+  async function exportListCSV() {
+    exportCSV('transaksi.csv', trxRows(await fetchFiltered()))
+  }
+
+  async function exportListExcel() {
+    await exportExcel('transaksi.xlsx', [{ name: 'Transaksi', rows: trxRows(await fetchFiltered()) }])
   }
 
   function openRefund(t: Trx) {
@@ -118,7 +130,7 @@ export default function Transaksi() {
             <div className="w-44">
               <DatePicker value={date} onChange={(v) => { setDate(v); setPage(0) }} label="Filter tanggal" placeholder="Semua tanggal" />
             </div>
-            <Button variant="ghost" onClick={exportList}>Export CSV</Button>
+            <ExportMenu onCSV={exportListCSV} onExcel={exportListExcel} />
           </div>
         )}
       />

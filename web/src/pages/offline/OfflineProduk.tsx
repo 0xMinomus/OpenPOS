@@ -1,12 +1,12 @@
-// Produk — Operate surface. Katalog + filter kategori + CRUD + CSV.
+// Produk — Operate surface. Katalog + filter kategori + CRUD + Import/Export.
 // Token font/warna milik sistem (tidak ada token baru di file ini).
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Download, FolderPlus, Pencil, Plus, Power, Search, Trash2, Upload } from 'lucide-react'
+import { FolderPlus, Pencil, Plus, Power, Search, Trash2 } from 'lucide-react'
 import { apiCreateCategory, apiCreateProduct, apiDeleteCategory, apiDeleteProduct, apiListCategories, apiListProducts, apiSetProductActive, apiUpdateProduct, fetchAll, type Category, type Product } from '../../lib/local-api'
 import { PageHeader } from '../../lib/PageHeader'
 import { useCache } from '../../lib/cache'
-import { exportCSV, fmtRp, useDB } from '../../lib/store'
-import { NumInput, Button, Empty, Input, Modal, Pager, Pill, SkeletonRows, Td, Th } from '../../lib/ui'
+import { exportCSV, exportExcel, fmtRp, parseImportFile, useDB } from '../../lib/store'
+import { NumInput, Button, Empty, ExportMenu, ImportMenu, Input, Modal, Pager, Pill, SkeletonRows, Td, Th } from '../../lib/ui'
 import { Skeleton } from '@/components/ui/skeleton'
 
 interface Draft {
@@ -162,32 +162,41 @@ export default function Produk() {
     }
   }
 
-  async function exportList() {
-    const all = await fetchAll<Product>((page) => apiListProducts({ page, limit: 200 }))
-    exportCSV('produk.csv', [
+  function productRows(all: Product[]): string[][] {
+    return [
       ['nama', 'sku', 'barcode', 'kategori', 'harga_beli', 'harga_jual', 'stok', 'unit', 'aktif'],
       ...all.map((p) => [
         p.name, p.sku, p.barcode, p.category_name ?? '', String(p.buy_price),
         String(p.sell_price), String(p.stock), p.unit, p.active ? '1' : '0',
       ]),
-    ])
+    ]
+  }
+
+  async function exportListCSV() {
+    const all = await fetchAll<Product>((page) => apiListProducts({ page, limit: 200 }))
+    exportCSV('produk.csv', productRows(all))
+  }
+
+  async function exportListExcel() {
+    const all = await fetchAll<Product>((page) => apiListProducts({ page, limit: 200 }))
+    await exportExcel('produk.xlsx', [{ name: 'Produk', rows: productRows(all) }])
   }
 
   const fileRef = useRef<HTMLInputElement>(null)
-  function onImportFile(f: File) {
-    const reader = new FileReader()
-    reader.onload = () => {
-      const lines = String(reader.result).split(/\r?\n/).filter((l) => l.trim())
-      const rows = lines.slice(1).map((l) => l.split(',').map((c) => c.trim().replace(/^"|"$/g, '')))
-      const parsed = rows.map((row, i) => {
-        const [name, sku, , sell] = row
-        if (!name || !sku || !sell) return { ok: false, row, msg: `Baris ${i + 2}: nama/SKU/harga jual wajib diisi` }
-        return { ok: true, row, msg: 'siap diimpor' }
-      })
-      setImportRows(parsed)
-      setImportDone(null)
-    }
-    reader.readAsText(f)
+  function pickImport(kind: 'xlsx' | 'csv') {
+    if (fileRef.current) fileRef.current.accept = kind === 'xlsx' ? '.xlsx,.xls' : '.csv'
+    fileRef.current?.click()
+  }
+  async function onImportFile(f: File) {
+    const lines = await parseImportFile(f)
+    const rows = lines.slice(1)
+    const parsed = rows.map((row, i) => {
+      const [name, sku, , sell] = row
+      if (!name || !sku || !sell) return { ok: false, row, msg: `Baris ${i + 2}: nama/SKU/harga jual wajib diisi` }
+      return { ok: true, row, msg: 'siap diimpor' }
+    })
+    setImportRows(parsed)
+    setImportDone(null)
   }
 
   async function commitImport() {
@@ -226,11 +235,11 @@ export default function Produk() {
         crumb="Produk"
         actions={(
           <div className="flex flex-wrap gap-2">
-            <Button variant="ghost" onClick={exportList}><Download className="size-4" />Export</Button>
-            <Button variant="ghost" onClick={() => fileRef.current?.click()}><Upload className="size-4" />Import</Button>
+            <ExportMenu onCSV={exportListCSV} onExcel={exportListExcel} />
+            <ImportMenu onPick={pickImport} />
             <Button variant="ghost" onClick={() => { setCatName(''); setErr(''); setCatOpen(true) }}><FolderPlus className="size-4" />Kategori</Button>
             <Button onClick={() => setEditing({ ...emptyDraft })}><Plus className="size-4" />Tambah Produk</Button>
-            <input ref={fileRef} type="file" accept=".csv" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) onImportFile(f); e.target.value = '' }} />
+            <input ref={fileRef} type="file" accept=".csv,.xlsx,.xls" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) onImportFile(f); e.target.value = '' }} />
           </div>
         )}
       />
