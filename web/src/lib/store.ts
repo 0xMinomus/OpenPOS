@@ -143,8 +143,9 @@ function colLetter(i: number): string {
   return s
 }
 
-// Export Excel (.xlsx): judul, header berwarna, baris belang, border penuh,
-// kolom Rp numerik, baris TOTAL (SUM), freeze header + filter.
+// Export Excel (.xlsx) statis: judul, header berwarna, baris belang, border
+// penuh, kolom Rp numerik, baris TOTAL (SUM). Tanpa filter/freeze/merge —
+// sengaja polos agar tampil sama di semua pembaca Excel.
 // exceljs lazy-import agar bundle awal tetap ringan. xlsx tetap untuk import.
 export async function exportExcel(filename: string, sheets: ExcelSheet[]) {
   const ExcelJS = await import('exceljs')
@@ -158,15 +159,12 @@ export async function exportExcel(filename: string, sheets: ExcelSheet[]) {
     const n = s.columns.length
     if (n === 0) continue
     const ws = wb.addWorksheet(sanitizeSheetName(s.name))
-    const lastCol = colLetter(n - 1)
 
-    ws.mergeCells(`A1:${lastCol}1`)
     const title = ws.getCell('A1')
     title.value = s.title
     title.font = { size: 14, bold: true, color: { argb: X_INK } }
     ws.getRow(1).height = 24
 
-    ws.mergeCells(`A2:${lastCol}2`)
     const sub = ws.getCell('A2')
     sub.value = [s.subtitle, `Dibuat ${stamp}`].filter(Boolean).join(' · ')
     sub.font = { size: 10, italic: true, color: { argb: X_MUTED } }
@@ -233,10 +231,6 @@ export async function exportExcel(filename: string, sheets: ExcelSheet[]) {
       if (c.money || c.percent) w = Math.max(w, 14)
       return { width: Math.min(Math.max(w + 3, 12), 42) }
     })
-
-    ws.views = [{ state: 'frozen', xSplit: 0, ySplit: HEADER }]
-    ws.autoFilter = { from: { row: HEADER, column: 1 }, to: { row: HEADER, column: n } }
-    ws.pageSetup = { orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 0 }
   }
   const buf = await wb.xlsx.writeBuffer()
   downloadBlob(
