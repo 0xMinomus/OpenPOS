@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { useEffect, useRef, useState } from 'react'
 import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight, Download, FileSpreadsheet, FileText, Upload, X } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import type { TrxItem } from './api'
 import { fmtDate } from './store'
 
@@ -89,13 +89,15 @@ export function ExportMenu({ onCSV, onExcel, label = 'Export', disabled }: {
         <Download className="size-4" />{label}<ChevronDown className="size-4 text-fog" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
-        <DropdownMenuLabel>Format file</DropdownMenuLabel>
-        <DropdownMenuItem onClick={onExcel}>
-          <FileSpreadsheet className="size-4" />Excel (.xlsx)
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={onCSV}>
-          <FileText className="size-4" />CSV (.csv)
-        </DropdownMenuItem>
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>Format file</DropdownMenuLabel>
+          <DropdownMenuItem onClick={onExcel}>
+            <FileSpreadsheet className="size-4" />Excel (.xlsx)
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={onCSV}>
+            <FileText className="size-4" />CSV (.csv)
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
   )
@@ -118,13 +120,15 @@ export function ImportMenu({ onPick, label = 'Import', disabled }: {
         <Upload className="size-4" />{label}<ChevronDown className="size-4 text-fog" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
-        <DropdownMenuLabel>Format file</DropdownMenuLabel>
-        <DropdownMenuItem onClick={() => onPick('xlsx')}>
-          <FileSpreadsheet className="size-4" />Excel (.xlsx)
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onPick('csv')}>
-          <FileText className="size-4" />CSV (.csv)
-        </DropdownMenuItem>
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>Format file</DropdownMenuLabel>
+          <DropdownMenuItem onClick={() => onPick('xlsx')}>
+            <FileSpreadsheet className="size-4" />Excel (.xlsx)
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onPick('csv')}>
+            <FileText className="size-4" />CSV (.csv)
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
   )
