@@ -133,16 +133,6 @@ const X_BAND = 'FFFAF6EF'
 const X_LINE = 'FFDDD3C2'
 const X_WHITE = 'FFFFFFFF'
 
-function colLetter(i: number): string {
-  let s = ''
-  let n = i
-  do {
-    s = String.fromCharCode(65 + (n % 26)) + s
-    n = Math.floor(n / 26) - 1
-  } while (n >= 0)
-  return s
-}
-
 // Export Excel (.xlsx) statis: judul, header berwarna, baris belang, border
 // penuh, kolom Rp numerik, baris TOTAL (SUM). Tanpa filter/freeze/merge —
 // sengaja polos agar tampil sama di semua pembaca Excel.
@@ -215,8 +205,13 @@ export async function exportExcel(filename: string, sheets: ExcelSheet[]) {
         const col = s.columns[i]
         if (!col) continue
         const cell = row.getCell(i + 1)
-        const L = colLetter(i)
-        cell.value = { formula: `SUM(${L}${firstData}:${L}${lastData})` }
+        // Jumlah statis (bukan formula) agar tampil di semua pembaca Excel.
+        let total = 0
+        for (const r of s.rows) {
+          const v = r[i]
+          if (typeof v === 'number' && Number.isFinite(v)) total += v
+        }
+        cell.value = total
         if (col.money) cell.numFmt = '#,##0'
         else if (col.percent) cell.numFmt = '0"%"'
         cell.alignment = { horizontal: col.align ?? 'right', vertical: 'middle' }
