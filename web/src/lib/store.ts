@@ -143,18 +143,16 @@ function colLetter(i: number): string {
   return s
 }
 
-// Export Excel (.xlsx) yg rapi: judul + subjudul + stamp waktu, header gelap,
-// baris belang, border tipis, kolom Rp numerik, baris TOTAL otomatis, freeze
-// header, filter, dan siap cetak landscape. exceljs di-import lazy supaya
-// bundle awal tetap ringan (chunk terpisah, dimuat hanya saat export).
-// (xlsx tetap dipakai untuk import — lihat parseImportFile.)
+// Export Excel (.xlsx): judul, header berwarna, baris belang, border penuh,
+// kolom Rp numerik, baris TOTAL (SUM), freeze header + filter.
+// exceljs lazy-import agar bundle awal tetap ringan. xlsx tetap untuk import.
 export async function exportExcel(filename: string, sheets: ExcelSheet[]) {
   const ExcelJS = await import('exceljs')
   const wb = new ExcelJS.Workbook()
   wb.creator = 'OpenPOS'
   wb.created = new Date()
   const stamp = new Date().toLocaleString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-  const thin = { style: 'thin', color: { argb: X_LINE } } as const
+  const grid = () => ({ top: { style: 'thin', color: { argb: X_LINE } }, left: { style: 'thin', color: { argb: X_LINE } }, right: { style: 'thin', color: { argb: X_LINE } }, bottom: { style: 'thin', color: { argb: X_LINE } } }) as const
 
   for (const s of sheets) {
     const n = s.columns.length
@@ -173,9 +171,8 @@ export async function exportExcel(filename: string, sheets: ExcelSheet[]) {
     sub.value = [s.subtitle, `Dibuat ${stamp}`].filter(Boolean).join(' · ')
     sub.font = { size: 10, italic: true, color: { argb: X_MUTED } }
     ws.getRow(2).height = 16
-    ws.getRow(3).height = 8
 
-    const HEADER = 4
+    const HEADER = 3
     const headerRow = ws.getRow(HEADER)
     headerRow.height = 22
     s.columns.forEach((c, i) => {
@@ -184,7 +181,7 @@ export async function exportExcel(filename: string, sheets: ExcelSheet[]) {
       cell.font = { bold: true, size: 11, color: { argb: X_WHITE } }
       cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: X_INK } }
       cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true }
-      cell.border = { top: thin, left: thin, right: thin, bottom: thin }
+      cell.border = grid()
     })
 
     const firstData = HEADER + 1
@@ -201,7 +198,7 @@ export async function exportExcel(filename: string, sheets: ExcelSheet[]) {
         cell.font = { size: 11, color: { argb: X_TEXT } }
         if (band) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: X_BAND } }
         cell.alignment = { horizontal: col.align ?? (typeof v === 'number' ? 'right' : 'left'), vertical: 'middle' }
-        cell.border = { top: thin, left: thin, right: thin, bottom: thin }
+        cell.border = grid()
       })
     })
 
@@ -209,10 +206,13 @@ export async function exportExcel(filename: string, sheets: ExcelSheet[]) {
     if (s.rows.length > 0 && s.sumCols && s.sumCols.length > 0) {
       const row = ws.getRow(lastData + 1)
       row.height = 20
-      const label = row.getCell(1)
-      label.value = 'TOTAL'
-      label.font = { bold: true, size: 11, color: { argb: X_INK } }
-      label.alignment = { horizontal: 'left', vertical: 'middle' }
+      for (let i = 1; i <= n; i++) {
+        const cell = row.getCell(i)
+        cell.border = { ...grid(), top: { style: 'double', color: { argb: X_INK } } }
+        cell.font = { bold: true, size: 11, color: { argb: X_INK } }
+        cell.alignment = { horizontal: 'left', vertical: 'middle' }
+      }
+      row.getCell(1).value = 'TOTAL'
       for (const i of s.sumCols) {
         const col = s.columns[i]
         if (!col) continue
@@ -221,12 +221,7 @@ export async function exportExcel(filename: string, sheets: ExcelSheet[]) {
         cell.value = { formula: `SUM(${L}${firstData}:${L}${lastData})` }
         if (col.money) cell.numFmt = '#,##0'
         else if (col.percent) cell.numFmt = '0"%"'
-        cell.font = { bold: true, size: 11, color: { argb: X_INK } }
         cell.alignment = { horizontal: col.align ?? 'right', vertical: 'middle' }
-      }
-      for (let i = 1; i <= n; i++) {
-        const cell = row.getCell(i)
-        cell.border = { ...cell.border, top: { style: 'double', color: { argb: X_INK } } }
       }
     }
 
