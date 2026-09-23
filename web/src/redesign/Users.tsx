@@ -5,7 +5,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router'
 import {
-  ArrowLeftRight, Check, ChevronDown, ChevronUp, Download, Ellipsis, LogIn, LogOut, Plus, ReceiptText,
+  ArrowLeftRight, Check, ChevronDown, ChevronUp, Ellipsis, LogIn, LogOut, Plus, ReceiptText,
   Search, ShieldCheck, UserPlus, UserRound, UserX, UsersRound,
 } from 'lucide-react'
 import {
@@ -14,8 +14,8 @@ import {
 } from './mock-api'
 import { PageHeader } from './PageHeader'
 import { useCache } from '../lib/cache'
-import { exportCSV, fmtDate, fmtInv, fmtRp, fmtTime, useDB } from '../lib/store'
-import { Button, Input, Modal, Pager, Pill, Td, Th } from '../lib/ui'
+import { exportCSV, exportExcel, fmtDate, fmtInv, fmtRp, fmtTime, useDB } from '../lib/store'
+import { Button, ExportMenu, Input, Modal, Pager, Pill, Td, Th } from '../lib/ui'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
@@ -293,9 +293,9 @@ export default function Users() {
     setQ(''); setStatusF(''); setSort('new')
   }
 
-  function exportAll() {
-    if (!data) return
-    exportCSV(`pengguna-${today}.csv`, [
+  function userRows(): string[][] {
+    if (!data) return []
+    return [
       ['Nama', 'Email', 'Role', 'Status', 'Bergabung'],
       ...[...data]
         .sort((a, b) => a.name.localeCompare(b.name, 'id'))
@@ -306,7 +306,15 @@ export default function Users() {
           u.active ? 'Aktif' : 'Nonaktif',
           u.created_at ? fmtDate(u.created_at) : '—',
         ]),
-    ])
+    ]
+  }
+
+  function exportAllCSV() {
+    exportCSV(`pengguna-${today}.csv`, userRows())
+  }
+
+  async function exportAllExcel() {
+    await exportExcel(`pengguna-${today}.xlsx`, [{ name: 'Pengguna', rows: userRows() }])
   }
 
   function lastAct(u: User) {
@@ -383,9 +391,7 @@ export default function Users() {
         crumb="User Management"
         actions={(
           <div className="flex gap-2">
-            <Button variant="ghost" onClick={exportAll} disabled={!data}>
-              <Download className="size-4" /> Export
-            </Button>
+            <ExportMenu onCSV={exportAllCSV} onExcel={exportAllExcel} disabled={!data} />
             <Button onClick={() => setOpen(true)}>
               <Plus className="size-4" /> Tambah Kasir
             </Button>
