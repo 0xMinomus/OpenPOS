@@ -85,8 +85,40 @@ export default function Transaksi() {
     exportCSV('transaksi.csv', trxRows(await fetchFiltered()))
   }
 
+  const TRX_STATUS: Record<string, string> = {
+    completed: 'Selesai', pending: 'Proses', cancelled: 'Dibatalkan', refunded: 'Refund',
+  }
+
   async function exportListExcel() {
-    await exportExcel('transaksi.xlsx', [{ name: 'Transaksi', rows: trxRows(await fetchFiltered()) }])
+    const all = await fetchFiltered()
+    const filterInfo = [
+      method === 'Semua' ? null : `Metode: ${method}`,
+      date ? `Tanggal: ${fmtDate(date)}` : null,
+      q.trim() ? `Cari: ${q.trim()}` : null,
+    ].filter(Boolean).join(' · ')
+    await exportExcel('transaksi.xlsx', [{
+      name: 'Transaksi',
+      title: 'Daftar Transaksi',
+      subtitle: [`${all.length} transaksi`, filterInfo].filter(Boolean).join(' · '),
+      columns: [
+        { header: 'ID' },
+        { header: 'Waktu' },
+        { header: 'Kasir' },
+        { header: 'Metode' },
+        { header: 'Subtotal (Rp)', money: true },
+        { header: 'Diskon (Rp)', money: true },
+        { header: 'Pajak (Rp)', money: true },
+        { header: 'Total (Rp)', money: true },
+        { header: 'Dibayar (Rp)', money: true },
+        { header: 'Kembalian (Rp)', money: true },
+        { header: 'Status', align: 'center' },
+      ],
+      rows: all.map((t) => [
+        t.id, t.created_at, t.cashier_name, t.method, t.subtotal, t.discount,
+        t.tax, t.total, t.paid, t.change, TRX_STATUS[t.status] ?? t.status,
+      ]),
+      sumCols: [7],
+    }])
   }
 
   function openRefund(t: Trx) {

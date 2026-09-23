@@ -314,7 +314,27 @@ export default function Users() {
   }
 
   async function exportAllExcel() {
-    await exportExcel(`pengguna-${today}.xlsx`, [{ name: 'Pengguna', rows: userRows() }])
+    await exportExcel(`pengguna-${today}.xlsx`, [{
+      name: 'Pengguna',
+      title: 'Daftar Pengguna',
+      subtitle: `${data?.length ?? 0} pengguna`,
+      columns: [
+        { header: 'Nama' },
+        { header: 'Email' },
+        { header: 'Role', align: 'center' },
+        { header: 'Status', align: 'center' },
+        { header: 'Bergabung' },
+      ],
+      rows: [...(data ?? [])]
+        .sort((a, b) => a.name.localeCompare(b.name, 'id'))
+        .map((u) => [
+          u.name,
+          u.email || 'Tanpa email',
+          u.role === 'admin' ? 'Admin' : 'Kasir',
+          u.active ? 'Aktif' : 'Nonaktif',
+          u.created_at ? fmtDate(u.created_at) : '—',
+        ]),
+    }])
   }
 
   function lastAct(u: User) {

@@ -385,11 +385,45 @@ export default function Laporan() {
   // Excel selalu 1 workbook berisi keempat tab sekaligus — CSV tetap per tab aktif.
   async function exportWorkbookExcel() {
     if (!data) return
+    const periodLabel = date ? fmtDate(date) : (PERIODS.find((p) => p.id === period)?.label ?? period)
     await exportExcel(`laporan-${period}.xlsx`, [
-      { name: 'Penjualan', rows: rowsSales() },
-      { name: 'Produk', rows: rowsProducts() },
-      { name: 'Stok', rows: rowsStock() },
-      { name: 'Profit', rows: rowsProfit() },
+      {
+        name: 'Penjualan', title: 'Laporan Penjualan', subtitle: `Periode: ${periodLabel} · ${data.transactions.length} transaksi`,
+        columns: [
+          { header: 'Tanggal' }, { header: 'ID' }, { header: 'Kasir' }, { header: 'Metode' },
+          { header: 'Total (Rp)', money: true },
+        ],
+        rows: data.transactions.map((t) => [t.date, t.id, t.cashier, t.method, t.total]),
+        sumCols: [4],
+      },
+      {
+        name: 'Produk', title: 'Laporan Produk', subtitle: `Periode: ${periodLabel} · ${data.products.length} produk terjual`,
+        columns: [
+          { header: 'Produk' }, { header: 'SKU' }, { header: 'Qty Terjual', align: 'right' },
+          { header: 'Pendapatan (Rp)', money: true }, { header: 'Profit (Rp)', money: true },
+        ],
+        rows: data.products.map((p) => [p.name, p.sku, p.qty, p.revenue, p.profit]),
+        sumCols: [2, 3, 4],
+      },
+      {
+        name: 'Stok', title: 'Laporan Stok', subtitle: `${data.stock.length} produk`,
+        columns: [
+          { header: 'Produk' }, { header: 'SKU' }, { header: 'Stok', align: 'right' },
+          { header: 'Harga Beli (Rp)', money: true }, { header: 'Harga Jual (Rp)', money: true },
+          { header: 'Nilai Stok (Rp)', money: true },
+        ],
+        rows: data.stock.map((s) => [s.name, s.sku, s.stock, s.buy_price, s.sell_price, s.stock_value]),
+        sumCols: [2, 5],
+      },
+      {
+        name: 'Profit', title: 'Laporan Profit', subtitle: `Periode: ${periodLabel}`,
+        columns: [
+          { header: 'Tanggal' }, { header: 'ID' }, { header: 'Kasir' },
+          { header: 'Total (Rp)', money: true }, { header: 'HPP (Rp)', money: true }, { header: 'Profit (Rp)', money: true },
+        ],
+        rows: data.transactions.map((t) => [t.date, t.id, t.cashier, t.total, t.hpp, t.profit]),
+        sumCols: [3, 4, 5],
+      },
     ])
   }
 
