@@ -149,7 +149,23 @@ export default function Karyawan() {
   }
 
   async function exportListExcel() {
-    await exportExcel(`karyawan-${date || period}.xlsx`, [{ name: 'Karyawan', rows: karyawanRows() }])
+    await exportExcel(`karyawan-${date || period}.xlsx`, [{
+      name: 'Karyawan',
+      title: 'Performa Karyawan',
+      subtitle: `${date ? fmtDate(date) : PERIODS.find((p) => p.id === period)?.label} · ${stats.length} kasir`,
+      columns: [
+        { header: 'Kasir' },
+        { header: 'Omzet (Rp)', money: true },
+        { header: 'Transaksi', align: 'right' },
+        { header: 'Rata-rata (Rp)', money: true },
+        { header: 'Kontribusi (%)', percent: true },
+      ],
+      rows: stats.map((r) => [
+        r.name, r.omzet, r.trx, r.avg,
+        totalOmzet > 0 ? Math.round((r.omzet / totalOmzet) * 100) : 0,
+      ]),
+      sumCols: [1, 2],
+    }])
   }
 
   if (err && !data) return (

@@ -179,7 +179,26 @@ export default function Produk() {
 
   async function exportListExcel() {
     const all = await fetchAll<Product>((page) => apiListProducts({ page, limit: 200 }))
-    await exportExcel('produk.xlsx', [{ name: 'Produk', rows: productRows(all) }])
+    await exportExcel('produk.xlsx', [{
+      name: 'Produk',
+      title: 'Daftar Produk',
+      subtitle: `${all.length} produk`,
+      columns: [
+        { header: 'Nama' },
+        { header: 'SKU' },
+        { header: 'Barcode' },
+        { header: 'Kategori' },
+        { header: 'Harga Beli (Rp)', money: true },
+        { header: 'Harga Jual (Rp)', money: true },
+        { header: 'Stok', align: 'right' },
+        { header: 'Satuan', align: 'center' },
+        { header: 'Status', align: 'center' },
+      ],
+      rows: all.map((p) => [
+        p.name, p.sku, p.barcode, p.category_name ?? '', p.buy_price,
+        p.sell_price, p.stock, p.unit, p.active ? 'Aktif' : 'Nonaktif',
+      ]),
+    }])
   }
 
   const fileRef = useRef<HTMLInputElement>(null)
