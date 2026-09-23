@@ -34,7 +34,7 @@ export default function Navbar({ dark, logoTone = 'auto' }: { dark?: boolean; lo
     <header className="sticky top-0 z-10 border-b border-border bg-bg/90 backdrop-blur-xl">
       <div className="mx-auto grid min-w-0 max-w-6xl grid-cols-[1fr_auto_1fr] items-center gap-1.5 px-4 py-3 md:gap-5 md:px-8">
         <Link to="/" onClick={goHome} className="flex items-center justify-self-start">
-          <Logo tone={logoTone} className="h-6 w-auto sm:h-7" />
+          <Logo tone={logoTone} className="h-7 w-auto sm:h-8" />
         </Link>
         {!dark && (
           <nav className="hidden gap-8 text-sm text-muted md:flex" aria-label="Navigasi utama">
