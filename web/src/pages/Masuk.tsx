@@ -460,8 +460,7 @@ export default function Masuk() {
               </div>
             </div>
 
-            <div className="login-pop login-card relative w-full overflow-hidden bg-[#143F9D] rounded-[28px] p-[26px_28px] shadow-[0px_18px_36px_#0A2A7138] outline outline-1 outline-[#FFFFFF24] outline-offset-[-0.5px]" style={{ animationDelay: '160ms' }}>
-              <span className="sheen pointer-events-none absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-transparent via-white/[0.07] to-transparent" aria-hidden="true" />
+            <div className="login-pop relative w-full bg-[#143F9D] rounded-[28px] p-[26px_28px] shadow-[0px_18px_36px_#0A2A7138] outline outline-1 outline-[#FFFFFF24] outline-offset-[-0.5px]" style={{ animationDelay: '160ms' }}>
               <div className="flex items-start justify-between gap-3">
                 <div className={`text-[11px]/[15px] text-[#BFD0FF] ${PJS} font-extrabold tracking-[1px] whitespace-nowrap pt-[10px]`}>
                   RITME 7 HARI TERAKHIR
@@ -499,10 +498,10 @@ export default function Masuk() {
           </div>
         </div>
       </div>
-      <footer className={`border-t border-[#DDD7CB] bg-[#FFFEFA] px-6 py-4 ${PJS}`}>
-        <div className="mx-auto flex w-full max-w-[1440px] flex-col items-center justify-center gap-1 text-center sm:flex-row sm:justify-between sm:text-left">
-          <span className="text-[12px]/[16px] font-semibold text-[#7C8B9E]">© 2026 OpenPOS</span>
-          <span className="text-[12px]/[16px] font-medium text-[#98A2B3]">gratis selamanya · untuk UMKM Indonesia</span>
+      <footer className="border-t border-border px-4 py-8 text-[13px] text-muted sm:py-14">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-center gap-1.5 text-center sm:flex-row sm:justify-between sm:text-left">
+          <span>© 2026 OpenPOS</span>
+          <span className="font-mono text-xs text-fog">gratis selamanya · untuk UMKM</span>
         </div>
       </footer>
     </div>
