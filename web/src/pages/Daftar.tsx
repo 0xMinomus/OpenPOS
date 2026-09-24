@@ -1,9 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router'
 import { apiGetSettings, apiGoogleLogin, apiHasActiveCashiers, apiRegister, apiSendOtp, apiSetPasscode, apiUpdateSettings, apiVerifyOtp, apiMe, ApiError, type User } from '../lib/api'
 import { setSession, toSession } from '../lib/store'
 import { GoogleButton } from '../lib/google'
+import { DMA, LoginIcon, PJS } from './login-icons'
+import { SignupStory } from './login-story'
 import Navbar from './Navbar'
+import Footer from './Footer'
 
 const STEPS = [
   { n: 1, label: 'Akun' },
@@ -12,6 +15,15 @@ const STEPS = [
   { n: 4, label: 'Selesai' },
 ]
 
+function Spinner({ light }: { light?: boolean }) {
+  return (
+    <span
+      className={`login-spin block w-[18px] h-[18px] shrink-0 rounded-full border-2 ${light ? 'border-white/40 border-t-white' : 'border-[#2F6FEB]/30 border-t-[#2F6FEB]'}`}
+      aria-hidden="true"
+    />
+  )
+}
+
 export default function Daftar() {
   const nav = useNavigate()
   const [params] = useSearchParams()
@@ -19,10 +31,14 @@ export default function Daftar() {
   const [googleUser, setGoogleUser] = useState<User | null>(null)
   const [googleCred, setGoogleCred] = useState('')
   const [googlePin, setGooglePin] = useState('')
+  const [gisErr, setGisErr] = useState('')
+  const handleGisError = useCallback((msg: string) => setGisErr(msg), [])
   const [step, setStep] = useState(1)
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPw, setShowPw] = useState(false)
+  const [agree, setAgree] = useState(false)
   const [store, setStore] = useState('')
   const [passcode, setPasscode] = useState('')
   const [confirm, setConfirm] = useState('')
@@ -119,6 +135,7 @@ export default function Daftar() {
     if (!name.trim()) return setErr('Nama wajib diisi.')
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return setErr('Masukkan alamat email yang valid.')
     if (password.length < 8) return setErr('Kata sandi minimal 8 karakter.')
+    if (!agree) return setErr('Centang persetujuan Syarat Layanan dan Kebijakan Privasi untuk lanjut.')
     setBusy(true)
     sendOtp()
       .then(() => setStep(2))
@@ -127,7 +144,7 @@ export default function Daftar() {
   }
 
   async function handleGoogle(credential: string) {
-    setErr(''); setBusy(true)
+    setErr(''); setGisErr(''); setBusy(true)
     try {
       const r = await apiGoogleLogin(credential)
       setSession(toSession(r.user))
@@ -206,186 +223,314 @@ export default function Daftar() {
   }
 
   return (
-    <div className="landing-light bg-bg text-fg">
+    <div className="min-h-screen bg-[#FFFEFA] flex flex-col">
       <Navbar logoTone="light" />
-      <main className="relative grid min-h-[calc(100vh-116px)] place-items-center overflow-hidden px-4 py-8 sm:px-8 sm:py-12">
-        <section className="auth-card w-full max-w-110 rounded-2xl border border-dove bg-paper p-5 shadow-xl sm:p-10">
-          {mode !== 'choice' && (
-            <div className="mb-7 flex flex-wrap items-center gap-x-1.5 gap-y-2" aria-label="Langkah pendaftaran">
-              {STEPS.map((s, i) => (
-                <div key={s.n} className={`flex items-center gap-1.5 font-mono text-[10px] ${step >= s.n ? 'text-jet' : 'text-fog'}`}>
-                  {i > 0 && <span className="h-px w-3.5 bg-dove" />}
-                  <span className={`grid h-5 w-5 place-items-center rounded-full border text-[10px] ${step >= s.n ? 'border-jet bg-jet text-paper' : 'border-dove'}`}>
-                    {step > s.n ? '✓' : s.n}
-                  </span>
-                  {s.label}
-                </div>
-              ))}
+      <div className="w-full flex-1 flex flex-col lg:flex-row min-h-[calc(100vh-65px)]">
+        <SignupStory />
+
+        {/* ── Panel kanan: form auth ────────────────────────── */}
+        <div className="box-border w-full lg:w-[680px] shrink-0 bg-[#FFFEFA] relative order-2 flex flex-col justify-center py-10 lg:py-12">
+          <div className="login-rise box-border w-full max-w-[440px] mx-auto px-6 lg:mx-0 lg:px-0 lg:max-w-none lg:ml-[120px] lg:mr-8 lg:w-[440px] flex flex-col gap-[18px]">
+            <div className="flex flex-col gap-[8px]">
+              <div className={`text-[12px]/[16px] text-[#2F6FEB] ${PJS} font-extrabold tracking-[1px] whitespace-nowrap`}>
+                BUAT AKUN OPENPOS
+              </div>
+              <div className={`text-[clamp(30px,4vw,38px)]/[1.15] text-[#102033] ${DMA} font-normal`}>
+                Buat toko Anda hari ini
+              </div>
+              <div className={`text-[15px]/[23px] text-[#667085] ${PJS} font-normal`}>
+                Satu akun untuk admin dan kasir. Gratis, tanpa kartu kredit.
+              </div>
             </div>
-          )}
 
-          <p className="font-mono text-xs uppercase tracking-widest text-steel">Daftar · buat akun</p>
-          <h1 className="mt-3 text-[clamp(32px,4vw,44px)] font-normal leading-[1.1] tracking-[-0.025em]">Buat toko Anda hari ini</h1>
-          <p className="mt-2 mb-7 text-[15px] text-muted">Satu akun langsung membuat akun admin dan toko Anda sekaligus. Gratis selamanya tanpa kartu kredit.</p>
-
-          {err && (
-            <p className="mb-4 flex items-start gap-2 rounded-lg bg-sand px-3.5 py-3 text-[13px]" role="alert">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" className="mt-0.5 flex-none text-ember"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>
-              {err}
-            </p>
-          )}
-
-          {mode === 'choice' && (
-            <div className="flex flex-col gap-4">
-              <GoogleButton onToken={handleGoogle} busy={busy} text="signup_with" />
-              <div className="flex items-center gap-3" aria-hidden="true">
-                <span className="h-px flex-1 bg-dove" />
-                <span className="text-xs text-fog">atau</span>
-                <span className="h-px flex-1 bg-dove" />
-              </div>
-              <button
-                onClick={() => { setErr(''); setMode('email') }}
-                className="rounded-full border border-dove py-3 text-[15px] font-medium text-jet hover:border-jet"
-              >
-                Daftar dengan Email
-              </button>
-            </div>
-          )}
-
-          {mode === 'google-pin' && (
-            <form onSubmit={submitGooglePasscode} className="flex flex-col gap-4" noValidate>
-              <div className="rounded-lg bg-surface px-3.5 py-3 text-[13px] text-muted">
-                Akun Google ini dilindungi passcode. Masukkan 5 angka untuk melanjutkan.
-              </div>
-              <label className="flex flex-col gap-1.5 text-[13px] font-medium text-steel">
-                Passcode
-                <input
-                  value={googlePin}
-                  onChange={(e) => setGooglePin(e.target.value.replace(/\D/g, '').slice(0, 5))}
-                  type="password" inputMode="numeric" autoFocus
-                  placeholder="•••••"
-                  className="rounded-md border border-border bg-paper px-3.5 py-3 text-center font-mono text-lg tracking-[0.5em] focus:border-jet focus:outline-none"
-                />
-              </label>
-              <div className="flex gap-3">
-                <button type="button" onClick={() => { setMode('choice'); setGoogleCred(''); setGooglePin(''); setErr('') }} className="flex-1 rounded-full border border-dove py-3 text-[15px] font-medium text-jet hover:border-jet">Batal</button>
-                <button type="submit" disabled={googlePin.length !== 5 || busy} className="flex-1 rounded-full bg-jet py-3 text-[15px] font-medium text-paper hover:opacity-85 disabled:opacity-40">Masuk</button>
-              </div>
-            </form>
-          )}
-
-          {mode === 'email' && step === 1 && (
-            <form onSubmit={step1Next} className="flex flex-col gap-4" noValidate>
-              <label className="flex flex-col gap-1.5 text-[13px] font-medium text-steel">
-                Nama Anda
-                <input value={name} onChange={(e) => setName(e.target.value)} type="text" autoComplete="name" placeholder="Nama pemilik toko" className="rounded-md border border-border bg-paper px-3.5 py-3 text-[15px] focus:border-jet focus:outline-none" />
-              </label>
-              <label className="flex flex-col gap-1.5 text-[13px] font-medium text-steel">
-                Email
-                <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" autoComplete="email" placeholder="nama@tokosaya.com" className="rounded-md border border-border bg-paper px-3.5 py-3 text-[15px] focus:border-jet focus:outline-none" />
-                <span className="text-xs font-normal text-fog">Dipakai untuk masuk dan verifikasi kode OTP. Tidak dibagikan.</span>
-              </label>
-              <label className="flex flex-col gap-1.5 text-[13px] font-medium text-steel">
-                Kata sandi
-                <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" autoComplete="new-password" placeholder="Minimal 8 karakter" className="rounded-md border border-border bg-paper px-3.5 py-3 text-[15px] focus:border-jet focus:outline-none" />
-              </label>
-              <button type="submit" disabled={busy} className="mt-1 rounded-full bg-jet py-3 text-[15px] font-medium text-paper hover:opacity-85 disabled:opacity-40">{busy ? 'Mengirim kode…' : 'Lanjutkan'}</button>
-              <button type="button" onClick={() => { setErr(''); setMode('choice') }} className="text-center text-[13px] text-muted hover:underline">
-                Kembali
-              </button>
-            </form>
-          )}
-
-          {mode === 'email' && step === 2 && (
-            <form onSubmit={verifyOtp} className="flex flex-col gap-4" noValidate>
-              <div className="rounded-lg bg-surface px-3.5 py-3 text-[13px] text-muted">
-                {otpMsg || 'Mengirim kode OTP…'}
-                <span className="mt-1 block text-xs text-fog">Kode berlaku 10 menit dan hanya bisa dicoba 3 kali.</span>
-                <span className="mt-2 block text-xs text-fog">
-                  Belum menerima kode? Jika email ini sudah terdaftar,{' '}
-                  <Link to="/masuk" className="font-medium text-jet hover:underline">masuk di sini</Link>.
-                </span>
-              </div>
-              <label className="flex flex-col gap-1.5 text-[13px] font-medium text-steel">
-                Kode OTP
-                <input
-                  value={code}
-                  onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  type="text" inputMode="numeric" autoComplete="one-time-code" autoFocus
-                  placeholder="••••••"
-                  className="rounded-md border border-border bg-paper px-3.5 py-3 text-center font-mono text-xl tracking-[0.5em] focus:border-jet focus:outline-none"
-                />
-              </label>
-              <button type="submit" disabled={code.length !== 6 || busy} className="mt-1 rounded-full bg-jet py-3 text-[15px] font-medium text-paper hover:opacity-85 disabled:opacity-40">
-                {busy ? 'Memverifikasi…' : 'Verifikasi Email'}
-              </button>
-              <button
-                type="button"
-                onClick={() => sendOtp().catch(() => {})}
-                disabled={cooldown > 0 || busy}
-                className="text-center text-[13px] text-muted hover:underline disabled:opacity-50"
-              >
-                {cooldown > 0 ? `Kirim ulang dalam ${cooldown} detik` : 'Kirim ulang kode'}
-              </button>
-            </form>
-          )}
-
-          {(mode === 'email' || mode === 'google-onboard') && step >= 3 && (
-            <form onSubmit={mode === 'google-onboard' ? submitGoogle : submit} className="flex flex-col gap-4" noValidate>
-              {step === 3 && (
-                <>
-                  <label className="flex flex-col gap-1.5 text-[13px] font-medium text-steel">
-                    Nama toko
-                    <input value={store} onChange={(e) => setStore(e.target.value)} type="text" placeholder="cth: Toko Sembako Sari" className="rounded-md border border-border bg-paper px-3.5 py-3 text-[15px] focus:border-jet focus:outline-none" />
-                    <span className="text-xs font-normal text-fog">Ditampilkan di struk dan dashboard.</span>
-                  </label>
-                  <button type="submit" className="mt-1 rounded-full bg-jet py-3 text-[15px] font-medium text-paper hover:opacity-85">Lanjutkan</button>
-                </>
-              )}
-              {step === 4 && (
-                <>
-                  <div className="rounded-lg bg-surface px-3.5 py-3 text-[13px] text-muted">
-                    Terakhir, buat <strong className="text-fg">passcode 5 angka</strong> untuk akun admin Anda. Passcode dipakai saat berpindah akun di toko.
+            {mode !== 'choice' && (
+              <div className="flex flex-wrap items-center gap-x-1.5 gap-y-2" aria-label="Langkah pendaftaran">
+                {STEPS.map((s, i) => (
+                  <div key={s.n} className={`flex items-center gap-1.5 text-[11px] ${PJS} font-bold ${step >= s.n ? 'text-[#2F6FEB]' : 'text-[#98A2B3]'}`}>
+                    {i > 0 && <span className="h-px w-3.5 bg-[#DDD7CB]" aria-hidden="true" />}
+                    <span className={`grid h-5 w-5 place-items-center rounded-full text-[10px] ${step >= s.n ? 'bg-[#2F6FEB] text-white' : 'outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px]'}`} aria-hidden="true">
+                      {step > s.n ? (
+                        <svg viewBox="0 0 12 12" width="10" height="10"><path d="M2 6.2 4.8 9 10 3.2" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                      ) : s.n}
+                    </span>
+                    {s.label}
                   </div>
-                  <label className="flex flex-col gap-1.5 text-[13px] font-medium text-steel">
-                    Passcode admin
-                    <input
-                      value={passcode}
-                      onChange={(e) => setPasscode(e.target.value.replace(/\D/g, '').slice(0, 5))}
-                      type="password" inputMode="numeric" autoComplete="new-password" autoFocus
-                      placeholder="•••••"
-                      className="rounded-md border border-border bg-paper px-3.5 py-3 text-center font-mono text-lg tracking-[0.5em] focus:border-jet focus:outline-none"
-                    />
-                  </label>
-                  <label className="flex flex-col gap-1.5 text-[13px] font-medium text-steel">
-                    Ulangi passcode
-                    <input
-                      value={confirm}
-                      onChange={(e) => setConfirm(e.target.value.replace(/\D/g, '').slice(0, 5))}
-                      type="password" inputMode="numeric" autoComplete="new-password"
-                      placeholder="•••••"
-                      className="rounded-md border border-border bg-paper px-3.5 py-3 text-center font-mono text-lg tracking-[0.5em] focus:border-jet focus:outline-none"
-                    />
-                  </label>
-                  <button type="submit" disabled={!store.trim() || busy} className="mt-1 rounded-full bg-jet py-3 text-[15px] font-medium text-paper hover:opacity-85 disabled:opacity-40">
-                    {busy ? (mode === 'google-onboard' ? 'Menyimpan…' : 'Membuat akun…') : (mode === 'google-onboard' ? 'Selesai' : 'Buat Akun')}
-                  </button>
-                </>
-              )}
-            </form>
-          )}
+                ))}
+              </div>
+            )}
 
-          <p className="mt-6 border-t border-dove pt-5 text-center text-sm text-muted">
-            Sudah punya akun? <Link to="/masuk" className="font-medium text-jet hover:underline">Masuk</Link>
+            {err && (
+              <p role="alert" className={`text-[13px]/[19px] text-[#B42318] ${PJS} font-medium bg-[#FDECEA] rounded-[14px] px-4 py-3`}>
+                {err}
+              </p>
+            )}
+
+            {mode === 'choice' && (
+              <>
+                <div className={`login-pop relative w-full h-[52px] rounded-[14px] outline outline-1 outline-offset-[-0.5px] transition-all duration-150 ${busy ? 'outline-[#2F6FEB] bg-[#E9F0FF]/60' : 'outline-[#DDD7CB] hover:outline-[#2F6FEB] hover:shadow-[0px_4px_14px_#2F6FEB22] active:scale-[0.99]'}`} style={{ animationDelay: '60ms' }}>
+                  <div className="absolute inset-0 flex flex-row gap-[12px] justify-center items-center pointer-events-none" aria-hidden="true">
+                    {busy ? (
+                      <Spinner />
+                    ) : (
+                      <span className={`text-[17px]/[23px] text-[#4285F4] ${PJS} font-extrabold whitespace-nowrap`}>G</span>
+                    )}
+                    <span className={`text-[14px]/[19px] text-[#102033] ${PJS} font-bold whitespace-nowrap`}>
+                      {busy ? 'Menghubungkan ke Google…' : 'Daftar dengan Google'}
+                    </span>
+                  </div>
+                  <div className={`absolute inset-0 overflow-hidden rounded-[14px] opacity-0 [&>div]:h-full ${busy ? 'pointer-events-none' : 'cursor-pointer'}`}>
+                    <GoogleButton onToken={handleGoogle} busy={busy} text="signup_with" fill onError={handleGisError} />
+                  </div>
+                </div>
+                {gisErr && (
+                  <p role="alert" className={`text-[13px]/[19px] text-[#B42318] ${PJS} font-medium bg-[#FDECEA] rounded-[14px] px-4 py-3`}>
+                    {gisErr} <button type="button" onClick={() => window.location.reload()} className="font-bold underline">Muat ulang</button>
+                  </p>
+                )}
+
+                <div className="w-full flex flex-row gap-[12px] items-center" aria-hidden="true">
+                  <div className="flex-1 h-[1px] bg-[#DDD7CB]" />
+                  <div className={`text-[12px]/[16px] text-[#667085] ${PJS} font-medium whitespace-nowrap`}>atau isi data singkat</div>
+                  <div className="flex-1 h-[1px] bg-[#DDD7CB]" />
+                </div>
+
+                <button
+                  onClick={() => { setErr(''); setGisErr(''); setMode('email') }}
+                  className={`w-full h-[54px] rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] text-[15px]/[20px] text-[#102033] ${PJS} font-bold transition-all duration-150 hover:outline-[#2F6FEB] hover:shadow-[0px_4px_14px_#2F6FEB22] active:scale-[0.99]`}
+                >
+                  Daftar dengan Email
+                </button>
+              </>
+            )}
+
+            {mode === 'google-pin' && (
+              <form onSubmit={submitGooglePasscode} className="login-rise w-full flex flex-col gap-[16px]" noValidate>
+                <div className={`text-[13px]/[19px] text-[#667085] ${PJS} font-medium bg-[#F3EFE6] rounded-[14px] px-4 py-3`}>
+                  Akun Google ini dilindungi passcode. Masukkan 5 angka untuk melanjutkan.
+                </div>
+                <label className="w-full flex flex-col gap-[8px]">
+                  <span className={`text-[13px]/[18px] text-[#102033] ${PJS} font-bold whitespace-nowrap`}>Passcode</span>
+                  <input
+                    value={googlePin}
+                    onChange={(e) => setGooglePin(e.target.value.replace(/\D/g, '').slice(0, 5))}
+                    type="password" inputMode="numeric" autoFocus
+                    placeholder="•••••"
+                    className="w-full h-[54px] rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] text-center font-mono text-lg tracking-[0.5em] text-[#102033] placeholder:text-[#98A2B3] bg-transparent"
+                  />
+                </label>
+                <div className="flex gap-3">
+                  <button
+                    type="button" onClick={() => { setMode('choice'); setGoogleCred(''); setGooglePin(''); setErr('') }}
+                    className={`flex-1 h-[54px] rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] text-[15px]/[20px] text-[#102033] ${PJS} font-bold hover:outline-[#2F6FEB]`}
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="submit" disabled={googlePin.length !== 5 || busy}
+                    className={`flex-1 h-[54px] rounded-[14px] bg-[#2F6FEB] shadow-[0px_8px_20px_#2F6FEB33] text-[15px]/[20px] text-white ${PJS} font-extrabold hover:brightness-110 disabled:opacity-50`}
+                  >
+                    Masuk
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {mode === 'email' && step === 1 && (
+              <form onSubmit={step1Next} className="login-rise w-full flex flex-col gap-[13px]" noValidate>
+                <label className="w-full flex flex-col gap-[7px]">
+                  <span className={`text-[13px]/[18px] text-[#102033] ${PJS} font-bold whitespace-nowrap`}>Nama Anda</span>
+                  <input
+                    value={name} onChange={(e) => setName(e.target.value)}
+                    type="text" autoComplete="name" placeholder="Nama pemilik toko"
+                    className={`w-full h-[50px] rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] px-4 text-[14px]/[19px] text-[#102033] ${PJS} font-medium placeholder:text-[#98A2B3] bg-transparent focus:outline-[#2F6FEB]`}
+                  />
+                </label>
+                <label className="w-full flex flex-col gap-[7px]">
+                  <span className={`text-[13px]/[18px] text-[#102033] ${PJS} font-bold whitespace-nowrap`}>Email</span>
+                  <span className="w-full h-[50px] flex flex-row p-[0px_16px] items-center rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] focus-within:outline-[#2F6FEB] focus-within:outline-2">
+                    <LoginIcon name="mail" size={18} className="shrink-0" />
+                    <input
+                      value={email} onChange={(e) => setEmail(e.target.value)}
+                      type="email" autoComplete="email" placeholder="nama@tokosaya.com"
+                      className={`ml-3 flex-1 min-w-0 bg-transparent outline-none text-[14px]/[19px] text-[#102033] ${PJS} font-medium placeholder:text-[#98A2B3]`}
+                    />
+                  </span>
+                  <span className={`text-xs font-normal text-[#98A2B3] ${PJS}`}>Dipakai untuk masuk dan verifikasi kode OTP. Tidak dibagikan.</span>
+                </label>
+                <label className="w-full flex flex-col gap-[7px]">
+                  <span className={`text-[13px]/[18px] text-[#102033] ${PJS} font-bold whitespace-nowrap`}>Kata sandi</span>
+                  <span className="w-full h-[50px] flex flex-row gap-[10px] p-[0px_16px] items-center rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] focus-within:outline-[#2F6FEB] focus-within:outline-2">
+                    <LoginIcon name="lock" size={18} className="shrink-0" />
+                    <input
+                      value={password} onChange={(e) => setPassword(e.target.value)}
+                      type={showPw ? 'text' : 'password'} autoComplete="new-password" placeholder="Minimal 8 karakter"
+                      className={`flex-1 min-w-0 bg-transparent outline-none text-[14px]/[19px] text-[#102033] ${PJS} font-medium placeholder:text-[#98A2B3]`}
+                    />
+                    <button type="button" onClick={() => setShowPw((v) => !v)} aria-label={showPw ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'} className="shrink-0">
+                      <LoginIcon name="eye" size={18} style={{ opacity: showPw ? 1 : 0.55 }} />
+                    </button>
+                  </span>
+                </label>
+
+                <button type="button" onClick={() => setAgree((v) => !v)} className="w-full flex flex-row gap-[10px] items-start text-left" aria-pressed={agree}>
+                  <span className={`mt-[1px] w-[18px] h-[18px] shrink-0 rounded-[5px] grid place-items-center ${agree ? 'bg-[#2F6FEB]' : 'bg-[#E9F0FF] outline outline-1 outline-[#2F6FEB] outline-offset-[-0.5px]'}`} aria-hidden="true">
+                    {agree && (
+                      <svg viewBox="0 0 12 12" width="11" height="11"><path d="M2 6.2 4.8 9 10 3.2" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                    )}
+                  </span>
+                  <span className={`text-[12px]/[17px] text-[#667085] ${PJS} font-medium`}>Saya menyetujui Syarat Layanan dan Kebijakan Privasi.</span>
+                </button>
+
+                <button
+                  type="submit" disabled={busy}
+                  className={`w-full h-[54px] flex flex-row gap-[10px] justify-center items-center bg-[#2F6FEB] rounded-[14px] shadow-[0px_8px_20px_#2F6FEB33] text-[15px]/[20px] text-white ${PJS} font-extrabold whitespace-nowrap transition-all duration-150 hover:brightness-110 active:scale-[0.99] disabled:opacity-50`}
+                >
+                  {busy ? (
+                    <>
+                      <Spinner light />
+                      Mengirim kode…
+                    </>
+                  ) : (
+                    <>
+                      Lanjutkan
+                      <LoginIcon name="arrow-right" size={18} className="shrink-0" />
+                    </>
+                  )}
+                </button>
+                <button type="button" onClick={() => { setErr(''); setMode('choice') }} className={`text-center text-[13px] text-[#667085] ${PJS} hover:underline`}>
+                  Kembali
+                </button>
+              </form>
+            )}
+
+            {mode === 'email' && step === 2 && (
+              <form onSubmit={verifyOtp} className="login-rise w-full flex flex-col gap-[13px]" noValidate>
+                <div className={`text-[13px]/[19px] text-[#667085] ${PJS} font-medium bg-[#F3EFE6] rounded-[14px] px-4 py-3`}>
+                  {otpMsg || 'Mengirim kode OTP…'}
+                  <span className="mt-1 block text-xs">Kode berlaku 10 menit dan hanya bisa dicoba 3 kali.</span>
+                  <span className="mt-2 block text-xs">
+                    Belum menerima kode? Jika email ini sudah terdaftar,{' '}
+                    <Link to="/masuk" className="font-bold text-[#2F6FEB] hover:underline">masuk di sini</Link>.
+                  </span>
+                </div>
+                <label className="w-full flex flex-col gap-[7px]">
+                  <span className={`text-[13px]/[18px] text-[#102033] ${PJS} font-bold whitespace-nowrap`}>Kode OTP</span>
+                  <input
+                    value={code}
+                    onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    type="text" inputMode="numeric" autoComplete="one-time-code" autoFocus
+                    placeholder="••••••"
+                    className="w-full h-[50px] rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] text-center font-mono text-xl tracking-[0.5em] text-[#102033] placeholder:text-[#98A2B3] bg-transparent"
+                  />
+                </label>
+                <button
+                  type="submit" disabled={code.length !== 6 || busy}
+                  className={`w-full h-[54px] flex flex-row gap-[10px] justify-center items-center bg-[#2F6FEB] rounded-[14px] shadow-[0px_8px_20px_#2F6FEB33] text-[15px]/[20px] text-white ${PJS} font-extrabold whitespace-nowrap transition-all duration-150 hover:brightness-110 active:scale-[0.99] disabled:opacity-50`}
+                >
+                  {busy ? (
+                    <>
+                      <Spinner light />
+                      Memverifikasi…
+                    </>
+                  ) : 'Verifikasi Email'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => sendOtp().catch(() => {})}
+                  disabled={cooldown > 0 || busy}
+                  className={`text-center text-[13px] text-[#667085] ${PJS} hover:underline disabled:opacity-50`}
+                >
+                  {cooldown > 0 ? `Kirim ulang dalam ${cooldown} detik` : 'Kirim ulang kode'}
+                </button>
+              </form>
+            )}
+
+            {(mode === 'email' || mode === 'google-onboard') && step >= 3 && (
+              <form onSubmit={mode === 'google-onboard' ? submitGoogle : submit} className="login-rise w-full flex flex-col gap-[13px]" noValidate>
+                {step === 3 && (
+                  <>
+                    <label className="w-full flex flex-col gap-[7px]">
+                      <span className={`text-[13px]/[18px] text-[#102033] ${PJS} font-bold whitespace-nowrap`}>Nama toko</span>
+                      <span className="w-full h-[50px] flex flex-row gap-[10px] p-[0px_16px] items-center rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] focus-within:outline-[#2F6FEB] focus-within:outline-2">
+                        <LoginIcon name="store" size={18} className="shrink-0" />
+                        <input
+                          value={store} onChange={(e) => setStore(e.target.value)}
+                          type="text" placeholder="Contoh: Kedai Bu Ayu"
+                          className={`flex-1 min-w-0 bg-transparent outline-none text-[14px]/[19px] text-[#102033] ${PJS} font-medium placeholder:text-[#98A2B3]`}
+                        />
+                      </span>
+                      <span className={`text-xs font-normal text-[#98A2B3] ${PJS}`}>Ditampilkan di struk dan dashboard.</span>
+                    </label>
+                    <button
+                      type="submit"
+                      className={`w-full h-[54px] flex flex-row gap-[10px] justify-center items-center bg-[#2F6FEB] rounded-[14px] shadow-[0px_8px_20px_#2F6FEB33] text-[15px]/[20px] text-white ${PJS} font-extrabold whitespace-nowrap transition-all duration-150 hover:brightness-110 active:scale-[0.99]`}
+                    >
+                      Lanjutkan
+                      <LoginIcon name="arrow-right" size={18} className="shrink-0" />
+                    </button>
+                  </>
+                )}
+                {step === 4 && (
+                  <>
+                    <div className={`text-[13px]/[19px] text-[#667085] ${PJS} font-medium bg-[#F3EFE6] rounded-[14px] px-4 py-3`}>
+                      Terakhir, buat <strong className="text-[#102033]">passcode 5 angka</strong> untuk akun admin Anda. Passcode dipakai saat berpindah akun di toko.
+                    </div>
+                    <label className="w-full flex flex-col gap-[7px]">
+                      <span className={`text-[13px]/[18px] text-[#102033] ${PJS} font-bold whitespace-nowrap`}>Passcode admin</span>
+                      <input
+                        value={passcode}
+                        onChange={(e) => setPasscode(e.target.value.replace(/\D/g, '').slice(0, 5))}
+                        type="password" inputMode="numeric" autoComplete="new-password" autoFocus
+                        placeholder="•••••"
+                        className="w-full h-[50px] rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] text-center font-mono text-lg tracking-[0.5em] text-[#102033] placeholder:text-[#98A2B3] bg-transparent"
+                      />
+                    </label>
+                    <label className="w-full flex flex-col gap-[7px]">
+                      <span className={`text-[13px]/[18px] text-[#102033] ${PJS} font-bold whitespace-nowrap`}>Ulangi passcode</span>
+                      <input
+                        value={confirm}
+                        onChange={(e) => setConfirm(e.target.value.replace(/\D/g, '').slice(0, 5))}
+                        type="password" inputMode="numeric" autoComplete="new-password"
+                        placeholder="•••••"
+                        className="w-full h-[50px] rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] text-center font-mono text-lg tracking-[0.5em] text-[#102033] placeholder:text-[#98A2B3] bg-transparent"
+                      />
+                    </label>
+                    <button
+                      type="submit" disabled={!store.trim() || busy}
+                      className={`w-full h-[54px] flex flex-row gap-[10px] justify-center items-center bg-[#2F6FEB] rounded-[14px] shadow-[0px_8px_20px_#2F6FEB33] text-[15px]/[20px] text-white ${PJS} font-extrabold whitespace-nowrap transition-all duration-150 hover:brightness-110 active:scale-[0.99] disabled:opacity-50`}
+                    >
+                      {busy ? (
+                        <>
+                          <Spinner light />
+                          {mode === 'google-onboard' ? 'Menyimpan…' : 'Membuat akun…'}
+                        </>
+                      ) : (mode === 'google-onboard' ? 'Selesai' : 'Buat Akun')}
+                    </button>
+                  </>
+                )}
+              </form>
+            )}
+
+            <div className="w-full flex flex-row gap-[5px] justify-center items-center">
+              <span className={`text-[14px]/[19px] text-[#667085] ${PJS} font-medium whitespace-nowrap`}>Sudah punya akun?</span>
+              <Link to="/masuk" className={`text-[14px]/[19px] text-[#2F6FEB] ${PJS} font-extrabold whitespace-nowrap hover:underline`}>
+                Masuk
+              </Link>
+            </div>
+          </div>
+
+          <div className="hidden lg:flex absolute left-[209px] bottom-[28px] flex-row gap-[7px] items-center">
+            <LoginIcon name="shield-check" size={15} className="shrink-0" />
+            <span className={`text-[12px]/[16px] text-[#7C8B9E] ${PJS} font-medium whitespace-nowrap`}>
+              Data Anda dienkripsi dan tersimpan aman.
+            </span>
+          </div>
+          <p className={`lg:hidden text-center px-6 pb-10 text-[12px]/[16px] text-[#7C8B9E] ${PJS} font-medium`}>
+            Data Anda dienkripsi dan tersimpan aman.
           </p>
-        </section>
-      </main>
-      <footer className="border-t border-border px-4 py-8 text-[13px] text-muted sm:py-14">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-center gap-1.5 text-center sm:flex-row sm:justify-between sm:text-left">
-          <span>© 2026 OpenPOS</span>
-          <span className="font-mono text-xs text-fog">gratis selamanya · untuk UMKM</span>
         </div>
-      </footer>
+      </div>
+      <Footer />
     </div>
   )
 }
