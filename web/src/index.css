@@ -342,10 +342,18 @@ p, h1, h2, h3, h4, li, span, a, td, th { overflow-wrap: anywhere; }
 }
 .login-rise { animation: login-rise 0.55s cubic-bezier(0.2, 0, 0, 1) both; }
 .login-pop { animation: login-pop 0.5s cubic-bezier(0.2, 0, 0, 1) both; }
-.login-bar { transform-origin: bottom; animation: login-bar 0.7s cubic-bezier(0.2, 0, 0, 1) both; }
+.login-bar { transform-origin: bottom; animation: login-bar 0.7s cubic-bezier(0.2, 0, 0, 1) both; transition: filter 0.2s ease; }
 .login-spin { animation: login-spin 0.8s linear infinite; }
+/* ── Hover interaktif kartu RITME (halaman /masuk) ── */
+.login-card { transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.3s ease, outline-color 0.3s ease; }
+.login-card:hover { transform: translateY(-4px); box-shadow: 0 24px 48px #0A2A7155; outline-color: #FFFFFF40; }
+.login-card .sheen { transform: translateX(-130%) skewX(-12deg); transition: transform 0.8s ease; }
+.login-card:hover .sheen { transform: translateX(230%) skewX(-12deg); }
+.login-bar:hover { filter: brightness(1.25) drop-shadow(0 0 8px #6F9CFF88); }
 @media (prefers-reduced-motion: reduce) {
   .login-rise, .login-pop, .login-bar, .login-spin { animation: none; }
+  .login-card, .login-card .sheen, .login-bar { transition: none; }
+  .login-card:hover { transform: none; }
 }
 
 @media print {
