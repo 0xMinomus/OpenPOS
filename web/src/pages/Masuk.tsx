@@ -4,6 +4,7 @@ import { ApiError, apiGoogleLogin, apiHasActiveCashiers, apiLogin, apiResetPassw
 import { setSession, toSession } from '../lib/store'
 import { GoogleButton } from '../lib/google'
 import { LoginIcon } from './login-icons'
+import Navbar from './Navbar'
 
 const BARS = [
   { d: 'Sen', h: 58, hot: false },
@@ -271,11 +272,12 @@ export default function Masuk() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F3EFE6] flex items-center justify-center">
-      <div className="box-border w-full max-w-[1440px] min-h-screen lg:h-[960px] lg:min-h-0 bg-[#F3EFE6] overflow-hidden relative flex flex-col lg:flex-row">
+    <div className="min-h-screen bg-[#FFFEFA] flex flex-col">
+      <Navbar logoTone="light" />
+      <div className="w-full flex-1 flex flex-col lg:flex-row min-h-0">
         {/* ── Panel kiri: form auth ─────────────────────────── */}
-        <div className="box-border w-full lg:w-[620px] shrink-0 lg:h-[960px] bg-[#FFFEFA] relative order-1">
-          <div className="box-border w-full max-w-[440px] mx-auto px-6 py-12 lg:mx-0 lg:px-0 lg:py-0 lg:max-w-none lg:absolute lg:left-[90px] lg:top-[196px] lg:w-[440px] flex flex-col gap-[22px]">
+        <div className="box-border w-full lg:w-[620px] shrink-0 bg-[#FFFEFA] relative order-1 flex flex-col justify-center py-12 lg:py-16">
+          <div className="box-border w-full max-w-[440px] mx-auto px-6 lg:mx-0 lg:px-0 lg:max-w-none lg:ml-[90px] lg:mr-8 lg:w-[440px] flex flex-col gap-[22px]">
             <div className="flex flex-col gap-[9px]">
               <div className={`text-[12px]/[16px] text-[#2F6FEB] ${PJS} font-extrabold tracking-[1px] whitespace-nowrap`}>
                 MASUK KE OPENPOS
@@ -408,7 +410,7 @@ export default function Masuk() {
             )}
           </div>
 
-          <div className="hidden lg:flex absolute left-[180px] top-[898px] flex-row gap-[7px] items-center">
+          <div className="hidden lg:flex absolute left-[180px] bottom-[28px] flex-row gap-[7px] items-center">
             <LoginIcon name="shield-check" size={15} className="shrink-0" />
             <span className={`text-[12px]/[16px] text-[#7C8B9E] ${PJS} font-medium whitespace-nowrap`}>
               Data Anda dienkripsi dan tersimpan aman.
@@ -420,7 +422,7 @@ export default function Masuk() {
         </div>
 
         {/* ── Panel kanan: story ────────────────────────────── */}
-        <div className="hidden lg:block flex-1 h-[960px] bg-[#10243B] relative overflow-hidden order-2">
+        <div className="hidden lg:block flex-1 bg-[#10243B] relative overflow-hidden order-2 min-h-[calc(100vh-65px)]">
           <div className="absolute left-[626px] top-[-96px] w-[310px] h-[310px] opacity-[0.08] bg-white rounded-full" />
           <div className="absolute left-[548px] top-[732px] w-[220px] h-[220px] opacity-[0.1] bg-[#D9F28E] rounded-full" />
 
