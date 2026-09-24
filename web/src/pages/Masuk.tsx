@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { ApiError, apiGoogleLogin, apiHasActiveCashiers, apiLogin, apiResetPassword, apiSendOtp, apiSendPasswordResetOtp, apiVerifyPasswordResetOtp } from '../lib/api'
 import { setSession, toSession } from '../lib/store'
@@ -26,6 +26,9 @@ export default function Masuk() {
   const [cooldown, setCooldown] = useState(0)
   const [googleCred, setGoogleCred] = useState('')
   const [googlePin, setGooglePin] = useState('')
+  // Error render tombol GIS (lapisan transparan → pesan harus tampil di luar overlay).
+  const [gisErr, setGisErr] = useState('')
+  const handleGisError = useCallback((msg: string) => setGisErr(msg), [])
   const [forgot, setForgot] = useState(false)
   const [fEmail, setFEmail] = useState('')
   const [fOtp, setFOtp] = useState('')
@@ -210,7 +213,7 @@ export default function Masuk() {
   }
 
   async function handleGoogle(credential: string) {
-    setErr(''); setBusy(true)
+    setErr(''); setGisErr(''); setBusy(true)
     try {
       const r = await apiGoogleLogin(credential)
       // Akun yang baru dibuat detik ini → lengkapi nama toko + passcode.
@@ -330,9 +333,14 @@ export default function Masuk() {
                     </span>
                   </div>
                   <div className={`absolute inset-0 overflow-hidden rounded-[14px] opacity-0 [&>div]:h-full ${busy ? 'pointer-events-none' : 'cursor-pointer'}`}>
-                    <GoogleButton onToken={handleGoogle} busy={busy} text="signin_with" fill />
+                    <GoogleButton onToken={handleGoogle} busy={busy} text="signin_with" fill onError={handleGisError} />
                   </div>
                 </div>
+                {gisErr && (
+                  <p role="alert" className={`text-[13px]/[19px] text-[#B42318] ${PJS} font-medium bg-[#FDECEA] rounded-[14px] px-4 py-3`}>
+                    {gisErr} <button type="button" onClick={() => window.location.reload()} className="font-bold underline">Muat ulang</button>
+                  </p>
+                )}
 
                 <div className="w-full flex flex-row gap-[12px] items-center" aria-hidden="true">
                   <div className="flex-1 h-[1px] bg-[#DDD7CB]" />

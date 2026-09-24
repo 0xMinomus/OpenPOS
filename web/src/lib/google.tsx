@@ -29,7 +29,7 @@ function loadGsi(): Promise<void> {
   })
 }
 
-export function GoogleButton({ onToken, busy, text, fill }: { onToken: (credential: string) => void; busy: boolean; text: 'signin_with' | 'signup_with'; fill?: boolean }) {
+export function GoogleButton({ onToken, busy, text, fill, onError }: { onToken: (credential: string) => void; busy: boolean; text: 'signin_with' | 'signup_with'; fill?: boolean; onError?: (msg: string) => void }) {
   const ref = useRef<HTMLDivElement>(null)
   const [loadErr, setLoadErr] = useState('')
   const [ready, setReady] = useState(false)
@@ -40,6 +40,7 @@ export function GoogleButton({ onToken, busy, text, fill }: { onToken: (credenti
   useEffect(() => {
     if (!clientId) return
     let dead = false
+    let timer: ReturnType<typeof setTimeout> | undefined
     loadGsi()
       .then(() => {
         if (dead || !ref.current) return
@@ -47,15 +48,28 @@ export function GoogleButton({ onToken, busy, text, fill }: { onToken: (credenti
           client_id: clientId,
           callback: (resp: { credential?: string }) => { if (resp?.credential) cbRef.current(resp.credential) },
         })
+        // width = LEBAR MINIMUM (dok GIS: maks 400) — clamp agar tombol pasti render.
+        const w = Math.min(Math.max(Math.round(ref.current.clientWidth) || 320, 200), 400)
         window.google.accounts.id.renderButton(ref.current, {
           type: 'standard', theme: 'outline', size: 'large', shape: 'pill',
-          width: Math.round(ref.current.clientWidth) || 320, text, locale: 'id',
+          width: w, text, locale: 'id',
         })
         if (!dead) setReady(true)
+        // Self-check: iframe 0x0 = render gagal (pemblokir/cookies) → tampilkan pesan.
+        timer = setTimeout(() => {
+          if (dead || !ref.current) return
+          const f = ref.current.querySelector('iframe')
+          const r = f?.getBoundingClientRect()
+          if (!f || !r || r.width < 10 || r.height < 10) {
+            const msg = 'Tombol Google gagal tampil (kemungkinan pemblokir iklan atau cookies pihak ketiga).'
+            if (!dead) setLoadErr(msg)
+            onError?.(msg)
+          }
+        }, 6000)
       })
       .catch(() => { if (!dead) setLoadErr('Gagal memuat login Google. Periksa koneksi lalu muat ulang.') })
-    return () => { dead = true }
-  }, [clientId, text])
+    return () => { dead = true; if (timer) clearTimeout(timer) }
+  }, [clientId, text, onError])
 
   if (!clientId) {
     return (
