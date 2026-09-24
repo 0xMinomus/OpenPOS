@@ -67,7 +67,14 @@ export function GoogleButton({ onToken, busy, text, fill, onError }: { onToken: 
           }
         }, 6000)
       })
-      .catch(() => { if (!dead) setLoadErr('Gagal memuat login Google. Periksa koneksi lalu muat ulang.') })
+      .catch(() => {
+        if (!dead) {
+          const msg = 'Gagal memuat login Google. Periksa koneksi lalu muat ulang.'
+          setLoadErr(msg)
+          // Di mode overlay (fill) pesan di dalam tak terlihat → angkat ke pemanggil.
+          onError?.(msg)
+        }
+      })
     return () => { dead = true; if (timer) clearTimeout(timer) }
   }, [clientId, text, onError])
 
