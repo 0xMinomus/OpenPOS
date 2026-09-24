@@ -1,10 +1,16 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { UserRound } from 'lucide-react'
 import { ApiError, apiListUsers, apiLogout, apiMe, apiSwitchAccount, hasToken, type User } from '../lib/api'
 import { setSession, toSession, useDB } from '../lib/store'
-import { Button } from '../lib/ui'
+import { DMA, PJS } from './login-icons'
+import { LoginStory } from './login-story'
 import Navbar from './Navbar'
+import Footer from './Footer'
+
+function initial(name: string) {
+  const t = name.trim()
+  return (t ? t[0] : '?').toUpperCase()
+}
 
 export default function PilihAkun() {
   const nav = useNavigate()
@@ -75,96 +81,132 @@ export default function PilihAkun() {
   const adminUser = (users ?? []).find((u) => u.role === 'admin') ?? null
 
   return (
-    <div className="landing-light bg-bg text-fg">
+    <div className="min-h-screen bg-[#FFFEFA] flex flex-col">
       <Navbar logoTone="light" />
-      <main className="grid min-h-[calc(100vh-116px)] place-items-center px-4 py-8 sm:px-8 sm:py-12">
-        <section className="auth-card w-full max-w-105 rounded-2xl border border-dove bg-paper p-5 shadow-xl sm:p-10">
-          <p className="font-mono text-xs uppercase tracking-widest text-steel">Pilih akun</p>
-          <h1 className="mt-3 text-[clamp(28px,4vw,36px)] font-normal leading-[1.1] tracking-[-0.025em]">Masuk sebagai siapa?</h1>
-          <p className="mt-2 mb-7 text-[15px] text-muted">Satu akun untuk tiap peran di toko Anda.</p>
-
-          {err && <p className="mb-4 rounded-lg bg-sand px-3.5 py-2.5 text-[13px] text-ember" role="alert">{err}</p>}
-
-          {!users ? (
-            <div className="space-y-2.5" aria-busy="true" aria-label="Memuat akun" aria-hidden="true">
-              {[0, 1, 2].map((i) => (
-                <div key={i} className="h-16 animate-pulse rounded-xl bg-surface" />
-              ))}
+      <div className="w-full flex-1 flex flex-col lg:flex-row min-h-[calc(100vh-65px)]">
+        {/* ── Panel kiri: pilih akun ────────────────────────── */}
+        <div className="box-border w-full lg:w-[620px] shrink-0 bg-[#FFFEFA] relative order-1 flex flex-col justify-center py-10 lg:py-12">
+          <div className="login-rise box-border w-full max-w-[440px] mx-auto px-6 lg:mx-0 lg:px-0 lg:max-w-none lg:ml-[90px] lg:mr-8 lg:w-[440px] flex flex-col gap-[22px]">
+            <div className="flex flex-col gap-[9px]">
+              <div className={`text-[12px]/[16px] text-[#2F6FEB] ${PJS} font-extrabold tracking-[1px] whitespace-nowrap`}>
+                PILIH AKUN
+              </div>
+              <div className={`text-[clamp(30px,4vw,38px)]/[1.15] text-[#102033] ${DMA} font-normal`}>
+                Masuk sebagai siapa?
+              </div>
+              <div className={`text-[15px]/[23px] text-[#667085] ${PJS} font-normal`}>
+                Satu akun untuk tiap peran di toko Anda.
+              </div>
             </div>
-          ) : (
-            <div className="space-y-2.5">
-              <button
-                onClick={() => adminUser && tapAccount(adminUser, 'admin')}
-                disabled={busyId === adminUser?.id}
-                className="flex w-full items-center gap-3 rounded-xl border border-dove p-3 text-left transition hover:border-jet disabled:opacity-50 sm:p-4"
-              >
-                <span className="grid size-10 shrink-0 place-items-center rounded-full bg-jet text-paper">
-                  <UserRound className="size-5" />
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[15px] font-medium text-fg">{session?.name ?? 'Admin'}</span>
-                  <span className="block truncate text-[13px] text-muted">{session?.email ?? ''}</span>
-                </span>
-                {busyId === adminUser?.id
-                  ? <span className="text-[13px] font-medium text-jet">…</span>
-                  : <span className="rounded-full bg-success-bg px-2.5 py-0.5 text-[11px] font-medium text-sprout">Admin</span>}
-              </button>
 
-              {cashiers.map((u) => (
+            {err && (
+              <p role="alert" className={`text-[13px]/[19px] text-[#B42318] ${PJS} font-medium bg-[#FDECEA] rounded-[14px] px-4 py-3`}>
+                {err}
+              </p>
+            )}
+
+            {!users ? (
+              <div className="flex flex-col gap-[12px]" aria-busy="true" aria-label="Memuat akun">
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="h-[68px] animate-pulse rounded-[14px] bg-[#F3EFE6]" />
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col gap-[12px]">
                 <button
-                  key={u.id}
-                  disabled={!u.active || busyId === u.id}
-                  onClick={() => tapAccount(u, 'cashier')}
-                  className="flex w-full items-center gap-3 rounded-xl border border-dove p-3 text-left transition hover:border-jet disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-dove sm:p-4"
+                  onClick={() => adminUser && tapAccount(adminUser, 'admin')}
+                  disabled={!adminUser || busyId === adminUser.id}
+                  className="w-full min-h-[68px] flex items-center gap-4 p-4 rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] text-left transition-all duration-150 hover:outline-[#2F6FEB] hover:shadow-[0px_4px_14px_#2F6FEB22] active:scale-[0.99] disabled:opacity-50"
                 >
-                  <span className="grid size-10 shrink-0 place-items-center rounded-full bg-surface text-steel">
-                    <UserRound className="size-5" />
+                  <span className={`grid size-12 shrink-0 place-items-center rounded-full bg-[#2F6FEB] text-white ${PJS} font-extrabold text-lg`} aria-hidden="true">
+                    {initial(session?.name ?? adminUser?.name ?? 'A')}
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[15px] font-medium text-fg">{u.name}</span>
-                    <span className="block text-[13px] text-muted">Kasir</span>
+                    <span className={`block truncate text-[15px]/[20px] text-[#102033] ${PJS} font-bold`}>{session?.name ?? adminUser?.name ?? 'Admin'}</span>
+                    <span className={`block truncate text-[13px]/[18px] text-[#667085] ${PJS} font-medium`}>{session?.email ?? ''}</span>
                   </span>
-                  {u.active
-                    ? <span className="text-[13px] font-medium text-jet">{busyId === u.id ? '…' : 'Masuk →'}</span>
-                    : <span className="rounded-full bg-surface px-2.5 py-0.5 text-[11px] font-medium text-muted">Nonaktif</span>}
+                  {busyId === adminUser?.id
+                    ? <span className="login-spin block w-[18px] h-[18px] shrink-0 rounded-full border-2 border-[#2F6FEB]/30 border-t-[#2F6FEB]" aria-hidden="true" />
+                    : <span className={`shrink-0 rounded-full bg-[#E9F0FF] px-3 py-1 text-[12px]/[16px] text-[#2F6FEB] ${PJS} font-extrabold`}>Admin</span>}
                 </button>
-              ))}
-            </div>
-          )}
 
-          {pending && (
-            <div className="mt-4 rounded-xl border border-dove p-4">
-              <p className="text-sm text-muted">Akun <strong className="text-fg">{pending.u.name}</strong> dilindungi passcode.</p>
-              <div className="mt-3 flex flex-wrap gap-2">
+                {cashiers.map((u) => (
+                  <button
+                    key={u.id}
+                    disabled={!u.active || busyId === u.id}
+                    onClick={() => tapAccount(u, 'cashier')}
+                    className="w-full min-h-[68px] flex items-center gap-4 p-4 rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] text-left transition-all duration-150 hover:outline-[#2F6FEB] hover:shadow-[0px_4px_14px_#2F6FEB22] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:outline-[#DDD7CB] disabled:hover:shadow-none"
+                  >
+                    <span className={`grid size-12 shrink-0 place-items-center rounded-full bg-[#E9F0FF] text-[#2F6FEB] ${PJS} font-extrabold text-lg`} aria-hidden="true">
+                      {initial(u.name)}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className={`block truncate text-[15px]/[20px] text-[#102033] ${PJS} font-bold`}>{u.name}</span>
+                      <span className={`block text-[13px]/[18px] text-[#667085] ${PJS} font-medium`}>Kasir</span>
+                    </span>
+                    {busyId === u.id
+                      ? <span className="login-spin block w-[18px] h-[18px] shrink-0 rounded-full border-2 border-[#2F6FEB]/30 border-t-[#2F6FEB]" aria-hidden="true" />
+                      : u.active
+                        ? <span className={`shrink-0 text-[13px]/[18px] text-[#2F6FEB] ${PJS} font-bold whitespace-nowrap`}>Masuk →</span>
+                        : <span className={`shrink-0 rounded-full bg-[#F3EFE6] px-3 py-1 text-[12px]/[16px] text-[#98A2B3] ${PJS} font-bold`}>Nonaktif</span>}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {pending && (
+              <form
+                onSubmit={(e) => { e.preventDefault(); if (pin.length === 5) pickAccount(pending.u, pending.role, pin) }}
+                className="login-rise w-full flex flex-col gap-[16px]"
+                noValidate
+              >
+                <div className={`text-[15px]/[23px] text-[#667085] ${PJS} font-normal`}>
+                  <span className={`block text-[#102033] ${PJS} font-bold text-[15px]/[23px] mb-1`}>Akun ini dilindungi passcode.</span>
+                  Akun <strong>{pending.u.name}</strong> memerlukan 5 angka untuk melanjutkan.
+                </div>
                 <input
                   value={pin}
                   onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 5))}
-                  onKeyDown={(e) => { if (e.key === 'Enter' && pin.length === 5) pickAccount(pending.u, pending.role, pin) }}
-                  inputMode="numeric"
-                  autoFocus
-                  placeholder="•••••"
-                  aria-label="Passcode 5 angka"
-                  className="min-w-0 flex-1 rounded-md border border-border bg-paper px-3 py-2.5 text-center font-mono text-lg tracking-[0.5em] focus:border-jet focus:outline-none"
+                  type="text" inputMode="numeric" autoComplete="one-time-code" autoFocus
+                  placeholder="•••••" aria-label="Passcode 5 angka"
+                  className="w-full h-[54px] rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] text-center font-mono text-lg tracking-[0.5em] text-[#102033] placeholder:text-[#98A2B3] bg-transparent"
                 />
-                <button
-                  onClick={() => pickAccount(pending.u, pending.role, pin)}
-                  disabled={pin.length !== 5 || busyId === pending.u.id}
-                  className="rounded-full bg-jet px-5 py-2.5 text-sm font-medium text-paper disabled:opacity-40"
-                >
-                  {busyId === pending.u.id ? '…' : 'Masuk'}
-                </button>
-                <button onClick={() => { setPending(null); setPin('') }} className="px-2 text-sm text-muted hover:underline">
-                  Batal
-                </button>
-              </div>
-            </div>
-          )}
+                <div className="flex gap-3">
+                  <button
+                    type="button" onClick={() => { setPending(null); setPin('') }}
+                    className={`flex-1 h-[54px] rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] text-[15px]/[20px] text-[#102033] ${PJS} font-bold hover:outline-[#2F6FEB]`}
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="submit" disabled={pin.length !== 5 || busyId === pending.u.id}
+                    className={`flex-1 h-[54px] rounded-[14px] bg-[#2F6FEB] shadow-[0px_8px_20px_#2F6FEB33] text-[15px]/[20px] text-white ${PJS} font-extrabold hover:brightness-110 disabled:opacity-50`}
+                  >
+                    {busyId === pending.u.id ? 'Memproses…' : 'Masuk'}
+                  </button>
+                </div>
+              </form>
+            )}
 
-          <div className="mt-6 border-t border-dove pt-5 text-center">
-            <Button variant="ghost" onClick={keluar}>Keluar</Button>
+            <button onClick={keluar} className={`mx-auto w-fit text-[14px]/[19px] text-[#667085] ${PJS} font-medium hover:underline`}>
+              Keluar dari sesi ini
+            </button>
           </div>
-        </section>
-      </main>
+
+          <div className="hidden lg:flex absolute left-[180px] bottom-[28px] flex-row gap-[7px] items-center">
+            <span className={`text-[12px]/[16px] text-[#7C8B9E] ${PJS} font-medium whitespace-nowrap`}>
+              Data Anda dienkripsi dan tersimpan aman.
+            </span>
+          </div>
+          <p className={`lg:hidden text-center px-6 pb-10 text-[12px]/[16px] text-[#7C8B9E] ${PJS} font-medium`}>
+            Data Anda dienkripsi dan tersimpan aman.
+          </p>
+        </div>
+
+        {/* ── Panel kanan: story (komponen bersama dengan /masuk) ── */}
+        <LoginStory />
+      </div>
+      <Footer />
     </div>
   )
 }
