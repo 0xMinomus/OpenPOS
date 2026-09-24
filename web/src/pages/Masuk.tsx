@@ -5,6 +5,7 @@ import { setSession, toSession } from '../lib/store'
 import { GoogleButton } from '../lib/google'
 import { LoginIcon } from './login-icons'
 import Navbar from './Navbar'
+import Footer from './Footer'
 
 const BARS = [
   { d: 'Sen', h: 58, hot: false },
@@ -274,7 +275,9 @@ export default function Masuk() {
   return (
     <div className="min-h-screen bg-[#FFFEFA] flex flex-col">
       <Navbar logoTone="light" />
-      <div className="w-full flex-1 flex flex-col lg:flex-row min-h-0">
+      {/* Konten utama selalu dapat jatah full viewport (di bawah header);
+          footer mengalir setelahnya. */}
+      <div className="w-full flex-1 flex flex-col lg:flex-row min-h-[calc(100vh-65px)]">
         {/* ── Panel kiri: form auth ─────────────────────────── */}
         <div className="box-border w-full lg:w-[620px] shrink-0 bg-[#FFFEFA] relative order-1 flex flex-col justify-center py-10 lg:py-12">
           <div className="login-rise box-border w-full max-w-[440px] mx-auto px-6 lg:mx-0 lg:px-0 lg:max-w-none lg:ml-[90px] lg:mr-8 lg:w-[440px] flex flex-col gap-[22px]">
@@ -436,7 +439,7 @@ export default function Masuk() {
         </div>
 
         {/* ── Panel kanan: story ────────────────────────────── */}
-        <div className="hidden lg:flex flex-col justify-center flex-1 bg-[#10243B] relative overflow-hidden order-2 min-h-[480px] px-[clamp(24px,5vw,72px)] py-12">
+        <div className="hidden lg:flex flex-col justify-center flex-1 bg-[#10243B] relative overflow-hidden order-2 px-[clamp(24px,5vw,72px)] py-12">
           <div className="absolute right-[-116px] top-[-96px] w-[310px] h-[310px] opacity-[0.08] bg-white rounded-full" aria-hidden="true" />
           <div className="absolute right-[52px] bottom-[8px] w-[220px] h-[220px] opacity-[0.1] bg-[#D9F28E] rounded-full" aria-hidden="true" />
 
@@ -498,12 +501,7 @@ export default function Masuk() {
           </div>
         </div>
       </div>
-      <footer className="border-t border-border px-4 py-8 text-[13px] text-muted sm:py-14">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-center gap-1.5 text-center sm:flex-row sm:justify-between sm:text-left">
-          <span>© 2026 OpenPOS</span>
-          <span className="font-mono text-xs text-fog">gratis selamanya · untuk UMKM</span>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }
