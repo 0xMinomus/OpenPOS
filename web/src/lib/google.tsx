@@ -61,7 +61,7 @@ export function GoogleButton({ onToken, busy, text, fill, onError }: { onToken: 
           const f = ref.current.querySelector('iframe')
           const r = f?.getBoundingClientRect()
           if (!f || !r || r.width < 10 || r.height < 10) {
-            const msg = 'Tombol Google gagal tampil (kemungkinan pemblokir iklan atau cookies pihak ketiga).'
+            const msg = 'Login Google diblokir (adblock / Brave Shields / cookies pihak ketiga). Matikan pemblokir untuk situs ini, atau masuk dengan email di bawah.'
             if (!dead) setLoadErr(msg)
             onError?.(msg)
           }
@@ -69,7 +69,7 @@ export function GoogleButton({ onToken, busy, text, fill, onError }: { onToken: 
       })
       .catch(() => {
         if (!dead) {
-          const msg = 'Gagal memuat login Google. Periksa koneksi lalu muat ulang.'
+          const msg = 'Login Google diblokir (adblock / Brave Shields) atau koneksi gagal. Matikan pemblokir untuk situs ini, atau masuk dengan email.'
           setLoadErr(msg)
           // Di mode overlay (fill) pesan di dalam tak terlihat → angkat ke pemanggil.
           onError?.(msg)
