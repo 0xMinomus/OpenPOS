@@ -29,7 +29,7 @@ function loadGsi(): Promise<void> {
   })
 }
 
-export function GoogleButton({ onToken, busy, text }: { onToken: (credential: string) => void; busy: boolean; text: 'signin_with' | 'signup_with' }) {
+export function GoogleButton({ onToken, busy, text, fill }: { onToken: (credential: string) => void; busy: boolean; text: 'signin_with' | 'signup_with'; fill?: boolean }) {
   const ref = useRef<HTMLDivElement>(null)
   const [loadErr, setLoadErr] = useState('')
   const [ready, setReady] = useState(false)
@@ -65,11 +65,11 @@ export function GoogleButton({ onToken, busy, text }: { onToken: (credential: st
     )
   }
   return (
-    <div className="w-full">
-      {busy && <p className="mb-2 text-center text-[13px] text-muted">Memproses login Google…</p>}
-      <div className="relative w-full" aria-busy={!ready} aria-label="Login dengan Google">
+    <div className={fill ? 'h-full w-full' : 'w-full'}>
+      {busy && !fill && <p className="mb-2 text-center text-[13px] text-muted">Memproses login Google…</p>}
+      <div className={fill ? 'relative h-full w-full' : 'relative w-full'} aria-busy={!ready} aria-label="Login dengan Google">
         {!ready && <div className="absolute inset-0 animate-pulse rounded-full border border-dove bg-surface" aria-hidden="true" />}
-        <div ref={ref} className="flex h-12 items-center justify-center" />
+        <div ref={ref} className={`flex items-center justify-center ${fill ? 'h-full min-h-[52px] w-full' : 'h-12'}`} />
       </div>
       {loadErr && <p className="mt-2 text-center text-[13px] text-ember">{loadErr}</p>}
     </div>
