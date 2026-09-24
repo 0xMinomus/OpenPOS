@@ -276,13 +276,13 @@ export default function Masuk() {
       <Navbar logoTone="light" />
       <div className="w-full flex-1 flex flex-col lg:flex-row min-h-0">
         {/* ── Panel kiri: form auth ─────────────────────────── */}
-        <div className="box-border w-full lg:w-[620px] shrink-0 bg-[#FFFEFA] relative order-1 flex flex-col justify-center py-12 lg:py-16">
-          <div className="box-border w-full max-w-[440px] mx-auto px-6 lg:mx-0 lg:px-0 lg:max-w-none lg:ml-[90px] lg:mr-8 lg:w-[440px] flex flex-col gap-[22px]">
+        <div className="box-border w-full lg:w-[620px] shrink-0 bg-[#FFFEFA] relative order-1 flex flex-col justify-center py-10 lg:py-12">
+          <div className="login-rise box-border w-full max-w-[440px] mx-auto px-6 lg:mx-0 lg:px-0 lg:max-w-none lg:ml-[90px] lg:mr-8 lg:w-[440px] flex flex-col gap-[22px]">
             <div className="flex flex-col gap-[9px]">
               <div className={`text-[12px]/[16px] text-[#2F6FEB] ${PJS} font-extrabold tracking-[1px] whitespace-nowrap`}>
                 MASUK KE OPENPOS
               </div>
-              <div className={`text-[38px]/[43px] text-[#102033] ${DMA} font-normal`}>
+              <div className={`text-[clamp(30px,4vw,38px)]/[1.15] text-[#102033] ${DMA} font-normal`}>
                 Selamat datang kembali
               </div>
               <div className={`text-[15px]/[23px] text-[#667085] ${PJS} font-normal`}>
@@ -325,16 +325,21 @@ export default function Masuk() {
               />
             ) : (
               <>
-                {/* Tombol Google kustom + lapisan GIS transparan di atasnya */}
-                <div className="relative w-full h-[52px] rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px]">
-                  <div className="absolute inset-0 flex flex-row gap-[12px] justify-center items-center" aria-hidden="true">
-                    <span className={`text-[17px]/[23px] text-[#4285F4] ${PJS} font-extrabold whitespace-nowrap`}>G</span>
+                {/* Tombol Google kustom + lapisan GIS transparan full-cover di atasnya.
+                    Klik di mana pun = klik tombol Google asli (visual pointer-events-none). */}
+                <div className={`login-pop relative w-full h-[52px] rounded-[14px] outline outline-1 outline-offset-[-0.5px] transition-all duration-150 ${busy ? 'outline-[#2F6FEB] bg-[#E9F0FF]/60' : 'outline-[#DDD7CB] hover:outline-[#2F6FEB] hover:shadow-[0px_4px_14px_#2F6FEB22] active:scale-[0.99]'}`} style={{ animationDelay: '60ms' }}>
+                  <div className="absolute inset-0 flex flex-row gap-[12px] justify-center items-center pointer-events-none" aria-hidden="true">
+                    {busy ? (
+                      <span className="login-spin block w-[18px] h-[18px] shrink-0 rounded-full border-2 border-[#2F6FEB]/30 border-t-[#2F6FEB]" />
+                    ) : (
+                      <span className={`text-[17px]/[23px] text-[#4285F4] ${PJS} font-extrabold whitespace-nowrap`}>G</span>
+                    )}
                     <span className={`text-[14px]/[19px] text-[#102033] ${PJS} font-bold whitespace-nowrap`}>
-                      {busy ? 'Memproses…' : 'Masuk dengan Google'}
+                      {busy ? 'Menghubungkan ke Google…' : 'Masuk dengan Google'}
                     </span>
                   </div>
-                  <div className="absolute inset-0 opacity-0 overflow-hidden [&>div]:h-full [&_div]:!h-full">
-                    <GoogleButton onToken={handleGoogle} busy={false} text="signin_with" />
+                  <div className={`absolute inset-0 overflow-hidden rounded-[14px] opacity-0 [&>div]:h-full ${busy ? 'pointer-events-none' : 'cursor-pointer'}`}>
+                    <GoogleButton onToken={handleGoogle} busy={busy} text="signin_with" fill />
                   </div>
                 </div>
 
@@ -393,10 +398,19 @@ export default function Masuk() {
 
                   <button
                     type="submit" disabled={busy}
-                    className={`w-full h-[54px] flex flex-row gap-[10px] justify-center items-center bg-[#2F6FEB] rounded-[14px] shadow-[0px_8px_20px_#2F6FEB33] text-[15px]/[20px] text-white ${PJS} font-extrabold whitespace-nowrap hover:brightness-110 disabled:opacity-50`}
+                    className={`w-full h-[54px] flex flex-row gap-[10px] justify-center items-center bg-[#2F6FEB] rounded-[14px] shadow-[0px_8px_20px_#2F6FEB33] text-[15px]/[20px] text-white ${PJS} font-extrabold whitespace-nowrap transition-all duration-150 hover:brightness-110 active:scale-[0.99] disabled:opacity-50`}
                   >
-                    {busy ? 'Memproses…' : 'Masuk ke toko'}
-                    {!busy && <LoginIcon name="arrow-right" size={18} className="shrink-0" />}
+                    {busy ? (
+                      <>
+                        <span className="login-spin block w-[18px] h-[18px] shrink-0 rounded-full border-2 border-white/40 border-t-white" aria-hidden="true" />
+                        Memproses…
+                      </>
+                    ) : (
+                      <>
+                        Masuk ke toko
+                        <LoginIcon name="arrow-right" size={18} className="shrink-0" />
+                      </>
+                    )}
                   </button>
                 </form>
 
@@ -422,60 +436,65 @@ export default function Masuk() {
         </div>
 
         {/* ── Panel kanan: story ────────────────────────────── */}
-        <div className="hidden lg:block flex-1 bg-[#10243B] relative overflow-hidden order-2 min-h-[calc(100vh-65px)]">
-          <div className="absolute left-[626px] top-[-96px] w-[310px] h-[310px] opacity-[0.08] bg-white rounded-full" />
-          <div className="absolute left-[548px] top-[732px] w-[220px] h-[220px] opacity-[0.1] bg-[#D9F28E] rounded-full" />
+        <div className="hidden lg:flex flex-col justify-center flex-1 bg-[#10243B] relative overflow-hidden order-2 min-h-[calc(100vh-65px)] px-[clamp(24px,5vw,72px)] py-12">
+          <div className="absolute right-[-116px] top-[-96px] w-[310px] h-[310px] opacity-[0.08] bg-white rounded-full" aria-hidden="true" />
+          <div className="absolute right-[52px] bottom-[8px] w-[220px] h-[220px] opacity-[0.1] bg-[#D9F28E] rounded-full" aria-hidden="true" />
 
-          <div className="absolute left-[72px] top-[183px] w-[660px] flex flex-col gap-[22px]">
-            <div className={`text-[56px]/[58px] w-[620px] text-white ${DMA} font-semibold`}>
-              Kembali ke ritme toko Anda.
+          <div className="w-full max-w-[676px] mx-auto flex flex-col gap-[36px]">
+            <div className="login-rise flex flex-col gap-[22px]" style={{ animationDelay: '80ms' }}>
+              <div className={`text-[clamp(40px,4vw,56px)]/[1.05] max-w-[620px] text-white ${DMA} font-semibold`}>
+                Kembali ke ritme toko Anda.
+              </div>
+              <div className={`text-[18px]/[28px] max-w-[590px] text-[#C9D4E1] ${PJS} font-medium`}>
+                Semua catatan kemarin sudah siap. Hari ini Anda tinggal melanjutkan langkah berikutnya.
+              </div>
+              <div className="w-fit flex flex-row gap-[22px] items-center">
+                <span className="w-fit flex flex-row gap-[8px] items-center">
+                  <LoginIcon name="cloud-check" size={17} className="shrink-0" />
+                  <span className={`text-[14px]/[19px] text-[#E6EDF5] ${PJS} font-bold whitespace-nowrap`}>Tersimpan otomatis</span>
+                </span>
+                <span className="w-fit flex flex-row gap-[8px] items-center">
+                  <LoginIcon name="clock-3" size={17} className="shrink-0" />
+                  <span className={`text-[14px]/[19px] text-[#E6EDF5] ${PJS} font-bold whitespace-nowrap`}>Siap saat dibutuhkan</span>
+                </span>
+              </div>
             </div>
-            <div className={`text-[18px]/[28px] w-[590px] text-[#C9D4E1] ${PJS} font-medium`}>
-              Semua catatan kemarin sudah siap. Hari ini Anda tinggal melanjutkan langkah berikutnya.
-            </div>
-            <div className="w-fit flex flex-row gap-[22px] items-center">
-              <span className="w-fit flex flex-row gap-[8px] items-center">
-                <LoginIcon name="cloud-check" size={17} className="shrink-0" />
-                <span className={`text-[14px]/[19px] text-[#E6EDF5] ${PJS} font-bold whitespace-nowrap`}>Tersimpan otomatis</span>
-              </span>
-              <span className="w-fit flex flex-row gap-[8px] items-center">
-                <LoginIcon name="clock-3" size={17} className="shrink-0" />
-                <span className={`text-[14px]/[19px] text-[#E6EDF5] ${PJS} font-bold whitespace-nowrap`}>Siap saat dibutuhkan</span>
-              </span>
-            </div>
-          </div>
 
-          <div className="absolute left-[72px] top-[475px] w-[676px] h-[326px] bg-[#143F9D] rounded-[28px] shadow-[0px_18px_36px_#0A2A7138] outline outline-1 outline-[#FFFFFF24] outline-offset-[-0.5px]">
-            <div className={`absolute left-[28px] top-[26px] text-[11px]/[15px] text-[#BFD0FF] ${PJS} font-extrabold tracking-[1px] whitespace-nowrap`}>
-              RITME 7 HARI TERAKHIR
-            </div>
-            <div className={`absolute left-[28px] top-[52px] text-[34px]/[46px] text-white ${PJS} font-normal whitespace-nowrap`}>
-              Rp 18,6 jt
-            </div>
-            <div className="absolute left-[186px] top-[60px] w-fit flex flex-row gap-[5px] p-[7px_10px] items-center bg-[#D9F28E] rounded-[14px]">
-              <LoginIcon name="trending-up" size={14} className="shrink-0" />
-              <span className={`text-[12px]/[16px] text-[#10243B] ${PJS} font-extrabold whitespace-nowrap`}>+12%</span>
-            </div>
-            <div className={`absolute left-[28px] top-[102px] text-[12px]/[16px] text-[#BFD0FF] ${PJS} font-medium whitespace-nowrap`}>
-              Penjualan mingguan
-            </div>
-            <div className="absolute left-[28px] top-[142px] w-[600px] h-[150px] flex flex-row gap-[16px] items-end">
-              {BARS.map((b) => (
-                <div key={b.d} className="flex-1 h-[142px] flex flex-col gap-[9px] justify-end items-center">
-                  <div className={`w-[40px] shrink-0 rounded-[10px_10px_4px_4px] ${b.hot ? 'bg-[#D9F28E]' : 'bg-[#6F9CFF]'}`} style={{ height: b.h }} />
-                  <div className={`text-[11px]/[15px] ${b.hot ? 'text-white font-extrabold' : `text-[#BFD0FF] ${PJS} font-semibold`} ${PJS} whitespace-nowrap`}>
-                    {b.d}
-                  </div>
+            <div className="login-pop relative w-full bg-[#143F9D] rounded-[28px] p-[26px_28px] shadow-[0px_18px_36px_#0A2A7138] outline outline-1 outline-[#FFFFFF24] outline-offset-[-0.5px]" style={{ animationDelay: '160ms' }}>
+              <div className="flex items-start justify-between gap-3">
+                <div className={`text-[11px]/[15px] text-[#BFD0FF] ${PJS} font-extrabold tracking-[1px] whitespace-nowrap pt-[10px]`}>
+                  RITME 7 HARI TERAKHIR
                 </div>
-              ))}
+                <div className="w-fit shrink-0 flex flex-row gap-[8px] p-[11px_14px] items-center bg-[#FFFEFA] rounded-[18px] shadow-[0px_8px_18px_#0A2A7130]">
+                  <LoginIcon name="package-check" size={17} className="shrink-0" />
+                  <span className={`text-[12px]/[16px] text-[#274319] ${PJS} font-extrabold whitespace-nowrap`}>
+                    Stok aman · 24 item
+                  </span>
+                </div>
+              </div>
+              <div className="mt-[6px] flex flex-row gap-[12px] items-center">
+                <div className={`text-[34px]/[46px] text-white ${PJS} font-normal whitespace-nowrap`}>
+                  Rp 18,6 jt
+                </div>
+                <div className="w-fit flex flex-row gap-[5px] p-[7px_10px] items-center bg-[#D9F28E] rounded-[14px]">
+                  <LoginIcon name="trending-up" size={14} className="shrink-0" />
+                  <span className={`text-[12px]/[16px] text-[#10243B] ${PJS} font-extrabold whitespace-nowrap`}>+12%</span>
+                </div>
+              </div>
+              <div className={`mt-[2px] text-[12px]/[16px] text-[#BFD0FF] ${PJS} font-medium whitespace-nowrap`}>
+                Penjualan mingguan
+              </div>
+              <div className="mt-[14px] w-full h-[150px] flex flex-row gap-[clamp(8px,2vw,16px)] items-end">
+                {BARS.map((b, i) => (
+                  <div key={b.d} className="flex-1 min-w-0 h-[142px] flex flex-col gap-[9px] justify-end items-center">
+                    <div className={`login-bar w-full max-w-[40px] shrink-0 rounded-[10px_10px_4px_4px] ${b.hot ? 'bg-[#D9F28E]' : 'bg-[#6F9CFF]'}`} style={{ height: b.h, animationDelay: `${300 + i * 70}ms` }} />
+                    <div className={`text-[11px]/[15px] ${b.hot ? 'text-white font-extrabold' : `text-[#BFD0FF] ${PJS} font-semibold`} ${PJS} whitespace-nowrap`}>
+                      {b.d}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-
-          <div className="absolute left-[563px] top-[497px] w-fit flex flex-row gap-[8px] p-[11px_14px] items-center bg-[#FFFEFA] rounded-[18px] shadow-[0px_8px_18px_#0A2A7130]">
-            <LoginIcon name="package-check" size={17} className="shrink-0" />
-            <span className={`text-[12px]/[16px] text-[#274319] ${PJS} font-extrabold whitespace-nowrap`}>
-              Stok aman · 24 item
-            </span>
           </div>
         </div>
       </div>
@@ -496,7 +515,7 @@ function CodeBody({ title, desc, value, setValue, len, label, err, busy, submit,
           {err}
         </p>
       )}
-      <form onSubmit={submit} className="w-full flex flex-col gap-[16px]" noValidate>
+      <form onSubmit={submit} className="login-rise w-full flex flex-col gap-[16px]" noValidate>
         <div className={`text-[15px]/[23px] text-[#667085] ${PJS} font-normal`}>
           <span className={`block text-[#102033] ${PJS} font-bold text-[15px]/[23px] mb-1`}>{title}</span>
           {desc}
@@ -554,7 +573,7 @@ function ForgotBody({ fStep, fEmail, setFEmail, fOtp, setFOtp, fPw1, setFPw1, fP
           {err}
         </p>
       )}
-      <form onSubmit={fStep === 'otp' ? submitForgotOtp : fStep === 'newpw' ? submitForgot : undefined} className="w-full flex flex-col gap-[16px]" noValidate>
+      <form onSubmit={fStep === 'otp' ? submitForgotOtp : fStep === 'newpw' ? submitForgot : undefined} className="login-rise w-full flex flex-col gap-[16px]" noValidate>
         <div className={`text-[13px]/[19px] text-[#667085] ${PJS} font-medium bg-[#F3EFE6] rounded-[14px] px-4 py-3`}>
           {fDone ? fMsg : (fMsg || 'Masukkan email akun. Kode OTP 6 digit dikirim ke email tersebut.')}
           {!fDone && <span className="mt-1 block text-xs">Kode berlaku 10 menit dan hanya bisa dicoba 3 kali.</span>}
