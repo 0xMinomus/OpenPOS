@@ -436,7 +436,7 @@ export default function Masuk() {
         </div>
 
         {/* ── Panel kanan: story ────────────────────────────── */}
-        <div className="hidden lg:flex flex-col justify-center flex-1 bg-[#10243B] relative overflow-hidden order-2 min-h-[calc(100vh-65px)] px-[clamp(24px,5vw,72px)] py-12">
+        <div className="hidden lg:flex flex-col justify-center flex-1 bg-[#10243B] relative overflow-hidden order-2 min-h-[480px] px-[clamp(24px,5vw,72px)] py-12">
           <div className="absolute right-[-116px] top-[-96px] w-[310px] h-[310px] opacity-[0.08] bg-white rounded-full" aria-hidden="true" />
           <div className="absolute right-[52px] bottom-[8px] w-[220px] h-[220px] opacity-[0.1] bg-[#D9F28E] rounded-full" aria-hidden="true" />
 
@@ -460,7 +460,8 @@ export default function Masuk() {
               </div>
             </div>
 
-            <div className="login-pop relative w-full bg-[#143F9D] rounded-[28px] p-[26px_28px] shadow-[0px_18px_36px_#0A2A7138] outline outline-1 outline-[#FFFFFF24] outline-offset-[-0.5px]" style={{ animationDelay: '160ms' }}>
+            <div className="login-pop login-card relative w-full overflow-hidden bg-[#143F9D] rounded-[28px] p-[26px_28px] shadow-[0px_18px_36px_#0A2A7138] outline outline-1 outline-[#FFFFFF24] outline-offset-[-0.5px]" style={{ animationDelay: '160ms' }}>
+              <span className="sheen pointer-events-none absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-transparent via-white/[0.07] to-transparent" aria-hidden="true" />
               <div className="flex items-start justify-between gap-3">
                 <div className={`text-[11px]/[15px] text-[#BFD0FF] ${PJS} font-extrabold tracking-[1px] whitespace-nowrap pt-[10px]`}>
                   RITME 7 HARI TERAKHIR
@@ -498,6 +499,12 @@ export default function Masuk() {
           </div>
         </div>
       </div>
+      <footer className={`border-t border-[#DDD7CB] bg-[#FFFEFA] px-6 py-4 ${PJS}`}>
+        <div className="mx-auto flex w-full max-w-[1440px] flex-col items-center justify-center gap-1 text-center sm:flex-row sm:justify-between sm:text-left">
+          <span className="text-[12px]/[16px] font-semibold text-[#7C8B9E]">© 2026 OpenPOS</span>
+          <span className="text-[12px]/[16px] font-medium text-[#98A2B3]">gratis selamanya · untuk UMKM Indonesia</span>
+        </div>
+      </footer>
     </div>
   )
 }
