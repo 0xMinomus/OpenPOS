@@ -237,7 +237,7 @@ export default function Daftar() {
 
         {/* ── Panel kanan: form auth ────────────────────────── */}
         <div className="box-border w-full lg:w-[680px] shrink-0 bg-[#FFFEFA] relative order-2 flex flex-col justify-center py-10 lg:py-12">
-          <div className="login-rise box-border w-full max-w-[440px] mx-auto px-6 lg:mx-0 lg:px-0 lg:max-w-none lg:ml-[120px] lg:mr-8 lg:w-[440px] flex flex-col gap-[18px]">
+          <div className="login-rise box-border w-full max-w-[440px] mx-auto px-6 lg:px-0 lg:mx-auto lg:max-w-none lg:w-[440px] flex flex-col gap-[18px]">
             <div className="flex flex-col gap-[8px]">
               <div className={`text-[12px]/[16px] text-[#2F6FEB] ${PJS} font-extrabold tracking-[1px] whitespace-nowrap`}>
                 BUAT AKUN OPENPOS
@@ -526,7 +526,7 @@ export default function Daftar() {
             </div>
           </div>
 
-          <div className="hidden lg:flex absolute left-[209px] bottom-[28px] flex-row gap-[7px] items-center">
+          <div className="hidden lg:flex absolute inset-x-0 bottom-[28px] flex-row gap-[7px] justify-center items-center">
             <LoginIcon name="shield-check" size={15} className="shrink-0" />
             <span className={`text-[12px]/[16px] text-[#7C8B9E] ${PJS} font-medium whitespace-nowrap`}>
               Data Anda dienkripsi dan tersimpan aman.

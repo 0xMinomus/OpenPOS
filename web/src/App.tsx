@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { useEffect } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import ErrorBoundary from './lib/ErrorBoundary'
@@ -37,6 +38,19 @@ function AdminOnly({ children }: { children: ReactNode }) {
   return <>{children}</>
 }
 
+// Setiap pindah route mulai dari paling atas halaman, bukan posisi scroll terakhir.
+function ScrollToTop() {
+  const { pathname } = useLocation()
+  useEffect(() => {
+    try {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior })
+    } catch {
+      window.scrollTo(0, 0)
+    }
+  }, [pathname])
+  return null
+}
+
 // Route lama /redesign pindah ke /demo (subpath dipertahankan).
 function DemoMoved() {
   const loc = useLocation()
@@ -47,6 +61,7 @@ export default function App() {
   return (
     <TooltipProvider>
       <ErrorBoundary>
+        <ScrollToTop />
         <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/masuk" element={<Masuk />} />
