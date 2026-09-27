@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Link } from 'react-router'
+import { useEffect, useRef, useState } from 'react'
+import { Link, useLocation } from 'react-router'
 import { DMA, LoginIcon, PJS } from './login-icons'
 import Navbar from './Navbar'
 import Footer from './Footer'
@@ -26,8 +26,15 @@ function AndroidIcon({ className = 'size-[29px]' }: { className?: string }) {
 }
 
 export default function Unduh() {
+  const location = useLocation()
+  const pageTitleRef = useRef<HTMLHeadingElement>(null)
+  const shouldFocusPageTitle = (location.state as { focusDestinationHeading?: unknown } | null)?.focusDestinationHeading === true
   const [busyWin, setBusyWin] = useState(false)
   const [dlErr, setDlErr] = useState('')
+
+  useEffect(() => {
+    if (shouldFocusPageTitle) pageTitleRef.current?.focus({ preventScroll: true })
+  }, [location.key, shouldFocusPageTitle])
 
   async function downloadWindows() {
     if (busyWin) return
@@ -55,7 +62,7 @@ export default function Unduh() {
   return (
     <div className="min-h-screen bg-[#FFFEFA] flex flex-col">
       <Navbar logoTone="light" />
-      <div className="w-full flex-1 flex flex-col lg:flex-row min-h-[calc(100vh-65px)]">
+      <main className="w-full flex-1 flex flex-col lg:flex-row min-h-[calc(100vh-65px)]">
         {/* ── Panel kiri: story offline (di mobile tampil setelah tombol unduh) ── */}
         <div className="box-border flex-1 bg-[#FFFEFA] relative overflow-hidden order-2 lg:order-1 border-t border-[#DDD7CB] lg:border-t-0 lg:border-r flex flex-col justify-center px-[clamp(24px,5vw,64px)] py-12">
           <div className="absolute right-[-100px] top-[60px] w-[390px] h-[390px] bg-[#E9F0FF] rounded-full" aria-hidden="true" />
@@ -124,11 +131,11 @@ export default function Unduh() {
                 <span className="w-[26px] h-[2px] bg-[#2F6FEB] rounded-[2px]" aria-hidden="true" />
                 <span className={`text-[12px] text-[#2F6FEB] ${PJS} font-bold tracking-[1.4px] whitespace-nowrap`}>UNDUH APLIKASI</span>
               </div>
-              <div className={`text-[clamp(32px,4vw,42px)]/[1.08] text-[#102033] ${DMA} font-normal tracking-[-0.025em]`}>
+              <h1 ref={pageTitleRef} tabIndex={-1} className={`landing-route-title text-[clamp(32px,4vw,42px)]/[1.08] text-[#102033] ${DMA} font-normal tracking-[-0.025em]`}>
                 Pilih perangkat.
                 <br />
                 Langsung mulai.
-              </div>
+              </h1>
               <div className={`text-[15px]/[23px] max-w-[510px] text-[#667085] ${PJS} font-normal`}>
                 Satu aplikasi kasir yang cepat, privat, dan siap dipakai, bahkan tanpa koneksi internet.
               </div>
@@ -200,7 +207,7 @@ export default function Unduh() {
             </Link>
           </div>
         </div>
-      </div>
+      </main>
       <Footer />
     </div>
   )

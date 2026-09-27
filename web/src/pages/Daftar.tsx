@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router'
 import { apiGetSettings, apiGoogleLogin, apiHasActiveCashiers, apiRegister, apiSendOtp, apiSetPasscode, apiUpdateSettings, apiVerifyOtp, apiMe, ApiError, type User } from '../lib/api'
 import { setSession, toSession } from '../lib/store'
 import { GoogleButton } from '../lib/google'
@@ -26,6 +26,9 @@ function Spinner({ light }: { light?: boolean }) {
 
 export default function Daftar() {
   const nav = useNavigate()
+  const location = useLocation()
+  const pageTitleRef = useRef<HTMLHeadingElement>(null)
+  const shouldFocusPageTitle = (location.state as { focusDestinationHeading?: unknown } | null)?.focusDestinationHeading === true
   const [params] = useSearchParams()
   const [mode, setMode] = useState<'choice' | 'email' | 'google-onboard' | 'google-pin'>('choice')
   const [googleUser, setGoogleUser] = useState<User | null>(null)
@@ -48,6 +51,10 @@ export default function Daftar() {
   const [code, setCode] = useState('')
   const [otpMsg, setOtpMsg] = useState('')
   const [cooldown, setCooldown] = useState(0)
+
+  useEffect(() => {
+    if (shouldFocusPageTitle) pageTitleRef.current?.focus({ preventScroll: true })
+  }, [location.key, shouldFocusPageTitle])
 
   // Datang dari halaman Masuk setelah Google login akun baru:
   // sesi + token sudah tersimpan, tinggal lengkapi nama toko + passcode.
@@ -225,7 +232,7 @@ export default function Daftar() {
   return (
     <div className="min-h-screen bg-[#FFFEFA] flex flex-col">
       <Navbar logoTone="light" />
-      <div className="w-full flex-1 flex flex-col lg:flex-row min-h-[calc(100vh-65px)]">
+      <main className="w-full flex-1 flex flex-col lg:flex-row min-h-[calc(100vh-65px)]">
         <SignupStory />
 
         {/* ── Panel kanan: form auth ────────────────────────── */}
@@ -235,9 +242,9 @@ export default function Daftar() {
               <div className={`text-[12px]/[16px] text-[#2F6FEB] ${PJS} font-extrabold tracking-[1px] whitespace-nowrap`}>
                 BUAT AKUN OPENPOS
               </div>
-              <div className={`text-[clamp(30px,4vw,38px)]/[1.15] text-[#102033] ${DMA} font-normal`}>
+              <h1 ref={pageTitleRef} tabIndex={-1} className={`landing-route-title text-[clamp(30px,4vw,38px)]/[1.15] text-[#102033] ${DMA} font-normal`}>
                 Buat toko Anda hari ini
-              </div>
+              </h1>
               <div className={`text-[15px]/[23px] text-[#667085] ${PJS} font-normal`}>
                 Satu akun untuk admin dan kasir. Gratis, tanpa kartu kredit.
               </div>
@@ -529,7 +536,7 @@ export default function Daftar() {
             Data Anda dienkripsi dan tersimpan aman.
           </p>
         </div>
-      </div>
+      </main>
       <Footer />
     </div>
   )

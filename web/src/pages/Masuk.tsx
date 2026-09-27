@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router'
 import { ApiError, apiGoogleLogin, apiHasActiveCashiers, apiLogin, apiResetPassword, apiSendOtp, apiSendPasswordResetOtp, apiVerifyPasswordResetOtp } from '../lib/api'
 import { setSession, toSession } from '../lib/store'
 import { GoogleButton } from '../lib/google'
@@ -10,6 +10,9 @@ import Footer from './Footer'
 
 export default function Masuk() {
   const nav = useNavigate()
+  const location = useLocation()
+  const pageTitleRef = useRef<HTMLHeadingElement>(null)
+  const shouldFocusPageTitle = (location.state as { focusDestinationHeading?: unknown } | null)?.focusDestinationHeading === true
   const [email, setEmail] = useState(() => {
     try { return localStorage.getItem('op_login_email') ?? '' } catch { return '' }
   })
@@ -42,6 +45,10 @@ export default function Masuk() {
   const [fStep, setFStep] = useState<'email' | 'otp' | 'newpw'>('email')
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
+
+  useEffect(() => {
+    if (shouldFocusPageTitle) pageTitleRef.current?.focus({ preventScroll: true })
+  }, [location.key, shouldFocusPageTitle])
 
   useEffect(() => {
     if (cooldown <= 0) return
@@ -268,7 +275,7 @@ export default function Masuk() {
       <Navbar logoTone="light" />
       {/* Konten utama selalu dapat jatah full viewport (di bawah header);
           footer mengalir setelahnya. */}
-      <div className="w-full flex-1 flex flex-col lg:flex-row min-h-[calc(100vh-65px)]">
+      <main className="w-full flex-1 flex flex-col lg:flex-row min-h-[calc(100vh-65px)]">
         {/* ── Panel kiri: form auth ─────────────────────────── */}
         <div className="box-border w-full lg:w-[620px] shrink-0 bg-[#FFFEFA] relative order-1 flex flex-col justify-center py-10 lg:py-12">
           <div className="login-rise box-border w-full max-w-[440px] mx-auto px-6 lg:mx-0 lg:px-0 lg:max-w-none lg:ml-[90px] lg:mr-8 lg:w-[440px] flex flex-col gap-[22px]">
@@ -276,9 +283,9 @@ export default function Masuk() {
               <div className={`text-[12px]/[16px] text-[#2F6FEB] ${PJS} font-extrabold tracking-[1px] whitespace-nowrap`}>
                 MASUK KE OPENPOS
               </div>
-              <div className={`text-[clamp(30px,4vw,38px)]/[1.15] text-[#102033] ${DMA} font-normal`}>
+              <h1 ref={pageTitleRef} tabIndex={-1} className={`landing-route-title text-[clamp(30px,4vw,38px)]/[1.15] text-[#102033] ${DMA} font-normal`}>
                 Selamat datang kembali
-              </div>
+              </h1>
               <div className={`text-[15px]/[23px] text-[#667085] ${PJS} font-normal`}>
                 {forgot ? 'Atur ulang kata sandi akun Anda.' : 'Lanjutkan kelola toko Anda dari terakhir kali.'}
               </div>
@@ -436,7 +443,7 @@ export default function Masuk() {
 
         {/* ── Panel kanan: story (komponen bersama dengan /pilih-akun) ── */}
         <LoginStory />
-      </div>
+      </main>
       <Footer />
     </div>
   )

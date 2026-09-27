@@ -232,7 +232,7 @@ export default function Landing() {
 
   return (
     <div className="landing-light bg-bg text-fg">
-      <Navbar logoTone="light" />
+      <Navbar logoTone="light" mobileLandingMenu />
       <main>
         <section id="beranda" className="overflow-hidden pt-[clamp(36px,5vw,92px)] pb-10">
           <div className="container mx-auto max-w-6xl px-5 md:px-8 text-center">
