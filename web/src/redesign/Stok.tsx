@@ -114,7 +114,7 @@ export default function Stok() {
 
       {(err || prod.err) && <p className="mb-4 rounded-lg bg-sand px-3.5 py-2.5 text-[13px] text-ember">{err || prod.err}</p>}
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
         {!products ? (
           [0, 1, 2, 3].map((i) => (
             <Card key={i} aria-hidden="true">
@@ -144,7 +144,7 @@ export default function Stok() {
         )}
       </div>
 
-      <div className="mt-5 flex flex-wrap gap-2">
+      <div className="mt-5 flex gap-2">
         {([
           { id: 'stock', label: 'Stok Saat Ini' },
           { id: 'movement', label: 'Riwayat Pergerakan' },
@@ -221,7 +221,7 @@ export default function Stok() {
                   {stockItems.map((p) => (
                     <tr key={p.id}>
                       <Td><span className="text-[15px] font-medium text-fg">{p.name}</span></Td>
-                      <Td mono><span className="whitespace-nowrap">{p.sku}</span></Td>
+                      <Td mono>{p.sku}</Td>
                       <Td>{p.category_name ?? 'Tanpa kategori'}</Td>
                       <Td><div className="flex justify-center"><StockQty stock={p.stock} unit={p.unit} /></div></Td>
                       <Td><StockPill stock={p.stock} /></Td>
@@ -291,11 +291,11 @@ export default function Stok() {
                 <tbody>
                   {movItems.map((m) => (
                     <tr key={m.id}>
-                      <Td mono><span className="whitespace-nowrap">{fmtDate(m.created_at)} {fmtTime(m.created_at)}</span></Td>
+                      <Td mono>{fmtDate(m.created_at)} {fmtTime(m.created_at)}</Td>
                       <Td>{m.product_name ?? '—'}</Td>
                       <Td><Pill tone={m.type === 'sale' ? 'ok' : m.type === 'refund' ? 'warn' : 'muted'}>{TYPE_LABEL[m.type]}</Pill></Td>
-                      <Td right><span className={`whitespace-nowrap font-mono tabular-nums ${m.qty > 0 ? 'text-sprout' : 'text-ember'}`}>{m.qty > 0 ? '+' : ''}{m.qty}</span></Td>
-                      <Td><span className="block max-w-64">{m.reason}</span></Td>
+                      <Td right><span className={`font-mono tabular-nums ${m.qty > 0 ? 'text-sprout' : 'text-ember'}`}>{m.qty > 0 ? '+' : ''}{m.qty}</span></Td>
+                      <Td>{m.reason}</Td>
                       <Td>{m.actor}</Td>
                     </tr>
                   ))}

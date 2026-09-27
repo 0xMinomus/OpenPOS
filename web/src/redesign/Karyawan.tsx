@@ -371,7 +371,7 @@ export default function Karyawan() {
                       <div className="min-w-0 flex-1">
                         <div className="flex items-baseline justify-between gap-2">
                           <p className="truncate text-sm font-medium">{r.name}</p>
-                          <p className="shrink-0 whitespace-nowrap text-sm font-medium tabular-nums">{fmtRp(r.omzet)}</p>
+                          <p className="shrink-0 text-sm font-medium tabular-nums">{fmtRp(r.omzet)}</p>
                         </div>
                         <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
                           <div className="h-full rounded-full" style={{ width: `${totalOmzet > 0 ? Math.round((r.omzet / totalOmzet) * 100) : 0}%`, background: 'var(--chart-1)' }} />
@@ -394,7 +394,7 @@ export default function Karyawan() {
                           <p className="truncate text-sm font-medium">{r.name}</p>
                           <p className="text-xs tabular-nums text-muted-foreground">{r.trx > 0 ? `${r.trx} trx · ${totalOmzet > 0 ? Math.round((r.omzet / totalOmzet) * 100) : 0}%` : 'Belum ada transaksi'}</p>
                         </div>
-                        <p className="shrink-0 whitespace-nowrap text-sm font-semibold tabular-nums">{fmtRp(r.omzet)}</p>
+                        <p className="shrink-0 text-sm font-semibold tabular-nums">{fmtRp(r.omzet)}</p>
                       </div>
                     </div>
                   ))}
@@ -407,7 +407,7 @@ export default function Karyawan() {
             <Card>
               <CardContent className="p-5">
                 <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
+                  <div>
                     <p className="text-base font-semibold">Transaksi Terbaru</p>
                     <p className="mt-0.5 text-[13px] text-muted-foreground">8 terakhir periode ini</p>
                   </div>
@@ -425,10 +425,10 @@ export default function Karyawan() {
                         <tbody>
                           {recent.map((t) => (
                             <tr key={t.id}>
-                              <Td mono><span className="whitespace-nowrap">{fmtDate(t.date)}</span></Td>
-                              <Td mono><span className="whitespace-nowrap">{fmtInv(t.id)}</span></Td>
+                              <Td mono>{fmtDate(t.date)}</Td>
+                              <Td mono>{fmtInv(t.id)}</Td>
                               <Td>{t.cashier}</Td>
-                              <Td right><span className="whitespace-nowrap font-medium text-fg">{fmtRp(t.total)}</span></Td>
+                              <Td right><span className="font-medium text-fg">{fmtRp(t.total)}</span></Td>
                               <Td>{t.method}</Td>
                             </tr>
                           ))}
@@ -439,8 +439,8 @@ export default function Karyawan() {
                       {recent.map((t) => (
                         <div key={t.id} className="rounded-xl border border-dove bg-paper p-3.5">
                           <div className="flex items-center justify-between gap-2">
-                            <p className="min-w-0 flex-1 truncate font-mono text-[13px] font-medium">{fmtInv(t.id)}</p>
-                            <p className="shrink-0 whitespace-nowrap text-[15px] font-semibold tabular-nums">{fmtRp(t.total)}</p>
+                            <p className="font-mono text-[13px] font-medium">{fmtInv(t.id)}</p>
+                            <p className="shrink-0 text-[15px] font-semibold tabular-nums">{fmtRp(t.total)}</p>
                           </div>
                           <p className="mt-1 truncate text-xs text-fog">{fmtDate(t.date)} · {t.cashier} · {t.method}</p>
                         </div>
@@ -466,8 +466,8 @@ export default function Karyawan() {
                         return (
                           <tr key={c.name}>
                             <Td><span className="font-medium text-fg">{c.name}</span></Td>
-                            <Td right><span className="whitespace-nowrap">{fmtRp(c.cur)}</span></Td>
-                            <Td right><span className="whitespace-nowrap">{c.prev === null ? '—' : fmtRp(c.prev)}</span></Td>
+                            <Td right>{fmtRp(c.cur)}</Td>
+                            <Td right>{c.prev === null ? '—' : fmtRp(c.prev)}</Td>
                             <Td><span className={`inline-block rounded-full px-2.5 py-0.5 text-[11px] font-medium ${st.cls}`}>{st.label}</span></Td>
                           </tr>
                         )

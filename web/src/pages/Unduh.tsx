@@ -62,10 +62,70 @@ export default function Unduh() {
   return (
     <div className="landing-light min-h-screen bg-[#FFFEFA] text-fg flex flex-col">
       <Navbar logoTone="light" mobileLandingMenu />
-      <main className="w-full flex-1 flex flex-col min-h-[calc(100vh-65px)]">
-        {/* ── Panel unduh: pilih perangkat ── */}
-        <div className="box-border w-full shrink-0 bg-[#F3EFE6] relative flex flex-col justify-center px-[clamp(24px,4vw,56px)] py-12">
-          <div className="w-full max-w-[568px] mx-auto flex flex-col gap-[14px] relative">
+      <main className="w-full flex-1 flex flex-col lg:flex-row min-h-[calc(100vh-65px)]">
+        {/* ── Panel kiri: story offline (di mobile tampil setelah tombol unduh) ── */}
+        <div className="box-border flex-1 bg-[#FFFEFA] relative overflow-hidden order-2 lg:order-1 border-t border-[#DDD7CB] lg:border-t-0 lg:border-r flex flex-col justify-center px-[clamp(24px,5vw,64px)] py-12">
+          <div className="absolute right-[-100px] top-[60px] w-[390px] h-[390px] bg-[#E9F0FF] rounded-full" aria-hidden="true" />
+          <div className="w-full max-w-[632px] flex flex-col gap-[24px] relative">
+            <div className="login-rise flex flex-col gap-[18px]">
+              <div className="flex flex-row gap-[12px] items-center">
+                <span className="w-[28px] h-[2px] bg-[#2F6FEB] rounded-[2px]" aria-hidden="true" />
+                <span className={`text-[12px] text-[#2F6FEB] ${PJS} font-bold tracking-[1.5px] whitespace-nowrap`}>OPENPOS OFFLINE</span>
+              </div>
+              <div className={`text-[clamp(44px,5vw,66px)]/[1.02] text-[#102033] ${DMA} font-normal tracking-[-0.03em]`} style={{ animationDelay: '60ms' }}>
+                Tetap buka.
+                <br />
+                <span className="text-[#2F6FEB]">Meski offline.</span>
+              </div>
+              <div className={`text-[17px]/[26px] max-w-[500px] text-[#667085] ${PJS} font-normal`}>
+                Semua transaksi tersimpan langsung di perangkat. Internet kembali, bisnis tetap berjalan seperti biasa.
+              </div>
+              <div className="w-fit flex flex-row flex-wrap gap-x-[24px] gap-y-[10px] items-center">
+                <span className="w-fit flex flex-row gap-[8px] items-center">
+                  <LoginIcon name="shield-check" size={16} className="shrink-0" style={{ filter: 'brightness(0.35)' }} />
+                  <span className={`text-[13px] text-[#102033] ${PJS} font-semibold whitespace-nowrap`}>Data tetap privat</span>
+                </span>
+                <span className="w-fit flex flex-row gap-[8px] items-center">
+                  <LoginIcon name="badge-dollar-sign" size={16} className="shrink-0" />
+                  <span className={`text-[13px] text-[#102033] ${PJS} font-semibold whitespace-nowrap`}>Tanpa langganan</span>
+                </span>
+              </div>
+            </div>
+
+            <div className={`login-rise text-[clamp(72px,10vw,140px)]/[1] text-[#E4ECFF] ${DMA} font-bold tracking-[-0.04em] whitespace-nowrap select-none`} aria-hidden="true" style={{ animationDelay: '140ms' }}>
+              OFFLINE
+            </div>
+
+            <div className="login-rise w-full" style={{ animationDelay: '200ms' }}>
+              <div className="w-full h-[1px] bg-[#DDD7CB]" aria-hidden="true" />
+              <div className="mt-[26px] flex flex-wrap items-center gap-x-8 gap-y-5">
+                <div className="flex items-center gap-[18px]">
+                  <span className="relative grid place-items-center w-[48px] h-[48px] shrink-0 rounded-full bg-[#E9F0FF]" aria-hidden="true">
+                    <span className="w-[22px] h-[22px] bg-[#2F6FEB] rounded-full" />
+                    <LoginIcon name="wifi-off" size={14} className="absolute" />
+                  </span>
+                  <span className="flex flex-col">
+                    <span className={`text-[10px] text-[#667085] ${PJS} font-bold tracking-[1.1px] whitespace-nowrap`}>STATUS PERANGKAT</span>
+                    <span className={`text-[18px] text-[#102033] ${DMA} font-bold whitespace-nowrap`}>Siap tanpa internet</span>
+                    <span className={`text-[11px] text-[#667085] ${PJS} font-normal whitespace-nowrap`}>Transaksi tersimpan otomatis di perangkat.</span>
+                  </span>
+                </div>
+                <div className="hidden sm:block w-[1px] h-[54px] bg-[#DDD7CB]" aria-hidden="true" />
+                <div className="flex items-center gap-4">
+                  <span className={`text-[28px] text-[#2F6FEB] ${DMA} font-bold tracking-[-0.03em]`}>100%</span>
+                  <span className="flex flex-col gap-[6px]">
+                    <span className="w-[7px] h-[7px] bg-[#D9F28E] rounded-full" aria-hidden="true" />
+                    <span className={`text-[10px] text-[#102033] ${PJS} font-bold tracking-[0.8px] whitespace-nowrap`}>DATA LOKAL</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Panel kanan: pilih perangkat (di mobile tampil duluan) ── */}
+        <div className="box-border w-full lg:w-[680px] shrink-0 bg-[#F3EFE6] relative order-1 lg:order-2 flex flex-col justify-center px-[clamp(24px,4vw,56px)] py-12">
+          <div className="w-full max-w-[568px] flex flex-col gap-[14px] relative">
             <div className="login-rise flex flex-col gap-[12px]">
               <div className="flex flex-row gap-[9px] items-center">
                 <span className="w-[26px] h-[2px] bg-[#2F6FEB] rounded-[2px]" aria-hidden="true" />

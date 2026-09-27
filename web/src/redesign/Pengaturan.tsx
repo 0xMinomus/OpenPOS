@@ -917,7 +917,7 @@ export default function Pengaturan() {
 
       {tab === 'pajak' && (
         <div className="space-y-4">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-3 xl:grid-cols-4">
             {[
               { label: 'Pajak Aktif', value: form.taxEnabled ? 'Ya' : 'Tidak', sub: 'Pajak sedang digunakan' },
               { label: 'Tarif Pajak', value: `${form.taxPct}%`, sub: form.taxName || 'Tarif pajak saat ini' },

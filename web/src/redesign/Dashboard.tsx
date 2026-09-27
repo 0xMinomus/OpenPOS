@@ -97,8 +97,8 @@ export default function Dashboard() {
     return (
       <div className="space-y-4">
         <div className="flex flex-wrap items-end justify-between gap-3">
-          <div className="min-w-0">
-            <h1 className="break-words text-2xl font-semibold tracking-tight sm:text-3xl">Halo, {s.name}</h1>
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Halo, {s.name}</h1>
             <p className="mt-1.5 text-sm text-muted-foreground">
               {today.trx_count > 0
                 ? `${today.trx_count} transaksi ${date ? `pada ${fmtDate(date)}` : 'hari ini'} dengan total penjualan ${fmtRp(today.omzet)}.`
@@ -194,7 +194,7 @@ export default function Dashboard() {
 
         <div className="grid gap-4 lg:grid-cols-[1.6fr_1fr]">
           <Card>
-            <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2 space-y-0">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0">
               <div className="opc-panel-head">
                 <span className="opc-panel-ico" aria-hidden="true"><ReceiptText /></span>
                 <div>
@@ -257,8 +257,8 @@ export default function Dashboard() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h1 className="break-words">Dashboard</h1>
+        <div>
+          <h1>Dashboard</h1>
           <p className="mt-1 text-sm text-muted-foreground">{date ? `Menampilkan data ${fmtDate(date)}` : 'Pantau aktivitas dan performa toko Anda hari ini'}</p>
         </div>
         <div className="flex flex-col items-end gap-2">
@@ -358,7 +358,7 @@ export default function Dashboard() {
 
       <div className="grid gap-4 lg:grid-cols-[1.6fr_1fr]">
         <Card>
-          <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2 space-y-0">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <div className="opc-panel-head">
               <span className="opc-panel-ico" aria-hidden="true"><ReceiptText /></span>
               <div>
@@ -384,7 +384,7 @@ export default function Dashboard() {
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2 space-y-0">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <div className="opc-panel-head">
               <span className="opc-panel-ico" aria-hidden="true"><Package /></span>
               <div>
@@ -446,7 +446,7 @@ function KpiCard({ label, value, icon: Icon, href }: {
           <Icon />
         </span>
         <div className="min-w-0">
-          <p className="opc-kpi-val truncate tabular-nums" title={value}>{value}</p>
+          <p className="opc-kpi-val tabular-nums">{value}</p>
           <p className="opc-kpi-label">{label}</p>
         </div>
       </div>
@@ -472,10 +472,10 @@ function RecentTable({ items, showCashier }: { items: Trx[]; showCashier: boolea
           {items.map((t) => (
             <tr key={t.id}>
               <Td mono>{fmtDate(t.created_at)} {fmtTime(t.created_at)}</Td>
-              <Td mono><span className="whitespace-nowrap">#TRX-{String(t.id).padStart(5, '0')}</span></Td>
+              <Td mono>#TRX-{String(t.id).padStart(5, '0')}</Td>
               {showCashier && <Td>{t.cashier_name}</Td>}
               <Td>{t.method}</Td>
-              <Td right><span className="whitespace-nowrap font-medium text-fg">{fmtRp(t.total)}</span></Td>
+              <Td right><span className="font-medium text-fg">{fmtRp(t.total)}</span></Td>
               <Td><TrxBadge status={t.status} /></Td>
             </tr>
           ))}
@@ -546,7 +546,7 @@ function DashboardSkeleton() {
 
       <div className="grid gap-4 lg:grid-cols-[1.6fr_1fr]">
           <Card>
-            <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2 space-y-0">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0">
               <div className="space-y-2">
                 <Skeleton className="h-5 w-36" />
                 <Skeleton className="h-4 w-28" />
@@ -562,7 +562,7 @@ function DashboardSkeleton() {
             </CardContent>
           </Card>
           <Card>
-            <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2 space-y-0">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0">
               <div className="space-y-2">
                 <Skeleton className="h-5 w-32" />
                 <Skeleton className="h-4 w-28" />

@@ -56,9 +56,9 @@ function Kpi({ label, value, sub, icon: Icon }: { label: string; value: string; 
           <Icon className="size-4.5" />
         </span>
         <div className="flex h-full flex-col justify-center pr-9">
-          <span className="truncate text-sm font-medium text-muted-foreground" title={label}>{label}</span>
-          <p className="mt-1 truncate text-3xl font-semibold tabular-nums tracking-tight" title={value}>{value}</p>
-          <p className="mt-0.5 break-words text-xs text-muted-foreground">{sub}</p>
+          <span className="text-sm font-medium text-muted-foreground">{label}</span>
+          <p className="mt-1 text-3xl font-semibold tabular-nums tracking-tight">{value}</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">{sub}</p>
         </div>
       </CardContent>
     </Card>
@@ -68,8 +68,8 @@ function Kpi({ label, value, sub, icon: Icon }: { label: string; value: string; 
 function ChartCard({ title, sub, action, children }: { title: string; sub: string; action?: React.ReactNode; children: React.ReactNode }) {
   return (
     <Card>
-      <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-3 space-y-0">
-        <div className="min-w-0 flex-1 space-y-1.5">
+      <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0">
+        <div className="space-y-1.5">
           <CardTitle>{title}</CardTitle>
           <CardDescription>{sub}</CardDescription>
         </div>
@@ -616,11 +616,11 @@ export default function Laporan() {
                         <tbody>
                           {data.transactions.slice(0, 10).map((t) => (
                             <tr key={t.id}>
-                              <Td mono><span className="whitespace-nowrap font-medium text-fg">{fmtInv(t.id)}</span></Td>
-                              <Td mono><span className="whitespace-nowrap">{fmtDate(t.date)}</span></Td>
+                              <Td mono><span className="font-medium text-fg">{fmtInv(t.id)}</span></Td>
+                              <Td mono>{fmtDate(t.date)}</Td>
                               <Td>{t.cashier}</Td>
                               <Td>{t.method}</Td>
-                              <Td right><span className="whitespace-nowrap font-medium text-fg">{fmtRp(t.total)}</span></Td>
+                              <Td right><span className="font-medium text-fg">{fmtRp(t.total)}</span></Td>
                               <Td><StatusPill status={t.status} /></Td>
                             </tr>
                           ))}
@@ -748,11 +748,11 @@ export default function Laporan() {
                         <tbody>
                           {(prodAll ? prodSorted : prodSorted.slice(0, 5)).map((p, i) => (
                             <tr key={p.product_id}>
-                              <Td mono><span className="whitespace-nowrap">{String(i + 1).padStart(2, '0')}</span></Td>
+                              <Td mono>{String(i + 1).padStart(2, '0')}</Td>
                               <Td><span className="font-medium text-fg">{p.name}</span></Td>
                               <Td>{catMap.get(p.product_id)?.category ?? 'Tanpa kategori'}</Td>
-                              <Td right><span className="whitespace-nowrap">{p.qty}</span></Td>
-                              <Td right><span className="whitespace-nowrap font-medium text-fg">{fmtRp(p.revenue)}</span></Td>
+                              <Td right>{p.qty}</Td>
+                              <Td right><span className="font-medium text-fg">{fmtRp(p.revenue)}</span></Td>
                             </tr>
                           ))}
                         </tbody>
@@ -878,13 +878,13 @@ export default function Laporan() {
                         <tbody>
                           {prodProfit.map((p, i) => (
                             <tr key={p.product_id}>
-                              <Td mono><span className="whitespace-nowrap">{String(i + 1).padStart(2, '0')}</span></Td>
+                              <Td mono>{String(i + 1).padStart(2, '0')}</Td>
                               <Td><span className="font-medium text-fg">{p.name}</span></Td>
-                              <Td right><span className="whitespace-nowrap">{p.qty}</span></Td>
-                              <Td right><span className="whitespace-nowrap">{fmtRp(p.revenue)}</span></Td>
-                              <Td right><span className="whitespace-nowrap">{fmtRp(p.revenue - p.profit)}</span></Td>
-                              <Td right><span className="whitespace-nowrap font-medium text-fg">{fmtRp(p.profit)}</span></Td>
-                              <Td right><span className="whitespace-nowrap">{p.revenue > 0 ? `${Math.round((p.profit / p.revenue) * 100)}%` : '—'}</span></Td>
+                              <Td right>{p.qty}</Td>
+                              <Td right>{fmtRp(p.revenue)}</Td>
+                              <Td right>{fmtRp(p.revenue - p.profit)}</Td>
+                              <Td right><span className="font-medium text-fg">{fmtRp(p.profit)}</span></Td>
+                              <Td right>{p.revenue > 0 ? `${Math.round((p.profit / p.revenue) * 100)}%` : '—'}</Td>
                             </tr>
                           ))}
                         </tbody>
@@ -900,7 +900,7 @@ export default function Laporan() {
                     <div className="space-y-4">
                       <div className="rounded-lg bg-surface p-4">
                         <p className="text-[13px] text-muted-foreground">Profit per Transaksi</p>
-                        <p className="mt-1 break-words text-2xl font-semibold tabular-nums tracking-tight">
+                        <p className="mt-1 text-2xl font-semibold tabular-nums tracking-tight">
                           {data.summary.trx_count > 0 ? fmtRp(Math.round(data.summary.gross_profit / data.summary.trx_count)) : 'Rp 0'}
                         </p>
                         {(() => {
@@ -1028,10 +1028,10 @@ export default function Laporan() {
                         <tbody>
                           {lowStock.map((s, i) => (
                             <tr key={`${s.sku}-${s.name}`}>
-                              <Td mono><span className="whitespace-nowrap">{String(i + 1).padStart(2, '0')}</span></Td>
+                              <Td mono>{String(i + 1).padStart(2, '0')}</Td>
                               <Td><span className="font-medium text-fg">{s.name}</span></Td>
-                              <Td mono><span className="whitespace-nowrap">{s.sku}</span></Td>
-                              <Td right><span className="whitespace-nowrap font-medium tabular-nums text-ember">{s.stock}</span></Td>
+                              <Td mono>{s.sku}</Td>
+                              <Td right><span className="font-medium tabular-nums text-ember">{s.stock}</span></Td>
                               <Td>{s.category}</Td>
                               <Td><Pill tone="warn">{s.stock === 0 ? 'Habis' : 'Menipis'}</Pill></Td>
                             </tr>
@@ -1155,14 +1155,12 @@ function LaporanSkeleton() {
             <Skeleton className="h-4 w-44" />
           </CardHeader>
           <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr><Th>Tanggal</Th><Th>ID</Th><Th>Kasir</Th><Th>Metode</Th><Th right>Total</Th></tr>
-                </thead>
-                <SkeletonRows cols={5} rows={5} />
-              </table>
-            </div>
+            <table className="w-full border-collapse">
+              <thead>
+                <tr><Th>Tanggal</Th><Th>ID</Th><Th>Kasir</Th><Th>Metode</Th><Th right>Total</Th></tr>
+              </thead>
+              <SkeletonRows cols={5} rows={5} />
+            </table>
           </CardContent>
         </Card>
       </div>

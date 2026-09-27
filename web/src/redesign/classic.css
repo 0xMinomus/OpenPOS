@@ -316,13 +316,12 @@
 .opc-crumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted-foreground); }
 .opc-crumb svg { width: 14px; height: 14px; }
 .opc-crumb-right { display: flex; justify-content: flex-end; margin-bottom: 6px; }
-/* Header halaman pola dashboard: judul kiri, crumb + aksi kanan.
-   Stack vertikal mulai tablet (<1024px) agar judul + kalender/aksi tak berdesakan. */
+/* Header halaman pola dashboard: judul kiri, crumb + aksi kanan. */
 .opc-pagehead { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
 .opc-pagehead-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex-shrink: 0; }
 .opc-pagehead-right .opc-crumb-right { margin-bottom: 0; }
 .opc-pagesub { margin-top: 4px; font-size: 14px; color: var(--muted-foreground); }
-@media (max-width: 1023px) {
+@media (max-width: 767px) {
   .opc-pagehead { flex-direction: column; }
   .opc-pagehead-right { align-items: flex-start; width: 100%; }
 }
@@ -406,12 +405,16 @@
 .opc-embed .opc-kpi-ico svg { width: 24px; height: 24px; }
 .opc-embed .opc-kpi-val { font-size: 22px; }
 
-/* Tablet ke bawah (<1024px): sidebar jadi drawer off-canvas agar konten penuh.
-   Aturan drawer/sidebar/main/brand di sini; digabung dengan blok 1023px yang
-   sudah ada (padding/main) agar tak ada duplikasi konflik. */
 @media (max-width: 1023px) {
+  .opc-main { padding: 16px; }
+  .opc-kpi-ico { width: 56px; height: 56px; }
+  .opc-kpi-ico svg { width: 26px; height: 26px; }
+  .opc-kpi-val { font-size: 24px; }
+}
+@media (max-width: 767px) {
   .opc-brand { width: auto; padding: 0 12px; }
   .opc-brand span { display: none; }
+  .opc-burger { display: inline-grid; }
   .opc-sidebar {
     left: 0; top: 54px; bottom: 0; height: auto;
     z-index: 50; transform: translateX(-100%);
@@ -422,15 +425,7 @@
     display: block; position: fixed; inset: 54px 0 0 0; z-index: 40;
     background: rgba(15, 23, 42, 0.45);
   }
-  .opc-main { padding: 16px; margin-left: 0; }
-  .opc-kpi-ico { width: 56px; height: 56px; }
-  .opc-kpi-ico svg { width: 26px; height: 26px; }
-  .opc-kpi-val { font-size: 24px; }
-}
-/* HP (<768px): padding + kosmetik khusus layar kecil saja. */
-@media (max-width: 767px) {
-  .opc-burger { display: inline-grid; }
-  .opc-main { padding: 12px; }
+  .opc-main { padding: 12px; margin-left: 0; }
   .opc-kpi-val { font-size: 26px; }
   .opc-kpi-ico { width: 56px; height: 56px; }
 }

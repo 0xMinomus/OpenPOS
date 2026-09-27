@@ -165,11 +165,11 @@ export default function Pos() {
                   key={p.id}
                   onClick={() => add(p)}
                   disabled={effStock(p) === 0}
-                  className={`min-w-0 rounded-xl border p-3.5 text-left transition ${effStock(p) === 0 ? 'cursor-not-allowed border-dove opacity-40' : 'border-dove hover:border-jet'}`}
+                  className={`rounded-xl border p-3.5 text-left transition ${effStock(p) === 0 ? 'cursor-not-allowed border-dove opacity-40' : 'border-dove hover:border-jet'}`}
                 >
-                  <p className="break-words text-[13px] font-medium leading-snug">{p.name}</p>
+                  <p className="text-[13px] font-medium leading-snug">{p.name}</p>
                   <p className="mt-1 font-mono text-[11px] text-fog">{effStock(p)} stok</p>
-                  <p className="mt-1 break-words font-mono text-sm font-medium tabular-nums">{fmtRp(p.sell_price)}</p>
+                  <p className="mt-1 font-mono text-sm font-medium tabular-nums">{fmtRp(p.sell_price)}</p>
                 </button>
               ))}
               {filtered.length === 0 && <p className="col-span-full py-10 text-center text-sm text-fog">Tidak ada produk ditemukan.</p>}
@@ -184,26 +184,26 @@ export default function Pos() {
             {cart.map((l) => (
               <div key={l.product.id} className="rounded-lg border border-dove bg-paper p-2.5">
                 <div className="flex items-start justify-between gap-2">
-                  <p className="min-w-0 flex-1 break-words text-[13px] font-medium leading-snug">{l.product.name}</p>
+                  <p className="text-[13px] font-medium leading-snug">{l.product.name}</p>
                   <button onClick={() => setCart((c) => c.filter((x) => x.product.id !== l.product.id))} aria-label={`Hapus ${l.product.name}`} className="text-fog hover:text-ember">
                     <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
                   </button>
                 </div>
-                <div className="mt-2 flex items-center justify-between gap-2">
-                  <div className="flex min-w-0 items-center gap-1.5">
-                    <button onClick={() => setQty(l.product.id, l.qty - 1)} className="grid h-6 w-6 shrink-0 place-items-center rounded-full border border-dove text-sm hover:border-jet">−</button>
-                    <span className="w-7 shrink-0 text-center font-mono text-[13px] tabular-nums">{l.qty}</span>
-                    <button onClick={() => setQty(l.product.id, l.qty + 1)} className="grid h-6 w-6 shrink-0 place-items-center rounded-full border border-dove text-sm hover:border-jet">+</button>
+                <div className="mt-2 flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <button onClick={() => setQty(l.product.id, l.qty - 1)} className="grid h-6 w-6 place-items-center rounded-full border border-dove text-sm hover:border-jet">−</button>
+                    <span className="w-7 text-center font-mono text-[13px] tabular-nums">{l.qty}</span>
+                    <button onClick={() => setQty(l.product.id, l.qty + 1)} className="grid h-6 w-6 place-items-center rounded-full border border-dove text-sm hover:border-jet">+</button>
                   </div>
-                  <span className="shrink-0 whitespace-nowrap font-mono text-[13px] tabular-nums">{fmtRp(l.product.sell_price * l.qty)}</span>
+                  <span className="font-mono text-[13px] tabular-nums">{fmtRp(l.product.sell_price * l.qty)}</span>
                 </div>
               </div>
             ))}
           </div>
           <div className="mt-3 space-y-1.5 border-t border-dove pt-3 text-sm">
-            <div className="flex justify-between gap-3"><span className="min-w-0 break-words text-muted">Subtotal</span><span className="shrink-0 whitespace-nowrap font-mono tabular-nums">{fmtRp(subtotal)}</span></div>
-            <div className="flex items-center justify-between gap-3">
-              <span className="min-w-0 break-words text-muted">Diskon</span>
+            <div className="flex justify-between"><span className="text-muted">Subtotal</span><span className="font-mono tabular-nums">{fmtRp(subtotal)}</span></div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted">Diskon</span>
               <NumInput
                 value={discount}
                 onValue={(r) => setDiscount(Math.min(subtotal, Math.max(0, Number(r || 0))))}
@@ -211,9 +211,9 @@ export default function Pos() {
               />
             </div>
             {taxPct > 0 && (
-              <div className="flex justify-between gap-3"><span className="min-w-0 break-words text-muted">Pajak ({taxPct}%)</span><span className="shrink-0 whitespace-nowrap font-mono tabular-nums">{fmtRp(tax)}</span></div>
+              <div className="flex justify-between"><span className="text-muted">Pajak ({taxPct}%)</span><span className="font-mono tabular-nums">{fmtRp(tax)}</span></div>
             )}
-            <div className="flex justify-between gap-3 text-base font-medium"><span className="min-w-0 break-words">Total</span><span className="shrink-0 whitespace-nowrap font-mono tabular-nums">{fmtRp(total)}</span></div>
+            <div className="flex justify-between text-base font-medium"><span>Total</span><span className="font-mono tabular-nums">{fmtRp(total)}</span></div>
           </div>
           <Button className="mt-4 w-full" disabled={cart.length === 0} onClick={() => { setPayOpen(true); setErr('') }}>Bayar · {fmtRp(total)}</Button>
         </aside>
@@ -280,24 +280,24 @@ export default function Pos() {
             <p className="text-sm text-muted">Total {fmtRp(total)} akan dicatat sebagai pembayaran {method}.</p>
           )}
           {method === 'Cash' && (exactCash ? change === 0 : paid) && change >= 0 && (
-            <div className="flex justify-between gap-3 rounded-lg bg-surface px-3.5 py-3 text-sm">
-              <span className="min-w-0 break-words text-muted">Kembalian</span>
-              <span className="shrink-0 whitespace-nowrap font-mono font-medium tabular-nums">{fmtRp(change)}</span>
+            <div className="flex justify-between rounded-lg bg-surface px-3.5 py-3 text-sm">
+              <span className="text-muted">Kembalian</span>
+              <span className="font-mono font-medium tabular-nums">{fmtRp(change)}</span>
             </div>
           )}
           <div className="space-y-1.5 text-sm">
-            <div className="flex justify-between gap-3">
-              <span className="min-w-0 break-words text-muted">Diskon</span>
-              <span className="shrink-0 whitespace-nowrap font-mono tabular-nums">&minus;{fmtRp(discount)}</span>
+            <div className="flex justify-between">
+              <span className="text-muted">Diskon</span>
+              <span className="font-mono tabular-nums">&minus;{fmtRp(discount)}</span>
             </div>
-            <div className="flex justify-between gap-3">
-              <span className="min-w-0 break-words text-muted">Pajak{taxPct > 0 ? ` (${taxPct}%)` : ''}</span>
-              <span className="shrink-0 whitespace-nowrap font-mono tabular-nums">+{fmtRp(tax)}</span>
+            <div className="flex justify-between">
+              <span className="text-muted">Pajak{taxPct > 0 ? ` (${taxPct}%)` : ''}</span>
+              <span className="font-mono tabular-nums">+{fmtRp(tax)}</span>
             </div>
           </div>
-          <div className="flex justify-between gap-3 border-t border-dove pt-3 text-[15px]">
-            <span className="min-w-0 break-words">Total</span>
-            <span className="shrink-0 whitespace-nowrap font-mono font-medium tabular-nums">{fmtRp(total)}</span>
+          <div className="flex justify-between border-t border-dove pt-3 text-[15px]">
+            <span>Total</span>
+            <span className="font-mono font-medium tabular-nums">{fmtRp(total)}</span>
           </div>
           <Button className="w-full" onClick={checkout} disabled={busy}>{busy ? 'Memproses…' : 'Selesaikan Transaksi'}</Button>
         </div>

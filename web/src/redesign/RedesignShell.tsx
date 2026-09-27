@@ -107,7 +107,7 @@ export default function RedesignShell() {
       nav('/', { replace: true })
     }
   }
-  // Tutup drawer tiap pindah halaman (mode drawer: HP + tablet <1024px).
+  // Tutup drawer tiap pindah halaman (mobile).
   useEffect(() => {
     setNavOpen(false)
   }, [loc.pathname])
@@ -144,8 +144,7 @@ export default function RedesignShell() {
 
   const menu = MENU.filter((m) => !m.adminOnly || s.role === 'admin')
   // Ikon toggle mengikuti status: tertutup→buka, terbuka→tutup.
-  // Ambang drawer <1024px: tablet (768–1023px) ikut mode drawer agar konten penuh.
-  const narrow = typeof window !== 'undefined' && window.innerWidth < 1024
+  const narrow = typeof window !== 'undefined' && window.innerWidth < 768
   const navExpanded = narrow ? navOpen : !collapsed
 
   return (
@@ -159,7 +158,7 @@ export default function RedesignShell() {
           <button
             className="opc-iconbtn"
             onClick={() => {
-              if (window.innerWidth < 1024) setNavOpen((v) => !v)
+              if (window.innerWidth < 768) setNavOpen((v) => !v)
               else setCollapsed((v) => !v)
             }}
             aria-label="Buka/tutup navigasi"
