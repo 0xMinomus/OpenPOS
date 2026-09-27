@@ -335,10 +335,10 @@ export default function Produk() {
                   {(pageItems ?? []).map((p) => (
                     <tr key={p.id}>
                       <Td><span className="font-medium text-fg">{p.name}</span></Td>
-                      <Td mono>{p.sku}</Td>
+                      <Td mono><span className="whitespace-nowrap">{p.sku}</span></Td>
                       <Td>{p.category_name ?? 'Tanpa kategori'}</Td>
-                      <Td right>{fmtRp(p.buy_price)}</Td>
-                      <Td right><span className="font-medium text-fg">{fmtRp(p.sell_price)}</span></Td>
+                      <Td right><span className="whitespace-nowrap">{fmtRp(p.buy_price)}</span></Td>
+                      <Td right><span className="whitespace-nowrap font-medium text-fg">{fmtRp(p.sell_price)}</span></Td>
                       <Td right><StockCell stock={p.stock} unit={p.unit} /></Td>
                       <Td><Pill tone={p.active ? 'ok' : 'muted'}>{p.active ? 'Aktif' : 'Nonaktif'}</Pill></Td>
                       <Td>
@@ -423,7 +423,7 @@ export default function Produk() {
       <Modal open={!!importRows} title="Preview Import" onClose={() => setImportRows(null)} wide>
         {importRows && (
           <div>
-            <div className="max-h-72 overflow-y-auto rounded-lg border border-dove">
+            <div className="max-h-72 overflow-auto rounded-lg border border-dove">
               <table className="w-full border-collapse text-[13px]">
                 <thead>
                   <tr className="bg-surface">
@@ -433,9 +433,9 @@ export default function Produk() {
                 <tbody>
                   {importRows.map((r, i) => (
                     <tr key={i}>
-                      <Td mono>{i + 2}</Td>
+                      <Td mono><span className="whitespace-nowrap">{i + 2}</span></Td>
                       <Td>{r.row[0]}</Td>
-                      <Td mono>{r.row[1]}</Td>
+                      <Td mono><span className="whitespace-nowrap">{r.row[1]}</span></Td>
                       <Td><span className={r.ok ? 'text-sprout' : 'text-ember'}>{r.msg}</span></Td>
                     </tr>
                   ))}

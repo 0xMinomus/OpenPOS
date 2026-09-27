@@ -356,7 +356,7 @@ export default function Users() {
     const p = perf.get(u.name)
     if (!p || p.trx === 0) return <span className="text-fog">Belum ada transaksi</span>
     return (
-      <span className="whitespace-nowrap">
+      <span>
         <span className="font-medium text-fg">{fmtRp(p.omzet)}</span>
         <span className="text-fog"> · {p.trx} trx</span>
       </span>
@@ -410,7 +410,7 @@ export default function Users() {
         sub="Kelola akun admin dan kasir, status akun, serta akses pengguna."
         crumb="User Management"
         actions={(
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <ExportMenu onCSV={exportAllCSV} onExcel={exportAllExcel} disabled={!data} />
             <Button onClick={() => setOpen(true)}>
               <Plus className="size-4" /> Tambah Kasir
@@ -516,7 +516,8 @@ export default function Users() {
             ) : (
               <>
                 {/* Desktop */}
-                <table className="mt-3 hidden w-full border-collapse md:table">
+                <div className="mt-3 hidden overflow-x-auto md:block">
+                  <table className="w-full border-collapse">
                   <thead>
                     <tr>
                       <Th>Nama</Th><Th>Role</Th><Th>Status</Th><Th>Bergabung</Th><Th>Aktivitas Terakhir</Th><Th>Kinerja Hari Ini</Th><Th />
@@ -547,7 +548,8 @@ export default function Users() {
                       </tr>
                     ))}
                   </tbody>
-                </table>
+                  </table>
+                </div>
 
                 {/* Mobile */}
                 <div className="mt-3 space-y-2.5 md:hidden">
@@ -571,8 +573,8 @@ export default function Users() {
                       </div>
                       <dl className="mt-3 space-y-1.5 text-[13px]">
                         <div className="flex justify-between gap-3"><dt className="text-fog">Bergabung</dt><dd className="font-mono text-xs text-fg">{u.created_at ? fmtDate(u.created_at) : '—'}</dd></div>
-                        <div className="flex justify-between gap-3"><dt className="text-fog">Aktivitas</dt><dd className="text-right text-muted">{lastAct(u)}</dd></div>
-                        <div className="flex justify-between gap-3"><dt className="text-fog">Hari ini</dt><dd>{perfCell(u)}</dd></div>
+                        <div className="flex justify-between gap-3"><dt className="shrink-0 text-fog">Aktivitas</dt><dd className="min-w-0 text-right text-muted">{lastAct(u)}</dd></div>
+                        <div className="flex justify-between gap-3"><dt className="shrink-0 text-fog">Hari ini</dt><dd className="min-w-0 text-right">{perfCell(u)}</dd></div>
                       </dl>
                     </div>
                   ))}
@@ -661,7 +663,7 @@ export default function Users() {
                       <span className="block truncate text-sm font-medium text-fg">{r.name}</span>
                       <span className="block text-xs tabular-nums text-fog">{r.trx} transaksi</span>
                     </span>
-                    <span className="shrink-0 text-sm font-medium tabular-nums text-fg">{fmtRp(r.omzet)}</span>
+                    <span className="shrink-0 whitespace-nowrap text-sm font-medium tabular-nums text-fg">{fmtRp(r.omzet)}</span>
                   </li>
                 ))}
               </ul>

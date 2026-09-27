@@ -169,7 +169,7 @@ export default function Transaksi() {
 
       {(err || list.err) && <p className="mb-4 rounded-lg bg-sand px-3.5 py-2.5 text-[13px] text-ember">{err || list.err}</p>}
 
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4">
         {cards.map((c) => (
           <Card key={c.label} className="opc-stat">
             <div className="opc-stat-body">
@@ -180,7 +180,7 @@ export default function Transaksi() {
                 {c.value === null ? (
                   <Skeleton className="h-6 w-24" />
                 ) : (
-                  <p className="opc-stat-val tabular-nums" title={c.value}>{c.value}</p>
+                  <p className="opc-stat-val break-words tabular-nums" title={c.value}>{c.value}</p>
                 )}
                 <p className="opc-stat-label">{c.label}</p>
               </div>
@@ -226,17 +226,17 @@ export default function Transaksi() {
             <tbody>
               {trx.map((t) => (
                 <tr key={t.id}>
-                  <Td mono><span className="font-medium text-fg">{fmtInv(t.id)}</span></Td>
+                  <Td mono><span className="whitespace-nowrap font-medium text-fg">{fmtInv(t.id)}</span></Td>
                   <Td>
-                    <span className="block text-[13px] text-fg">{fmtDate(t.created_at)}</span>
-                    <span className="block font-mono text-xs text-fog">{fmtTime(t.created_at)}</span>
+                    <span className="block whitespace-nowrap text-[13px] text-fg">{fmtDate(t.created_at)}</span>
+                    <span className="block whitespace-nowrap font-mono text-xs text-fog">{fmtTime(t.created_at)}</span>
                   </Td>
                   <Td>{t.customer || '—'}</Td>
                   {isAdmin && <Td>{t.cashier_name}</Td>}
                   <Td>
                     <TrxItems items={t.items} className="max-w-full sm:max-w-64" />
                   </Td>
-                  <Td right><span className="text-[15px] font-semibold text-fg">{fmtRp(t.total)}</span></Td>
+                  <Td right><span className="whitespace-nowrap text-[15px] font-semibold text-fg">{fmtRp(t.total)}</span></Td>
                   <Td>{t.method}</Td>
                   <Td><StatusPill status={t.status} /></Td>
                   <Td>
@@ -275,7 +275,7 @@ export default function Transaksi() {
                 <p className="min-w-0 flex-1 truncate text-xs text-fog">
                   {fmtDate(t.created_at)} {fmtTime(t.created_at)}{t.customer ? ` · ${t.customer}` : ''}{isAdmin ? ` · ${t.cashier_name}` : ''} · {t.method}
                 </p>
-                <p className="shrink-0 text-[17px] font-semibold tabular-nums text-fg">{fmtRp(t.total)}</p>
+                <p className="shrink-0 whitespace-nowrap text-[17px] font-semibold tabular-nums text-fg">{fmtRp(t.total)}</p>
               </div>
               <div className="mt-2">
                 <TrxItems items={t.items} />
@@ -306,7 +306,7 @@ export default function Transaksi() {
         {refundFor && (
           <div className="space-y-4">
             <p className="text-sm text-muted">Pilih jumlah item yang direfund. Stok akan dikembalikan otomatis.</p>
-            <div className="max-h-60 overflow-y-auto rounded-lg border border-dove">
+            <div className="max-h-60 overflow-auto rounded-lg border border-dove">
               <table className="w-full border-collapse text-[13px]">
                 <thead>
                   <tr className="bg-surface">
@@ -349,19 +349,19 @@ function TrxDetail({ t, showCashier }: { t: Trx; showCashier: boolean }) {
   return (
     <div className="space-y-3 text-sm">
       <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 rounded-lg bg-surface p-4 font-mono text-[13px]">
-        <span className="text-fog">Invoice</span><span>{fmtInv(t.id)}</span>
-        <span className="text-fog">Waktu</span><span>{fmtDate(t.created_at)} {fmtTime(t.created_at)}</span>
+        <span className="text-fog">Invoice</span><span className="min-w-0 break-words">{fmtInv(t.id)}</span>
+        <span className="text-fog">Waktu</span><span className="min-w-0 break-words">{fmtDate(t.created_at)} {fmtTime(t.created_at)}</span>
         {showCashier && (
           <>
-            <span className="text-fog">Kasir</span><span>{t.cashier_name}</span>
+            <span className="text-fog">Kasir</span><span className="min-w-0 break-words">{t.cashier_name}</span>
           </>
         )}
         {t.customer && (
           <>
-            <span className="text-fog">Pelanggan</span><span>{t.customer}</span>
+            <span className="text-fog">Pelanggan</span><span className="min-w-0 break-words">{t.customer}</span>
           </>
         )}
-        <span className="text-fog">Metode</span><span>{t.method}</span>
+        <span className="text-fog">Metode</span><span className="min-w-0 break-words">{t.method}</span>
         <span className="text-fog">Status</span><span><StatusPill status={t.status} /></span>
       </div>
       <div className="overflow-x-auto rounded-lg border border-dove">
@@ -375,9 +375,9 @@ function TrxDetail({ t, showCashier }: { t: Trx; showCashier: boolean }) {
             {t.items.map((i) => (
               <tr key={i.product_id}>
                 <Td>{i.name}</Td>
-                <Td right>{fmtRp(i.price)}</Td>
-                <Td right>{i.qty}</Td>
-                <Td right>{fmtRp(i.price * i.qty)}</Td>
+                <Td right><span className="whitespace-nowrap">{fmtRp(i.price)}</span></Td>
+                <Td right><span className="whitespace-nowrap">{i.qty}</span></Td>
+                <Td right><span className="whitespace-nowrap">{fmtRp(i.price * i.qty)}</span></Td>
               </tr>
             ))}
           </tbody>
