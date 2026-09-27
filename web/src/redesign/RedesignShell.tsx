@@ -56,6 +56,8 @@ export default function RedesignShell() {
   const isEmbed = typeof window !== 'undefined' && (window.self !== window.top || new URLSearchParams(loc.search).get('embed') === '1')
   const [navOpen, setNavOpen] = useState(false)
   const [collapsed, setCollapsed] = useState(false)
+  const [logoutBusy, setLogoutBusy] = useState(false)
+  const nav = useNavigate()
   const s = db.session
 
   useEffect(() => {
@@ -90,6 +92,21 @@ export default function RedesignShell() {
     return () => clearInterval(timer)
   }, [s?.id, s?.role])
 
+  // Keluar dari demo: bersihkan sesi mock lalu kembali ke landing.
+  // Dari iframe embed: navigasi tab utama agar tak terjebak di dalam preview.
+  async function keluarDemo() {
+    if (logoutBusy) return
+    setLogoutBusy(true)
+    try {
+      await apiLogout()
+    } catch { /* best-effort */ }
+    setSession(null)
+    if (isEmbed && typeof window !== 'undefined' && window.top && window.self !== window.top) {
+      window.top.location.href = '/'
+    } else {
+      nav('/', { replace: true })
+    }
+  }
   // Tutup drawer tiap pindah halaman (mobile).
   useEffect(() => {
     setNavOpen(false)
@@ -162,6 +179,16 @@ export default function RedesignShell() {
             </button>
           )}
           <div className="ml-auto flex items-center">
+            {!isEmbed && (
+              <button
+                type="button"
+                onClick={keluarDemo}
+                disabled={logoutBusy}
+                className="opc-logout-link"
+              >
+                {logoutBusy ? 'Keluar…' : 'Keluar'}
+              </button>
+            )}
             <span className="opc-bell">
               <NotifBell />
             </span>
@@ -196,7 +223,7 @@ export default function RedesignShell() {
             })}
           </nav>
           <div className="opc-sidefoot">
-            <UserMenu hideLogout={isEmbed} />
+            <UserMenu isEmbed={isEmbed} />
           </div>
         </aside>
         <div className="opc-scrim" onClick={() => setNavOpen(false)} aria-hidden="true" />
@@ -214,7 +241,7 @@ function initials(name: string) {
   return ((parts[0]?.[0] ?? '') + (parts[1]?.[0] ?? '')).toUpperCase() || '?'
 }
 
-function UserMenu({ hideLogout = false }: { hideLogout?: boolean }) {
+function UserMenu({ isEmbed = false }: { isEmbed?: boolean }) {
   const db = useDB()
   const nav = useNavigate()
   const s = db.session!
@@ -248,10 +275,17 @@ function UserMenu({ hideLogout = false }: { hideLogout?: boolean }) {
 
   async function keluar() {
     setBusy(true)
-    await apiLogout()
+    try {
+      await apiLogout()
+    } catch { /* best-effort */ }
     setSession(null)
     // Keluar dari demo = kembali ke landing page awal.
-    nav('/', { replace: true })
+    // Dari iframe embed: navigasi tab utama agar tak terjebak di dalam preview.
+    if (isEmbed && typeof window !== 'undefined' && window.top && window.self !== window.top) {
+      window.top.location.href = '/'
+    } else {
+      nav('/', { replace: true })
+    }
   }
 
   async function pick(u: User) {
@@ -373,18 +407,16 @@ function UserMenu({ hideLogout = false }: { hideLogout?: boolean }) {
                   )}
                 </div>
                 {err && <p className="opc-acc-err">{err}</p>}
-                {!hideLogout && <div className="opc-acc-div" />}
-                {!hideLogout && (
-                  <button
-                    role="menuitem"
-                    onClick={keluar}
-                    disabled={busy}
-                    className="opc-acc-logout"
-                  >
-                    <LogOut aria-hidden="true" />
-                    {busy ? 'Keluar…' : 'Keluar'}
-                  </button>
-                )}
+                <div className="opc-acc-div" />
+                <button
+                  role="menuitem"
+                  onClick={keluar}
+                  disabled={busy}
+                  className="opc-acc-logout"
+                >
+                  <LogOut aria-hidden="true" />
+                  {busy ? 'Keluar…' : 'Keluar'}
+                </button>
               </>
             )}
           </div>

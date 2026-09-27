@@ -189,6 +189,15 @@
   transition: background-color 120ms ease;
 }
 .opc-iconbtn:hover { background: rgba(255, 255, 255, 0.14); }
+/* Tombol Keluar header demo: teks merah + underline, di kiri notifikasi. */
+.opc-logout-link {
+  background: transparent; border: 0; padding: 8px 10px;
+  color: #ffd2d2; font-size: 13px; font-weight: 500;
+  text-decoration: underline; text-underline-offset: 3px;
+  white-space: nowrap; cursor: pointer;
+}
+.opc-logout-link:hover:not(:disabled) { color: #fff; }
+.opc-logout-link:disabled { opacity: 0.6; cursor: default; }
 /* Animasi pop tiap ikon toggle berganti (key berubah = re-mount). */
 .opc-icopop { display: inline-grid; place-items: center; }
 .opc-icopop svg { animation: opc-pop 180ms ease; }
