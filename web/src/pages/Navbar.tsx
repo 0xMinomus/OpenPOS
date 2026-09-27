@@ -185,7 +185,7 @@ export default function Navbar({ dark, logoTone = 'auto', mobileLandingMenu = fa
   useEffect(() => {
     if (!mobileLandingMenu) return
 
-    const desktopQuery = window.matchMedia('(min-width: 48rem)')
+    const desktopQuery = window.matchMedia('(min-width: 64rem)')
     function closeOnDesktop() {
       if (desktopQuery.matches && mobileMenuOpenRef.current) {
         focusRestoreRef.current = logoRef.current
@@ -200,12 +200,12 @@ export default function Navbar({ dark, logoTone = 'auto', mobileLandingMenu = fa
   return (
     <>
       <header className={`sticky top-0 z-10 border-b border-border bg-bg/90 backdrop-blur-xl${mobileLandingMenu ? ' landing-mobile-navbar' : ''}`}>
-        <div className="mx-auto grid min-w-0 max-w-6xl grid-cols-[1fr_auto_1fr] items-center gap-1.5 px-4 py-3 md:gap-5 md:px-8">
+        <div className="mx-auto grid min-w-0 max-w-6xl grid-cols-[1fr_auto_1fr] items-center gap-1.5 px-4 py-3 lg:gap-5 lg:px-8">
           <Link ref={logoRef} to="/" onClick={goHome} className="flex items-center justify-self-start">
             <Logo tone={logoTone} className="h-7 w-auto sm:h-8" />
           </Link>
           {!dark && (
-            <nav className="hidden gap-8 text-sm text-muted md:flex" aria-label="Navigasi utama">
+            <nav className="hidden gap-8 text-sm text-muted lg:flex" aria-label="Navigasi utama">
               {SECTIONS.map((s) => (
                 s.to
                   ? <Link key={s.id} to={s.to} className="hover:text-jet">{s.label}</Link>
@@ -214,8 +214,8 @@ export default function Navbar({ dark, logoTone = 'auto', mobileLandingMenu = fa
             </nav>
           )}
           <div className={mobileLandingMenu
-            ? 'col-start-3 flex min-w-0 items-center justify-self-end gap-1.5 md:gap-2.5'
-            : 'flex min-w-0 items-center justify-self-end gap-1.5 md:gap-2.5'}
+            ? 'col-start-3 flex min-w-0 items-center justify-self-end gap-1.5 lg:gap-2.5'
+            : 'flex min-w-0 items-center justify-self-end gap-1.5 lg:gap-2.5'}
           >
             {mobileLandingMenu && (
               <button
@@ -225,7 +225,7 @@ export default function Navbar({ dark, logoTone = 'auto', mobileLandingMenu = fa
                 aria-expanded={mobileMenuOpen}
                 aria-controls="landing-mobile-menu"
                 onClick={openMobileMenu}
-                className="inline-grid size-11 shrink-0 place-items-center rounded-lg border border-dove text-jet transition-colors hover:border-jet hover:bg-cream focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-jet md:hidden"
+                className="inline-grid size-11 shrink-0 place-items-center text-jet focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-jet lg:hidden"
               >
                 <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
                   <path d="M4 7h16M4 12h16M4 17h16" />
@@ -233,14 +233,14 @@ export default function Navbar({ dark, logoTone = 'auto', mobileLandingMenu = fa
               </button>
             )}
             {mobileLandingMenu ? (
-              <div className="hidden items-center gap-1.5 md:flex md:gap-2.5">
-                <Link to="/masuk" className="rounded-full border border-dove px-2.5 py-1.5 text-[13px] font-medium whitespace-nowrap hover:border-jet sm:px-3 md:px-4 md:py-2 md:text-sm">Masuk</Link>
-                <Link to="/daftar" className="rounded-full border border-jet px-2.5 py-1.5 text-[13px] font-medium whitespace-nowrap hover:bg-jet hover:text-paper sm:px-3 md:px-4 md:py-2 md:text-sm">Mulai Gratis</Link>
+              <div className="hidden items-center gap-1.5 lg:flex lg:gap-2.5">
+                <Link to="/masuk" className="rounded-full border border-dove px-2.5 py-1.5 text-[13px] font-medium whitespace-nowrap hover:border-jet sm:px-3 lg:px-4 lg:py-2 lg:text-sm">Masuk</Link>
+                <Link to="/daftar" className="rounded-full border border-jet px-2.5 py-1.5 text-[13px] font-medium whitespace-nowrap hover:bg-jet hover:text-paper sm:px-3 lg:px-4 lg:py-2 lg:text-sm">Daftar</Link>
               </div>
             ) : (
               <>
-                <Link to="/masuk" className="rounded-full border border-dove px-2.5 py-1.5 text-[13px] font-medium whitespace-nowrap hover:border-jet sm:px-3 md:px-4 md:py-2 md:text-sm">Masuk</Link>
-                <Link to="/daftar" className="rounded-full border border-jet px-2.5 py-1.5 text-[13px] font-medium whitespace-nowrap hover:bg-jet hover:text-paper sm:px-3 md:px-4 md:py-2 md:text-sm">Mulai Gratis</Link>
+                <Link to="/masuk" className="rounded-full border border-dove px-2.5 py-1.5 text-[13px] font-medium whitespace-nowrap hover:border-jet sm:px-3 lg:px-4 lg:py-2 lg:text-sm">Masuk</Link>
+                <Link to="/daftar" className="rounded-full border border-jet px-2.5 py-1.5 text-[13px] font-medium whitespace-nowrap hover:bg-jet hover:text-paper sm:px-3 lg:px-4 lg:py-2 lg:text-sm">Daftar</Link>
               </>
             )}
           </div>
@@ -294,8 +294,8 @@ export default function Navbar({ dark, logoTone = 'auto', mobileLandingMenu = fa
                 to="/daftar"
                 state={{ focusDestinationHeading: true }}
                 onClick={navigateFromMobileMenu}
-                className="landing-mobile-menu__link landing-mobile-menu__cta"
-              >Mulai Gratis</Link>
+                className="landing-mobile-menu__link"
+              >Daftar</Link>
             </nav>
           </div>
         </div>

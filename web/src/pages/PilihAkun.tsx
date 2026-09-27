@@ -81,8 +81,8 @@ export default function PilihAkun() {
   const adminUser = (users ?? []).find((u) => u.role === 'admin') ?? null
 
   return (
-    <div className="min-h-screen bg-[#FFFEFA] flex flex-col">
-      <Navbar logoTone="light" />
+    <div className="landing-light min-h-screen bg-[#FFFEFA] flex flex-col">
+      <Navbar logoTone="light" mobileLandingMenu />
       <div className="w-full flex-1 flex flex-col lg:flex-row min-h-[calc(100vh-65px)]">
         {/* ── Panel kiri: pilih akun ────────────────────────── */}
         <div className="box-border w-full lg:w-[620px] shrink-0 bg-[#FFFEFA] relative order-1 flex flex-col justify-center py-10 lg:py-12">
