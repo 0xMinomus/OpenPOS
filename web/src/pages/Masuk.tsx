@@ -271,7 +271,7 @@ export default function Masuk() {
   }
 
   return (
-    <div className="landing-light min-h-screen bg-[#FFFEFA] flex flex-col">
+    <div className="landing-light min-h-screen bg-[#FFFEFA] text-fg flex flex-col">
       <Navbar logoTone="light" mobileLandingMenu />
       {/* Konten utama selalu dapat jatah full viewport (di bawah header);
           footer mengalir setelahnya. */}

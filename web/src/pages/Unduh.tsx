@@ -60,7 +60,7 @@ export default function Unduh() {
   }
 
   return (
-    <div className="landing-light min-h-screen bg-[#FFFEFA] flex flex-col">
+    <div className="landing-light min-h-screen bg-[#FFFEFA] text-fg flex flex-col">
       <Navbar logoTone="light" mobileLandingMenu />
       <main className="w-full flex-1 flex flex-col lg:flex-row min-h-[calc(100vh-65px)]">
         {/* ── Panel kiri: story offline (di mobile tampil setelah tombol unduh) ── */}
