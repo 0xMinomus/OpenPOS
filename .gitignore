@@ -35,3 +35,13 @@ PROJECT.md
 updatelist9sep.MD
 opencode.json
 *.bundle
+
+# OMP and local tooling
+.code-graph/
+.mcp-servers/
+.omp/cache/
+.omp/logs/
+
+# Secrets (broader than the .env.*.local rules above)
+.env.*
+!.env.example
