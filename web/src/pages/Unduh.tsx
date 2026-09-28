@@ -62,7 +62,7 @@ export default function Unduh() {
   return (
     <div className="landing-light min-h-screen bg-[#FFFEFA] text-fg flex flex-col">
       <Navbar logoTone="light" mobileLandingMenu />
-      <main className="w-full flex-1 flex flex-col min-h-[calc(100vh-65px)]">
+      <main className="w-full flex-1 flex flex-col">
         {/* ── Panel unduh: pilih perangkat (tengah, langsung footer di bawahnya) ── */}
         <div className="box-border w-full shrink-0 bg-[#F3EFE6] relative flex flex-col justify-center px-[clamp(24px,4vw,56px)] py-12">
           <div className="w-full max-w-[568px] mx-auto flex flex-col gap-[14px] relative">
@@ -140,8 +140,8 @@ export default function Unduh() {
                 <LoginIcon name="cloud" size={19} />
               </span>
               <span className="flex-1 min-w-0 flex flex-col gap-[3px]">
-                <span className={`text-[12px] text-[#102033] ${PJS} font-bold whitespace-nowrap`}>Butuh sinkron antar perangkat?</span>
-                <span className={`text-[11px] text-[#667085] ${PJS} font-normal whitespace-nowrap`}>Gunakan OpenPOS Cloud kapan pun bisnis Anda siap.</span>
+                <span className={`text-[12px] text-[#102033] ${PJS} font-bold`}>Butuh sinkron antar perangkat?</span>
+                <span className={`text-[11px] text-[#667085] ${PJS} font-normal`}>Gunakan OpenPOS Cloud kapan pun bisnis Anda siap.</span>
               </span>
               <LoginIcon name="arrow-up-right" size={18} className="shrink-0" />
             </Link>
