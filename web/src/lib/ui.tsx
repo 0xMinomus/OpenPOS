@@ -429,7 +429,7 @@ export function DatePicker({ value, onChange, label = 'Pilih tanggal', placehold
       </button>
 
       {open && (
-        <div role="dialog" aria-label="Kalender" className="absolute right-0 top-full z-50 mt-2 w-72 rounded-xl border border-dove bg-paper p-3 shadow-lg">
+        <div role="dialog" aria-label="Kalender" className="absolute right-0 top-full z-50 mt-2 w-72 max-w-[calc(100vw-2rem)] rounded-xl border border-dove bg-paper p-3 shadow-lg">
           <div className="flex items-center justify-between">
             <button
               type="button" aria-label="Bulan sebelumnya"

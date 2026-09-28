@@ -186,7 +186,7 @@ export default function Karyawan() {
         crumb="Karyawan"
         actions={(
           <div className="flex flex-wrap items-center gap-2">
-            <div className="w-44">
+            <div className="w-full sm:w-44">
               <DatePicker value={date} onChange={setDate} label="Pilih tanggal performa" placeholder="Semua periode" />
             </div>
             <ExportMenu onCSV={exportListCSV} onExcel={exportListExcel} />

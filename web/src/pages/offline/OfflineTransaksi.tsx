@@ -159,7 +159,7 @@ export default function Transaksi() {
         crumb="Transaksi"
         actions={(
           <div className="flex flex-wrap items-center gap-2">
-            <div className="w-44">
+            <div className="w-full sm:w-44">
               <DatePicker value={date} onChange={(v) => { setDate(v); setPage(0) }} label="Filter tanggal" placeholder="Semua tanggal" />
             </div>
             <ExportMenu onCSV={exportListCSV} onExcel={exportListExcel} />

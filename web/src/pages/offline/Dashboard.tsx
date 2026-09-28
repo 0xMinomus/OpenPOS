@@ -123,7 +123,7 @@ export default function Dashboard() {
                 : date ? `Belum ada transaksi pada ${fmtDate(date)}.` : 'Belum ada transaksi hari ini.'}
             </p>
           </div>
-          <div className="w-44">
+          <div className="w-full sm:w-44">
             <DatePicker value={date} onChange={setDate} label="Pilih tanggal dashboard" placeholder={fmtDate(todayISO)} />
           </div>
         </div>
@@ -286,7 +286,7 @@ export default function Dashboard() {
             <span aria-hidden="true">›</span>
             <span aria-current="page" className="text-foreground">Dashboard</span>
           </nav>
-          <div className="w-44">
+          <div className="w-full sm:w-44">
             <DatePicker value={date} onChange={setDate} label="Pilih tanggal dashboard" placeholder={fmtDate(todayISO)} />
           </div>
         </div>

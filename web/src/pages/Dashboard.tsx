@@ -123,7 +123,7 @@ export default function Dashboard() {
                 : date ? `Belum ada transaksi pada ${fmtDate(date)}.` : 'Belum ada transaksi hari ini.'}
             </p>
           </div>
-          <div className="w-44">
+          <div className="w-full sm:w-44">
             <DatePicker value={date} onChange={setDate} label="Pilih tanggal dashboard" placeholder={fmtDate(todayISO)} />
           </div>
         </div>
@@ -274,19 +274,19 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-start justify-between gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
         <div>
           <h1>Dashboard</h1>
           <p className="mt-1 text-sm text-muted-foreground">{date ? `Menampilkan data ${fmtDate(date)}` : 'Pantau aktivitas dan performa toko Anda hari ini'}</p>
         </div>
-        <div className="flex flex-col items-end gap-2">
+        <div className="flex w-full flex-col items-start gap-2 sm:w-auto sm:items-end">
           <nav className="opc-crumb" aria-label="Breadcrumb">
             <House aria-hidden="true" />
             <span>Home</span>
             <span aria-hidden="true">›</span>
             <span aria-current="page" className="text-foreground">Dashboard</span>
           </nav>
-          <div className="w-44">
+          <div className="w-full sm:w-44">
             <DatePicker value={date} onChange={setDate} label="Pilih tanggal dashboard" placeholder={fmtDate(todayISO)} />
           </div>
         </div>

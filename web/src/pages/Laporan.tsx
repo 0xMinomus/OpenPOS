@@ -431,7 +431,7 @@ export default function Laporan() {
     <>
       <PageHeader title="Laporan" sub="Ringkasan performa toko Anda." crumb="Laporan" actions={(
         <div className="flex flex-wrap items-center gap-2">
-          <div className="w-44">
+          <div className="w-full sm:w-44">
             <DatePicker value={date} onChange={setDate} label="Pilih tanggal laporan" placeholder="Semua periode" />
           </div>
           <ExportMenu onCSV={exportTabCSV} onExcel={exportWorkbookExcel} />
@@ -449,7 +449,7 @@ export default function Laporan() {
         crumb="Laporan"
         actions={(
           <div className="flex flex-wrap items-center gap-2">
-            <div className="w-44">
+            <div className="w-full sm:w-44">
               <DatePicker value={date} onChange={setDate} label="Pilih tanggal laporan" placeholder="Semua periode" />
             </div>
             <ExportMenu onCSV={exportTabCSV} onExcel={exportWorkbookExcel} />
