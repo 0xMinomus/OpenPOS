@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { useEffect } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import ErrorBoundary from './lib/ErrorBoundary'
@@ -43,10 +44,27 @@ function DemoMoved() {
   return <Navigate to={loc.pathname.replace(/^\/redesign/, '/demo') + loc.search} replace />
 }
 
+// Setiap pindah route mulai dari paling atas halaman,
+// bukan posisi scroll terakhir (berlaku /masuk, /daftar,
+// /unduh, dan semua route lain; scroll section landing yang
+// dipicu setelah navigasi tetap jalan karena dieksekusi belakangan).
+function ScrollToTop() {
+  const { pathname } = useLocation()
+  useEffect(() => {
+    try {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior })
+    } catch {
+      window.scrollTo(0, 0)
+    }
+  }, [pathname])
+  return null
+}
+
 export default function App() {
   return (
     <TooltipProvider>
       <ErrorBoundary>
+        <ScrollToTop />
         <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/masuk" element={<Masuk />} />
