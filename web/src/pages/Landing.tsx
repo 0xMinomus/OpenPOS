@@ -208,9 +208,11 @@ export default function Landing() {
     ro.observe(el)
     return () => ro.disconnect()
   }, [])
-  const demoVirtual = demoW < 768 ? demoW : 1280
+  const demoVirtual = demoW < 768 ? demoW : 1440
   const demoScale = demoW / demoVirtual
-  const demoViewH = demoW < 768 ? 640 : 620
+  // Tinggi virtual desktop diskala proporsional: 620 * 1440/1280 = 697.5 → 698,
+  // sehingga tinggi render card tetap ≈ 620*demoW/1280 (selisih <0.5px).
+  const demoViewH = demoW < 768 ? 640 : 698
 
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
