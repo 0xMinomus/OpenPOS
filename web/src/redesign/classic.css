@@ -375,6 +375,14 @@
 @media (max-width: 1023px) {
   .opc-stat-val { font-size: 20px; }
 }
+/* HP: angka stat mengecil + label boleh wrap agar tak terpotong di kartu 2 kolom. */
+@media (max-width: 767px) {
+  .opc-stat-body { padding: 10px; gap: 8px; }
+  .opc-stat .opc-kpi-ico { width: 44px; height: 44px; }
+  .opc-stat .opc-kpi-ico svg { width: 22px; height: 22px; }
+  .opc-stat-val { font-size: 15px; }
+  .opc-stat-label { white-space: normal; }
+}
 
 /* ── tombol primary kecil ala referensi (Lihat semua) ── */
 .opc-btn-sm {

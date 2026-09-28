@@ -303,7 +303,7 @@ button { cursor: pointer; }
 /* ─── mobile-first responsive safety net (< 480px smartphone) ──────────
    Hanya sizing/spacing/wrapping. Tidak mengubah warna/desain desktop. */
 img, svg, video, canvas { max-width: 100%; }
-p, h1, h2, h3, h4, li, span, a, td, th { overflow-wrap: anywhere; }
+p, h1, h2, h3, h4, li, span, a, td, th { overflow-wrap: break-word; }
 
 @media (max-width: 479px) {
   /* Halaman app: padding 16px, cegah konten keluar viewport */
@@ -315,7 +315,7 @@ p, h1, h2, h3, h4, li, span, a, td, th { overflow-wrap: anywhere; }
   /* Tombol berdampingan: wrap / vertikal bila sempit */
   .flex.gap-2, .flex.gap-3 { flex-wrap: wrap; }
   /* Tabel desktop: scroll di dalam wrapper, bukan halaman */
-  .overflow-x-auto > table { min-width: 560px; }
+  .overflow-x-auto > table { min-width: 640px; }
   /* Teks panjang (email/nama toko): wrap, jangan lebarkan halaman */
   .truncate { overflow-wrap: anywhere; }
   /* Modal: muat di layar kecil + bisa scroll dalam */

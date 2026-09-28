@@ -278,14 +278,14 @@ export function NotifBell() {
             )}
           </div>
 
-          <div role="tablist" aria-label="Filter kategori" className="mx-4 mb-1 flex gap-1 rounded-lg bg-surface p-1">
+          <div role="tablist" aria-label="Filter kategori" className="mx-3 mb-1 flex gap-1 overflow-x-auto rounded-lg bg-surface p-1 sm:mx-4">
             {TABS.map((t) => (
               <button
                 key={t.id}
                 role="tab"
                 aria-selected={t.id === tab}
                 onClick={() => pickTab(t.id)}
-                className={`flex-1 rounded-md px-2 py-1.5 text-xs transition outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                className={`flex-1 rounded-md px-1.5 py-1.5 text-[11px] whitespace-nowrap shrink-0 transition outline-none focus-visible:ring-2 focus-visible:ring-ring max-sm:min-h-[40px] sm:px-2 sm:text-xs ${
                   t.id === tab ? 'bg-paper font-medium text-fg shadow-sm' : 'text-muted hover:text-fg'
                 }`}
               >
