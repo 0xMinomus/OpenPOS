@@ -64,7 +64,7 @@ export default function Unduh() {
       <Navbar logoTone="light" mobileLandingMenu />
       <main className="w-full flex-1 flex flex-col">
         {/* ── Panel unduh: pilih perangkat (tengah, langsung footer di bawahnya) ── */}
-        <div className="box-border w-full shrink-0 bg-[#F3EFE6] relative flex flex-col justify-center px-[clamp(24px,4vw,56px)] py-12">
+        <div className="box-border w-full flex-1 bg-[#F3EFE6] relative flex flex-col justify-center px-[clamp(24px,4vw,56px)] py-12">
           <div className="w-full max-w-[568px] mx-auto flex flex-col gap-[14px] relative">
             <div className="login-rise flex flex-col gap-[12px]">
               <div className="flex flex-row gap-[9px] items-center">
