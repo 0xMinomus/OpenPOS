@@ -174,7 +174,7 @@ export default function Dashboard() {
               {payData.length === 0 ? (
                 <p className="py-12 text-center text-sm text-muted-foreground">Belum ada transaksi hari ini.</p>
               ) : (
-                <div className="flex flex-col items-center gap-4 min-[420px]:flex-row min-[420px]:gap-5">
+                <div className="opc-pay">
                   <ChartContainer config={{}} className="relative h-44 w-full max-w-48 shrink-0">
                     <PieChart>
                       <ChartTooltip content={<ChartTooltipContent formatter={(v) => fmtRp(Number(v))} hideLabel />} />
@@ -338,7 +338,7 @@ export default function Dashboard() {
             {payData.length === 0 ? (
               <p className="py-12 text-center text-sm text-muted-foreground">Belum ada transaksi hari ini.</p>
             ) : (
-              <div className="flex flex-col items-center gap-4 min-[420px]:flex-row min-[420px]:gap-5">
+              <div className="opc-pay">
                 <ChartContainer config={{}} className="relative h-44 w-full max-w-48 shrink-0">
                   <PieChart>
                     <ChartTooltip content={<ChartTooltipContent formatter={(v) => fmtRp(Number(v))} hideLabel />} />

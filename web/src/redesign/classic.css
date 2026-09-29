@@ -343,7 +343,16 @@
 }
 .dark .op-classic .opc-kpi-ico { background: #1b2d3c; color: #b5c0cb; }
 .opc-kpi-ico svg { width: 30px; height: 30px; }
-.opc-kpi-val { font-size: 30px; font-weight: 700; line-height: 1.15; letter-spacing: -0.01em; white-space: nowrap; color: var(--foreground); }
+/* 4 kolom di 1280px menyisakan ~126px ruang teks (kartu 234px - padding 32 -
+   ikon 64 - gap 12); angka 30px memotong "Rp 2.400.000". Fluid: 20.5px di
+   1280 -> 30px di 1920, jadi nilai normal tetap satu baris. */
+.opc-kpi-val {
+  font-size: clamp(20px, 1.6vw, 30px); font-weight: 700; line-height: 1.15;
+  letter-spacing: -0.01em; color: var(--foreground);
+  /* Jaring pengaman: angka sangat panjang wrap di spasi ("Rp" / "9.999.999")
+     alih-alih terpotong diam-diam oleh overflow:hidden. */
+  white-space: normal; overflow-wrap: break-word;
+}
 .opc-kpi-label { margin-top: 2px; font-size: 13px; line-height: 1.4; color: var(--muted-foreground); }
 .opc-kpi-foot {
   display: flex; justify-content: center;
@@ -353,6 +362,18 @@
   font-size: 13px; color: var(--primary); text-decoration: none;
 }
 .opc-kpi-foot:hover { text-decoration: underline; }
+
+/* Metode Pembayaran: donut + legenda menyamping hanya bila panel cukup lebar.
+   Di 1024-1499px panel = kolom 1fr dari `lg:grid-cols-[2fr_1fr]` (241-460px);
+   donut 192px + gap 20px memakan hampir semua ruang, jadi nama metode
+   ("Bank Transfer") turun 2 baris / menabrak persennya. Di rentang itu legenda
+   turun ke bawah donut. Di bawah 1024px panel 1 kolom penuh (lega), di >=1500px
+   kolom 1fr ~400px (lega lagi). Satu kelas ini dipakai /demo, /app, dan offline
+   - jangan diduplikasi jadi konstanta per file. */
+.opc-pay { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+@media (min-width: 420px) { .opc-pay { flex-direction: row; gap: 20px; } }
+@media (min-width: 1024px) { .opc-pay { flex-direction: column; gap: 16px; } }
+@media (min-width: 1500px) { .opc-pay { flex-direction: row; gap: 20px; } }
 
 /* ── panel header pola referensi: ikon + judul + sub (§14–§17) ── */
 .opc-panel-head { display: flex; align-items: flex-start; gap: 10px; }
