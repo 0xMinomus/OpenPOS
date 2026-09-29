@@ -27,6 +27,11 @@ const NONE = '__none__'
 // ponytail: paging client-side di atas fetchAll; pindah ke paging server-side bila katalog puluhan ribu.
 const PAGE_SIZE = 15
 
+// Bentuk chip filter kategori untuk tablet (768-1279). Di >=1280 rail pakai
+// kelas aslinya (w-full, px-3 py-2 text-sm) dan tidak tersentuh helper ini.
+const CHIP_BASE = 'flex max-w-full items-center gap-2 rounded-lg border bg-paper px-2.5 py-1.5 text-[13px] transition'
+const chipCls = (on: boolean) => `${CHIP_BASE} ${on ? 'border-jet font-medium' : 'border-dove hover:border-jet'}`
+
 export default function Produk() {
   const { session } = useDB()
   const who = `${session?.id}:${session?.role}`
@@ -253,20 +258,18 @@ export default function Produk() {
         }
         crumb="Produk"
         actions={(
-          // Tablet (<1024): aksi dipecah dua baris. Satu baris utuh (~551px)
-          // lebih lebar dari sisa ruang di samping sidebar 240px, dan blok
-          // aksi flex-shrink:0 memampatkan judul sampai "Produk" pecah satu
-          // huruf per baris. ≥1024 satu baris dengan jarak yang sama seperti
-          // sebelumnya, jadi ≥1280 tak berubah sama sekali.
-          <div className="flex max-lg:flex-col max-lg:items-end gap-2 lg:flex-row lg:items-center">
-            <div className="flex flex-wrap justify-end gap-2">
-              <ExportMenu onCSV={exportListCSV} onExcel={exportListExcel} />
-              <ImportMenu onPick={pickImport} />
-            </div>
-            <div className="flex flex-wrap justify-end gap-2">
-              <Button variant="ghost" onClick={() => { setCatName(''); setErr(''); setCatOpen(true) }}><FolderPlus className="size-4" />Kategori</Button>
-              <Button onClick={() => setEditing({ ...emptyDraft })}><Plus className="size-4" />Tambah Produk</Button>
-            </div>
+          // <1024 (tablet/phone): empat aksi jadi grid 2x2 sel sama lebar.
+          // Sebelumnya dua baris ragged (Export|Import / Kategori|Tambah)
+          // yang ujungnya tidak rata, dan blok 3 tombol satu baris terlalu
+          // lebar sampai judul "Produk" dan subjudul terpecah. Grid 2x2 memberi
+          // blok rapat ~321px yang rata di keempat sisi dan subjudul tetap
+          // satu baris. >=1024 semua aksi satu baris flex dengan jarak 8px
+          // persis seperti sebelumnya, jadi >=1280 tak berubah sama sekali.
+          <div className="grid grid-cols-2 gap-2 lg:flex lg:flex-row lg:items-center">
+            <ExportMenu onCSV={exportListCSV} onExcel={exportListExcel} />
+            <ImportMenu onPick={pickImport} />
+            <Button variant="ghost" onClick={() => { setCatName(''); setErr(''); setCatOpen(true) }}><FolderPlus className="size-4" />Kategori</Button>
+            <Button onClick={() => setEditing({ ...emptyDraft })}><Plus className="size-4" />Tambah Produk</Button>
             <input ref={fileRef} type="file" accept=".csv,.xlsx,.xls" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) onImportFile(f); e.target.value = '' }} />
           </div>
         )}
@@ -274,8 +277,13 @@ export default function Produk() {
 
       {(err || prod.err) && <p className="mb-4 rounded-lg bg-sand px-3.5 py-2.5 text-[13px] text-ember">{err || prod.err}</p>}
 
-      <div className="mb-5 grid items-start gap-4 lg:grid-cols-[280px_1fr]">
-        <aside className="min-w-0 rounded-2xl bg-cream p-5">
+      {/* Rail kategori jadi kolom 280px hanya di >=1280. Sebelumnya
+          `lg:grid-cols` ikut menyalakannya di 1024-1279 (iPad landscape),
+          jadi 280px lebar + 322px tinggi terbuang. Di 768-1279 rail diganti
+          chip bar melintang (varian kedua, hidden di >=1280) dan produk memakai
+          lebar penuh, sehingga >=1280 tetap persis seperti sebelumnya. */}
+      <div className="mb-5 grid items-start gap-4 min-[1280px]:grid-cols-[280px_1fr]">
+        <aside className="hidden min-w-0 rounded-2xl bg-cream p-5 min-[1280px]:block">
           <h2 className="font-mono text-xs uppercase tracking-wider text-fog">Kategori</h2>
           <div className="mt-3 space-y-1.5">
             {!catsReady ? (
@@ -317,6 +325,56 @@ export default function Produk() {
                 )}
               </>
             )}
+          </div>
+        </aside>
+
+        {/* Varian tablet: label "Kategori" menyatu baris pertama chip, daftar
+            membungkus sendiri jadi 1-2 baris chip (2 baris di 768-1150, 1
+            baris di atas ~1150). Filter sama persis — hanya bentuknya ringkas. */}
+        <aside className="min-w-0 rounded-2xl bg-cream px-4 py-3 min-[1280px]:hidden">
+          <div className="flex items-start gap-3">
+            <h2 className="shrink-0 pt-1.5 font-mono text-xs uppercase tracking-wider text-fog">Kategori</h2>
+            <div className="flex min-w-0 flex-1 flex-wrap gap-2">
+              {!catsReady ? (
+                <div className="flex flex-wrap gap-2" aria-hidden="true">
+                  {[0, 1, 2].map((i) => (
+                    <Skeleton key={i} className="h-[30px] w-24 rounded-lg" />
+                  ))}
+                </div>
+              ) : (
+                <>
+                  <button
+                    onClick={() => setCatFilter('')}
+                    className={chipCls(catFilter === '')}
+                  >
+                    <span>Semua Kategori</span>
+                    <CountBadge n={products?.length ?? 0} active={catFilter === ''} />
+                  </button>
+                  {activeCats.map((c) => (
+                    <div
+                      key={c.id}
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => setCatFilter(catFilter === c.id ? '' : c.id)}
+                      onKeyDown={(e) => { if (e.key === 'Enter') setCatFilter(catFilter === c.id ? '' : c.id) }}
+                      className={`${chipCls(catFilter === c.id)} cursor-pointer`}
+                    >
+                      <span className="min-w-0 truncate text-left">{c.name}</span>
+                      <CountBadge n={counts.m.get(c.id) ?? 0} active={catFilter === c.id} />
+                    </div>
+                  ))}
+                  {counts.none > 0 && (
+                    <button
+                      onClick={() => setCatFilter(catFilter === NONE ? '' : NONE)}
+                      className={chipCls(catFilter === NONE)}
+                    >
+                      <span>Tanpa kategori</span>
+                      <CountBadge n={counts.none} active={catFilter === NONE} />
+                    </button>
+                  )}
+                </>
+              )}
+            </div>
           </div>
         </aside>
 
@@ -372,41 +430,54 @@ export default function Produk() {
             )}
           </div>
 
-          <div className="space-y-2.5 min-[1280px]:hidden">
+          {/* Kartu 1 kolom full-width menyisakan ~300px ruang kosong di
+              tengahnya dan hanya ~4 produk muat per layar. Grid ini memangkas
+              lebar kartu jadi ~264-362px (footer harga + ikon tetap satu baris
+              tanpa terpotong) sehingga kartu per layar naik. 2 kolom mulai
+              768px, 3 kolom mulai 1120px (rail hilang, konten ~860px). <768
+              tetap 1 kolom; >=1280 kembali ke tabel apa adanya. */}
+          <div className="grid grid-cols-1 gap-2.5 min-[768px]:grid-cols-2 min-[1120px]:grid-cols-3 min-[1280px]:hidden">
             {!filtered ? (
-              [0, 1, 2].map((i) => <Skeleton key={i} className="h-24 w-full rounded-xl" />)
+              [0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-[104px] w-full rounded-xl" />)
             ) : filtered.length > 0 ? (
               (pageItems ?? []).map((p) => (
-                <div key={p.id} className="rounded-xl border border-dove bg-paper p-3.5">
+                <div key={p.id} className="flex flex-col rounded-xl border border-dove bg-paper p-2.5">
                   <div className="flex items-start justify-between gap-2">
                     <p className="min-w-0 flex-1 truncate text-[15px] font-medium text-fg">{p.name}</p>
                     <Pill tone={p.active ? 'ok' : 'muted'}>{p.active ? 'Aktif' : 'Nonaktif'}</Pill>
                   </div>
-                  <p className="mt-1 font-mono text-xs text-fog">{p.sku} · {p.category_name ?? 'Tanpa kategori'}</p>
-                  <div className="mt-2.5 flex items-end justify-between gap-3">
-                    <dl className="min-w-0 text-[13px] leading-snug">
+                  <p className="mt-1 flex items-center gap-1.5 text-xs text-fog">
+                    <span className="min-w-0 truncate font-mono">{p.sku}</span>
+                    <span className="shrink-0" aria-hidden="true">·</span>
+                    <span className="min-w-0 truncate">{p.category_name ?? 'Tanpa kategori'}</span>
+                    <span className="ml-auto shrink-0 whitespace-nowrap"><StockCell stock={p.stock} unit={p.unit} /></span>
+                  </p>
+                  {/* Satu blok footer: harga di kiri, ikon aksi di kanan. Kalau
+                      harga panjang membuat footer tidak muat satu baris, blok
+                      membungkus dan ikon tetap rata kanan — bukan terpotong. */}
+                  <div className="mt-auto flex flex-wrap items-center justify-between gap-x-2 gap-y-1.5 pt-2.5">
+                    <dl className="text-[13px] leading-snug">
                       <div className="flex items-baseline gap-1.5">
                         <dt className="shrink-0 text-fog">Beli</dt>
-                        <dd className="truncate font-mono tabular-nums text-muted">{fmtRp(p.buy_price)}</dd>
+                        <dd className="font-mono tabular-nums text-muted">{fmtRp(p.buy_price)}</dd>
                       </div>
                       <div className="mt-0.5 flex items-baseline gap-1.5">
                         <dt className="shrink-0 text-fog">Jual</dt>
-                        <dd className="truncate font-mono text-[15px] font-medium tabular-nums text-fg">{fmtRp(p.sell_price)}</dd>
+                        <dd className="font-mono text-[15px] font-medium tabular-nums text-fg">{fmtRp(p.sell_price)}</dd>
                       </div>
                     </dl>
-                    <div className="flex shrink-0 items-center gap-1">
-                      <span className="mr-1 whitespace-nowrap text-[13px]"><StockCell stock={p.stock} unit={p.unit} /></span>
-                      <button title="Ubah" aria-label={`Ubah ${p.name}`} className="grid size-8 place-items-center rounded-md text-steel transition hover:bg-surface hover:text-fg" onClick={() => setEditing({ id: p.id, name: p.name, sku: p.sku, barcode: p.barcode, categoryId: p.category_id ?? '', buyPrice: String(p.buy_price), sellPrice: String(p.sell_price), stock: String(p.stock), unit: p.unit })}><Pencil className="size-4" /></button>
-                      <button title={p.active ? 'Nonaktifkan' : 'Aktifkan'} aria-label={`${p.active ? 'Nonaktifkan' : 'Aktifkan'} ${p.name}`} className="grid size-8 place-items-center rounded-md text-steel transition hover:bg-surface hover:text-fg" onClick={() => toggleActive(p)}><Power className="size-4" /></button>
-                      <button title="Hapus" aria-label={`Hapus ${p.name}`} className="grid size-8 place-items-center rounded-md text-steel transition hover:bg-surface hover:text-ember" onClick={() => setDeleteFor(p)}><Trash2 className="size-4" /></button>
+                    <div className="ml-auto flex shrink-0 items-center gap-1">
+                      <button title="Ubah" aria-label={`Ubah ${p.name}`} className="grid size-8 min-[768px]:size-10 place-items-center rounded-md text-steel transition hover:bg-surface hover:text-fg" onClick={() => setEditing({ id: p.id, name: p.name, sku: p.sku, barcode: p.barcode, categoryId: p.category_id ?? '', buyPrice: String(p.buy_price), sellPrice: String(p.sell_price), stock: String(p.stock), unit: p.unit })}><Pencil className="size-4" /></button>
+                      <button title={p.active ? 'Nonaktifkan' : 'Aktifkan'} aria-label={`${p.active ? 'Nonaktifkan' : 'Aktifkan'} ${p.name}`} className="grid size-8 min-[768px]:size-10 place-items-center rounded-md text-steel transition hover:bg-surface hover:text-fg" onClick={() => toggleActive(p)}><Power className="size-4" /></button>
+                      <button title="Hapus" aria-label={`Hapus ${p.name}`} className="grid size-8 min-[768px]:size-10 place-items-center rounded-md text-steel transition hover:bg-surface hover:text-ember" onClick={() => setDeleteFor(p)}><Trash2 className="size-4" /></button>
                     </div>
                   </div>
                 </div>
               ))
             ) : products && products.length > 0 ? (
-              <Empty title="Tidak ada produk yang cocok" sub="Coba kata kunci lain atau ubah filter kategori." action={<Button onClick={() => { setCatFilter(''); setQ('') }}>Tampilkan semua</Button>} />
+              <div className="col-span-full"><Empty title="Tidak ada produk yang cocok" sub="Coba kata kunci lain atau ubah filter kategori." action={<Button onClick={() => { setCatFilter(''); setQ('') }}>Tampilkan semua</Button>} /></div>
             ) : (
-              <Empty title="Belum ada produk" sub="Tambah produk pertama untuk mulai berjualan." action={<Button onClick={() => setEditing({ ...emptyDraft })}>+ Tambah Produk</Button>} />
+              <div className="col-span-full"><Empty title="Belum ada produk" sub="Tambah produk pertama untuk mulai berjualan." action={<Button onClick={() => setEditing({ ...emptyDraft })}>+ Tambah Produk</Button>} /></div>
             )}
           </div>
           <Pager page={safePage} total={totalPages} onChange={setPage} />
