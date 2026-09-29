@@ -1,5 +1,14 @@
 apply plugin: 'com.android.application'
 
+// Kredensial rilis dibaca dari keystore.properties (gitignored, isi file ada di
+// luar repo). Kalau file itu tidak ada, `assembleRelease` tetap jalan tanpa
+// tanda tangan - `assembleDebug` tidak pernah gagal karena ini hilang.
+def keystorePropsFile = rootProject.file('keystore.properties')
+def keystoreProps = new Properties()
+if (keystorePropsFile.exists()) {
+    keystoreProps.load(new FileInputStream(keystorePropsFile))
+}
+
 android {
     namespace = "com.openpos.mobile"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -7,10 +16,11 @@ android {
         applicationId "com.openpos.mobile"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        // Bumped 29 Sep 2026: build pertama sejak 17 Sep (bundle offline disegarkan
-        // ulang + logo launcher/splash baru). Jalur versi mobile terpisah dari PC.
-        versionCode 2
-        versionName "1.0.1"
+        // 1.0.1 = debug 29 Sep (bundle disegarkan + logo). 1.0.2 = rilis bertanda
+        // tangan pertama (inset status bar, logo putih, APK tak lagi mengAPK-kan
+        // dirinya sendiri). Jalur versi mobile terpisah dari PC.
+        versionCode 3
+        versionName "1.0.2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -18,10 +28,23 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        release {
+            if (keystorePropsFile.exists()) {
+                storeFile rootProject.file(keystoreProps['storeFile'])
+                storePassword keystoreProps['storePassword']
+                keyAlias keystoreProps['keyAlias']
+                keyPassword keystoreProps['keyPassword']
+            }
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            if (keystorePropsFile.exists()) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 }
