@@ -543,7 +543,9 @@ export default function Pengaturan() {
 
           <Card>
             <CardHead title="Kata Sandi Akun" sub="Perbarui kata sandi untuk melindungi akun Anda." />
-            <div className="grid gap-5 md:grid-cols-2">
+            {/* 768–1023: kolom 2 hanya ~214px, panel panduan jadi sempit dan
+                menjulur panjang. Satu kolom di tablet, dua kolom ≥1024. */}
+            <div className="grid gap-5 min-[1024px]:grid-cols-2">
               <div className="space-y-4">
                 {pwdErr && <p className="rounded-lg bg-sand px-3.5 py-2.5 text-[13px] text-ember" role="alert">{pwdErr}</p>}
                 <PwField label="Kata sandi baru" value={newPw} onChange={setNewPw} show={showNew} onToggle={() => setShowNew((v) => !v)} auto="new-password" />
@@ -879,7 +881,8 @@ export default function Pengaturan() {
           <div className="space-y-4 lg:col-span-2">
             <Card>
               <CardHead title="Preview Struk" sub="Ini adalah tampilan struk yang akan dicetak." />
-              <div className="flex justify-center overflow-x-auto rounded-xl bg-surface p-4">
+              {/* 80mm butuh 302px; padding 16px bikin terpotong di tablet. */}
+              <div className="flex justify-center overflow-x-auto rounded-xl bg-surface p-4 min-[768px]:max-[1279px]:p-2">
                 <div className="bg-white px-3 py-4 font-mono text-[11px] leading-relaxed text-black" style={{ width: form.paper, maxWidth: '100%' }}>
                   <p className="text-center text-[13px] font-bold uppercase">{form.storeName || '—'}</p>
                   {form.address && <p className="mt-0.5 text-center text-[10px]">{form.address}</p>}

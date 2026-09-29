@@ -409,8 +409,10 @@ export default function Users() {
         title="User Management"
         sub="Kelola akun admin dan kasir, status akun, serta akses pengguna."
         crumb="User Management"
+        // 768–1023: judul + subjudul butuh lebar penuh, aksi turun ke baris
+        // sendiri (≥1024 & <768 tetap sejajar seperti sebelumnya).
         actions={(
-          <div className="flex gap-2">
+          <div className="flex gap-2 min-[768px]:max-[1023px]:w-full min-[768px]:max-[1023px]:justify-end">
             <ExportMenu onCSV={exportAllCSV} onExcel={exportAllExcel} disabled={!data} />
             <Button onClick={() => setOpen(true)}>
               <Plus className="size-4" /> Tambah Kasir
@@ -470,7 +472,8 @@ export default function Users() {
                   className="w-full rounded-md border border-border bg-paper py-2.5 pl-10 pr-3.5 text-sm text-fg placeholder:text-fog focus:border-jet focus:outline-none"
                 />
               </div>
-              <div className="flex flex-wrap gap-2.5 lg:ml-auto">
+              {/* 768–1023: kolom penuh, filter rata kanan seperti ≥1024. */}
+              <div className="flex flex-wrap gap-2.5 min-[768px]:max-[1023px]:justify-end lg:ml-auto">
                 <DropdownMenu>
                   <DropdownMenuTrigger aria-label="Filter status" className="flex items-center justify-between gap-2 rounded-md border border-border bg-paper px-3.5 py-2.5 text-sm transition outline-none hover:border-jet focus-visible:ring-2 focus-visible:ring-ring">
                     <span>{statusF === 'online' ? 'Online' : statusF === 'offline' ? 'Offline' : 'Semua Status'}</span>
@@ -515,39 +518,44 @@ export default function Users() {
               </div>
             ) : (
               <>
-                {/* Desktop */}
-                <table className="mt-3 hidden w-full border-collapse md:table">
-                  <thead>
-                    <tr>
-                      <Th>Nama</Th><Th>Role</Th><Th>Status</Th><Th>Bergabung</Th><Th>Aktivitas Terakhir</Th><Th>Kinerja Hari Ini</Th><Th />
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {shown.map((u) => (
-                      <tr key={`${u.role}-${u.id}`} className="transition-colors hover:bg-surface/60">
-                        <Td>
-                          <span className="flex items-center gap-2.5">
-                            <span className="grid size-9 shrink-0 place-items-center rounded-full bg-sand text-[13px] font-medium text-steel" aria-hidden="true">
-                              {initials(u.name)}
-                            </span>
-                            <span className="min-w-0">
-                              <span className="block truncate font-medium text-fg">
-                                {u.name}{u.id === s.id && <span className="ml-1.5 font-normal text-fog">(Anda)</span>}
-                              </span>
-                              {u.email ? <span className="block truncate text-xs text-fog">{u.email}</span> : null}
-                            </span>
-                          </span>
-                        </Td>
-                        <Td><Pill tone={u.role === 'admin' ? 'ok' : 'muted'}>{u.role === 'admin' ? 'Admin' : 'Kasir'}</Pill></Td>
-                        <Td><Presence u={u} /></Td>
-                        <Td mono>{u.created_at ? fmtDate(u.created_at) : '—'}</Td>
-                        <Td><span className="whitespace-nowrap text-muted">{lastAct(u)}</span></Td>
-                        <Td>{perfCell(u)}</Td>
-                        <Td><span className="flex justify-end">{actionMenu(u)}</span></Td>
+                {/* Desktop. Tablet 768–1279 sidebar 240px masih ada, jadi 7
+                    kolom tak muat di lebar konten — scroll di dalam wrapper
+                    (bukan halaman) supaya kolom Kinerja + tombol ⋯ tetap
+                    terjangkau. ≥1280 & <768 utuh seperti sebelumnya. */}
+                <div className="min-[768px]:max-[1279px]:overflow-x-auto">
+                  <table className="mt-3 hidden w-full border-collapse md:table">
+                    <thead>
+                      <tr>
+                        <Th>Nama</Th><Th>Role</Th><Th>Status</Th><Th>Bergabung</Th><Th>Aktivitas Terakhir</Th><Th>Kinerja Hari Ini</Th><Th />
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {shown.map((u) => (
+                        <tr key={`${u.role}-${u.id}`} className="transition-colors hover:bg-surface/60">
+                          <Td>
+                            <span className="flex items-center gap-2.5">
+                              <span className="grid size-9 shrink-0 place-items-center rounded-full bg-sand text-[13px] font-medium text-steel" aria-hidden="true">
+                                {initials(u.name)}
+                              </span>
+                              <span className="min-w-0">
+                                <span className="block truncate font-medium text-fg">
+                                  {u.name}{u.id === s.id && <span className="ml-1.5 font-normal text-fog">(Anda)</span>}
+                                </span>
+                                {u.email ? <span className="block truncate text-xs text-fog">{u.email}</span> : null}
+                              </span>
+                            </span>
+                          </Td>
+                          <Td><Pill tone={u.role === 'admin' ? 'ok' : 'muted'}>{u.role === 'admin' ? 'Admin' : 'Kasir'}</Pill></Td>
+                          <Td><Presence u={u} /></Td>
+                          <Td mono>{u.created_at ? fmtDate(u.created_at) : '—'}</Td>
+                          <Td><span className="whitespace-nowrap text-muted">{lastAct(u)}</span></Td>
+                          <Td>{perfCell(u)}</Td>
+                          <Td><span className="flex justify-end">{actionMenu(u)}</span></Td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
 
                 {/* Mobile */}
                 <div className="mt-3 space-y-2.5 md:hidden">

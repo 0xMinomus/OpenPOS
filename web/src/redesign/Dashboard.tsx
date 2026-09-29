@@ -17,6 +17,14 @@ import { DatePicker, Td, Th } from '../lib/ui'
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
 
+// Donut + legenda metode pembayaran: side-by-side hanya bila panelnya cukup
+// lega. Pada 1024–1279px panel ini jadi kolom 1fr dari `lg:grid-cols-[2fr_1fr]`
+// (hanya ±241–326px), sehingga donut 192px memakan hampir seluruh ruang dan
+// nama metode ("Bank Transfer") turun 2 baris / menabrak persennya. Di rentang
+// itu legenda turun ke bawah donut. <1024px panelnya 1 kolom penuh (masih lega)
+// dan ≥1280px desktop — keduanya tetap side-by-side seperti sedia.
+const PAY_ROW = 'min-[420px]:max-[1023px]:flex-row min-[420px]:max-[1023px]:gap-5 min-[1280px]:flex-row min-[1280px]:gap-5'
+
 const salesConfig = {
   omzet: { label: 'Penjualan', color: 'var(--chart-1)' },
 } as const
@@ -156,7 +164,7 @@ export default function Dashboard() {
               {payData.length === 0 ? (
                 <p className="py-12 text-center text-sm text-muted-foreground">Belum ada transaksi hari ini.</p>
               ) : (
-                <div className="flex flex-col items-center gap-4 min-[420px]:flex-row min-[420px]:gap-5">
+                <div className={`flex flex-col items-center gap-4 ${PAY_ROW}`}>
                   <ChartContainer config={{}} className="relative h-44 w-full max-w-48 shrink-0">
                     <PieChart>
                       <ChartTooltip content={<ChartTooltipContent formatter={(v) => fmtRp(Number(v))} hideLabel />} />
@@ -320,7 +328,7 @@ export default function Dashboard() {
             {payData.length === 0 ? (
               <p className="py-12 text-center text-sm text-muted-foreground">Belum ada transaksi hari ini.</p>
             ) : (
-              <div className="flex flex-col items-center gap-4 min-[420px]:flex-row min-[420px]:gap-5">
+              <div className={`flex flex-col items-center gap-4 ${PAY_ROW}`}>
                 <ChartContainer config={{}} className="relative h-44 w-full max-w-48 shrink-0">
                   <PieChart>
                     <ChartTooltip content={<ChartTooltipContent formatter={(v) => fmtRp(Number(v))} hideLabel />} />

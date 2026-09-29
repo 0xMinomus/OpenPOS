@@ -212,7 +212,10 @@ export default function Transaksi() {
         ))}
       </div>
 
-      <div className="mt-4 hidden overflow-x-auto rounded-2xl bg-cream p-2 sm:block">
+      {/* Tabel 8-9 kolom butuh ~847px; di bawah 1280 (iPad/tablet) tabel dipindah
+          ke kartu ringkas di bawah supaya total, status, dan tombol Detail/Refund
+          tak terpotong. ≥1280 tetap tabel apa adanya. */}
+      <div className="mt-4 hidden overflow-x-auto rounded-2xl bg-cream p-2 min-[1280px]:block">
         {loading || trx.length > 0 ? (
           <table className="w-full border-collapse">
             <thead>
@@ -261,7 +264,7 @@ export default function Transaksi() {
         )}
       </div>
 
-      <div className="mt-4 space-y-2.5 sm:hidden">
+      <div className="mt-4 space-y-2.5 min-[1280px]:hidden">
         {loading ? (
           [0, 1, 2].map((i) => <Skeleton key={i} className="h-28 w-full rounded-xl" />)
         ) : trx.length > 0 ? (

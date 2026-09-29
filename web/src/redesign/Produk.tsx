@@ -253,11 +253,20 @@ export default function Produk() {
         }
         crumb="Produk"
         actions={(
-          <div className="flex flex-wrap gap-2">
-            <ExportMenu onCSV={exportListCSV} onExcel={exportListExcel} />
-            <ImportMenu onPick={pickImport} />
-            <Button variant="ghost" onClick={() => { setCatName(''); setErr(''); setCatOpen(true) }}><FolderPlus className="size-4" />Kategori</Button>
-            <Button onClick={() => setEditing({ ...emptyDraft })}><Plus className="size-4" />Tambah Produk</Button>
+          // Tablet (<1024): aksi dipecah dua baris. Satu baris utuh (~551px)
+          // lebih lebar dari sisa ruang di samping sidebar 240px, dan blok
+          // aksi flex-shrink:0 memampatkan judul sampai "Produk" pecah satu
+          // huruf per baris. ≥1024 satu baris dengan jarak yang sama seperti
+          // sebelumnya, jadi ≥1280 tak berubah sama sekali.
+          <div className="flex max-lg:flex-col max-lg:items-end gap-2 lg:flex-row lg:items-center">
+            <div className="flex flex-wrap justify-end gap-2">
+              <ExportMenu onCSV={exportListCSV} onExcel={exportListExcel} />
+              <ImportMenu onPick={pickImport} />
+            </div>
+            <div className="flex flex-wrap justify-end gap-2">
+              <Button variant="ghost" onClick={() => { setCatName(''); setErr(''); setCatOpen(true) }}><FolderPlus className="size-4" />Kategori</Button>
+              <Button onClick={() => setEditing({ ...emptyDraft })}><Plus className="size-4" />Tambah Produk</Button>
+            </div>
             <input ref={fileRef} type="file" accept=".csv,.xlsx,.xls" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) onImportFile(f); e.target.value = '' }} />
           </div>
         )}
@@ -320,7 +329,10 @@ export default function Produk() {
               className="w-full rounded-md border border-border bg-paper py-2.5 pl-10 pr-3.5 text-sm focus:border-jet focus:outline-none"
             />
           </div>
-          <div className="overflow-x-auto rounded-2xl bg-cream p-2">
+          {/* Tabel 8 kolom butuh ~566px; di bawah 1280 (iPad/tablet, bahkan saat
+              rail kategori 280px aktif) pakai kartu ringkas di bawah.
+              ≥1280 tetap tabel apa adanya. */}
+          <div className="hidden overflow-x-auto rounded-2xl bg-cream p-2 min-[1280px]:block">
             {!filtered || filtered.length > 0 ? (
               <table className="w-full border-collapse">
                 <thead>
@@ -353,6 +365,44 @@ export default function Produk() {
                 </tbody>
                 )}
               </table>
+            ) : products && products.length > 0 ? (
+              <Empty title="Tidak ada produk yang cocok" sub="Coba kata kunci lain atau ubah filter kategori." action={<Button onClick={() => { setCatFilter(''); setQ('') }}>Tampilkan semua</Button>} />
+            ) : (
+              <Empty title="Belum ada produk" sub="Tambah produk pertama untuk mulai berjualan." action={<Button onClick={() => setEditing({ ...emptyDraft })}>+ Tambah Produk</Button>} />
+            )}
+          </div>
+
+          <div className="space-y-2.5 min-[1280px]:hidden">
+            {!filtered ? (
+              [0, 1, 2].map((i) => <Skeleton key={i} className="h-24 w-full rounded-xl" />)
+            ) : filtered.length > 0 ? (
+              (pageItems ?? []).map((p) => (
+                <div key={p.id} className="rounded-xl border border-dove bg-paper p-3.5">
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="min-w-0 flex-1 truncate text-[15px] font-medium text-fg">{p.name}</p>
+                    <Pill tone={p.active ? 'ok' : 'muted'}>{p.active ? 'Aktif' : 'Nonaktif'}</Pill>
+                  </div>
+                  <p className="mt-1 font-mono text-xs text-fog">{p.sku} · {p.category_name ?? 'Tanpa kategori'}</p>
+                  <div className="mt-2.5 flex items-end justify-between gap-3">
+                    <dl className="min-w-0 text-[13px] leading-snug">
+                      <div className="flex items-baseline gap-1.5">
+                        <dt className="shrink-0 text-fog">Beli</dt>
+                        <dd className="truncate font-mono tabular-nums text-muted">{fmtRp(p.buy_price)}</dd>
+                      </div>
+                      <div className="mt-0.5 flex items-baseline gap-1.5">
+                        <dt className="shrink-0 text-fog">Jual</dt>
+                        <dd className="truncate font-mono text-[15px] font-medium tabular-nums text-fg">{fmtRp(p.sell_price)}</dd>
+                      </div>
+                    </dl>
+                    <div className="flex shrink-0 items-center gap-1">
+                      <span className="mr-1 whitespace-nowrap text-[13px]"><StockCell stock={p.stock} unit={p.unit} /></span>
+                      <button title="Ubah" aria-label={`Ubah ${p.name}`} className="grid size-8 place-items-center rounded-md text-steel transition hover:bg-surface hover:text-fg" onClick={() => setEditing({ id: p.id, name: p.name, sku: p.sku, barcode: p.barcode, categoryId: p.category_id ?? '', buyPrice: String(p.buy_price), sellPrice: String(p.sell_price), stock: String(p.stock), unit: p.unit })}><Pencil className="size-4" /></button>
+                      <button title={p.active ? 'Nonaktifkan' : 'Aktifkan'} aria-label={`${p.active ? 'Nonaktifkan' : 'Aktifkan'} ${p.name}`} className="grid size-8 place-items-center rounded-md text-steel transition hover:bg-surface hover:text-fg" onClick={() => toggleActive(p)}><Power className="size-4" /></button>
+                      <button title="Hapus" aria-label={`Hapus ${p.name}`} className="grid size-8 place-items-center rounded-md text-steel transition hover:bg-surface hover:text-ember" onClick={() => setDeleteFor(p)}><Trash2 className="size-4" /></button>
+                    </div>
+                  </div>
+                </div>
+              ))
             ) : products && products.length > 0 ? (
               <Empty title="Tidak ada produk yang cocok" sub="Coba kata kunci lain atau ubah filter kategori." action={<Button onClick={() => { setCatFilter(''); setQ('') }}>Tampilkan semua</Button>} />
             ) : (

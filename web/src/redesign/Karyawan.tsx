@@ -184,8 +184,10 @@ export default function Karyawan() {
         title="Karyawan"
         sub="Pantau performa kasir dan kontribusi penjualan setiap karyawan."
         crumb="Karyawan"
+        // 768–1023: kalau aksi sejajar, judul pagehead cuma ~180px dan subjudul
+        // pecah jadi 3 baris sempit — aksi turun ke baris sendiri.
         actions={(
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 min-[768px]:max-[1023px]:w-full min-[768px]:max-[1023px]:justify-end">
             <div className="w-full sm:w-44">
               <DatePicker value={date} onChange={setDate} label="Pilih tanggal performa" placeholder="Semua periode" />
             </div>
@@ -417,7 +419,7 @@ export default function Karyawan() {
                   <p className="py-10 text-center text-sm text-muted-foreground">Tidak ada data.</p>
                 ) : (
                   <>
-                    <div className="mt-3 hidden overflow-x-auto sm:block">
+                    <div className="mt-3 hidden overflow-x-auto min-[768px]:max-[1023px]:[&_td]:whitespace-nowrap sm:block">
                       <table className="w-full border-collapse">
                         <thead>
                           <tr><Th>Waktu</Th><Th>Invoice</Th><Th>Kasir</Th><Th right>Total</Th><Th>Metode</Th></tr>
@@ -455,7 +457,7 @@ export default function Karyawan() {
               <CardContent className="p-5">
                 <p className="text-base font-semibold">Perubahan Performa</p>
                 <p className="mt-0.5 text-[13px] text-muted-foreground">{period === 'today' ? 'Hari ini vs kemarin' : 'Hanya tersedia untuk Hari ini'}</p>
-                <div className="mt-3 overflow-x-auto">
+                <div className="mt-3 overflow-x-auto min-[768px]:max-[1023px]:[&_td]:whitespace-nowrap">
                   <table className="w-full border-collapse">
                     <thead>
                       <tr><Th>Kasir</Th><Th right>Ini</Th><Th right>Lalu</Th><Th>Status</Th></tr>
