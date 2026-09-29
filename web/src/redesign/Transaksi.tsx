@@ -264,35 +264,46 @@ export default function Transaksi() {
         )}
       </div>
 
-      <div className="mt-4 space-y-2.5 min-[1280px]:hidden">
+      {/* Kartu 1 kolom full-width menyisakan ruang kosong di kanan tiap kartu
+          dan hanya ~1-4 transaksi muat per layar. Grid ini memangkas lebar
+          kartu ke ~243-326px (chips item + total + tombol tetap terbaca) lalu
+          2 kolom mulai 768px, 3 kolom mulai 1120px (konten 840px -> kartu
+          ~273px, di dalam pita 264-300px). 3 kolom belum boleh aktif di
+          1024px: konten 744px hanya memberi ~241px, di bawah pita. <768 tetap
+          1 kolom; >=1280 kembali ke tabel apa adanya. */}
+      <div className="mt-4 grid grid-cols-1 gap-2.5 min-[768px]:grid-cols-2 min-[1120px]:grid-cols-3 min-[1280px]:hidden">
         {loading ? (
-          [0, 1, 2].map((i) => <Skeleton key={i} className="h-28 w-full rounded-xl" />)
+          [0, 1, 2, 3, 4, 5].map((i) => <Skeleton key={i} className="h-[170px] w-full rounded-xl" />)
         ) : trx.length > 0 ? (
           trx.map((t) => (
-            <div key={t.id} className="rounded-xl border border-dove bg-paper p-3.5">
+            <div key={t.id} className="flex flex-col rounded-xl border border-dove bg-paper p-2.5">
               <div className="flex items-center justify-between gap-2">
-                <p className="font-mono text-[13px] font-medium text-fg">{fmtInv(t.id)}</p>
+                <p className="min-w-0 truncate font-mono text-[13px] font-medium text-fg">{fmtInv(t.id)}</p>
                 <StatusPill status={t.status} />
               </div>
-              <div className="mt-1.5 flex items-baseline justify-between gap-2">
-                <p className="min-w-0 flex-1 truncate text-xs text-fog">
-                  {fmtDate(t.created_at)} {fmtTime(t.created_at)}{t.customer ? ` · ${t.customer}` : ''}{isAdmin ? ` · ${t.cashier_name}` : ''} · {t.method}
-                </p>
-                <p className="shrink-0 text-[17px] font-semibold tabular-nums text-fg">{fmtRp(t.total)}</p>
-              </div>
+              <p className="mt-1.5 text-right text-[17px] font-semibold tabular-nums text-fg">{fmtRp(t.total)}</p>
+              {/* Di kolom sempit meta mendapat lebar penuh kartu dan boleh
+                  membungkus (bukan truncate) supaya tanggal/pelanggan/kasir/
+                  metode tidak pernah terpotong. */}
+              <p className="mt-1 text-xs leading-snug text-fog">
+                {fmtDate(t.created_at)} {fmtTime(t.created_at)}{t.customer ? ` · ${t.customer}` : ''}{isAdmin ? ` · ${t.cashier_name}` : ''} · {t.method}
+              </p>
               <div className="mt-2">
                 <TrxItems items={t.items} />
               </div>
-              <div className="mt-2.5 flex justify-end gap-3 text-[13px]">
-                <button className="font-medium text-jet hover:underline" onClick={() => setDetail(t)}>Detail</button>
+              {/* min-h-9 (36px) di HP, min-h-10 (40px) mulai 768px supaya
+                  target sentuh aman di tablet; mt-auto menyamakan baris
+                  footer antar kartu pada baris grid yang sama. */}
+              <div className="mt-auto flex items-center justify-end gap-1 pt-1.5">
+                <button className="inline-flex min-h-9 items-center rounded-md px-2 text-[13px] font-medium text-jet transition-colors hover:bg-surface hover:underline min-[768px]:min-h-10" onClick={() => setDetail(t)}>Detail</button>
                 {s.role === 'admin' && t.status === 'completed' && (
-                  <button className="text-muted hover:underline" onClick={() => openRefund(t)}>Refund</button>
+                  <button className="inline-flex min-h-9 items-center rounded-md px-2 text-[13px] text-muted transition-colors hover:bg-surface hover:underline min-[768px]:min-h-10" onClick={() => openRefund(t)}>Refund</button>
                 )}
               </div>
             </div>
           ))
         ) : (
-          <p className="py-10 text-center text-sm text-fog">Tidak ada transaksi ditemukan.</p>
+          <p className="col-span-full py-10 text-center text-sm text-fog">Tidak ada transaksi ditemukan.</p>
         )}
       </div>
 
