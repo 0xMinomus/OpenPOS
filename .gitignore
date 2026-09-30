@@ -36,6 +36,18 @@ updatelist9sep.MD
 opencode.json
 *.bundle
 
+# TODO sesi + artefak harness - lokal. TODO.md menyebut lokasi keystore rilis
+# dan sidik jari sertifikat, jadi jangan ikut repo publik meski tanpa password.
+TODO.md
+.playwright-mcp/
+# Screenshot verifikasi yang jatuh di root repo (pola di-root, jadi tidak
+# menyentuh web/public/ yang memang harus ikut).
+/dashboard-*.png
+/ipad-*.png
+/datepicker-*.png
+/screenshot-*.png
+/*-mobile-*.png
+
 # OMP and local tooling
 .code-graph/
 .mcp-servers/
