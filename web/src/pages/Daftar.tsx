@@ -122,11 +122,10 @@ export default function Daftar() {
     try {
       const r = await apiRegister(name.trim(), email.trim().toLowerCase(), password, store.trim())
       setSession(toSession(r.user))
-      try {
-        await apiSetPasscode(r.user.id, passcode, 'admin')
-      } catch {
-        // passcode bukan penghalang masuk; gagal disimpan ditangani halaman Pengaturan
-      }
+      // Passcode bukan penghalang masuk: simpan di latar belakang supaya
+      // pengguna tidak menunggu satu round trip lagi sebelum dashboard.
+      // Kegagalan ditangani halaman Pengaturan.
+      apiSetPasscode(r.user.id, passcode, 'admin').catch(() => {})
       nav('/app', { replace: true })
     } catch (x) {
       setErr(x instanceof Error ? x.message : 'Gagal mendaftar. Coba lagi.')

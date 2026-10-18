@@ -9,11 +9,12 @@ export default defineConfig({
     alias: { '@': path.resolve(import.meta.dirname, 'src') },
   },
   build: {
+    // Hanya index.html. offline.html dibangun terpisah (vite.offline.config.ts);
+    // kalau ikut di sini, rollup menautkan kedua graf jadi satu chunk bersama
+    // dan index.html ikut memuat chunk milik aplikasi offline (Recharts ~780 kB
+    // saat itu).
     rollupOptions: {
-      input: {
-        main: path.resolve(import.meta.dirname, 'index.html'),
-        offline: path.resolve(import.meta.dirname, 'offline.html'),
-      },
+      input: path.resolve(import.meta.dirname, 'index.html'),
     },
   },
   server: {

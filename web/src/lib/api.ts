@@ -339,8 +339,13 @@ export function apiSwitchAccount(targetUserId: string, passcode?: string, role?:
 
 // Landing pasca-login: true bila ada kasir aktif untuk dipilih.
 export async function apiHasActiveCashiers(): Promise<boolean> {
+  // Daftar akun sudah ada di cache per-tab? pakai itu dulu — menghindari
+  // GET /users tambahan yang sebelumnya ikut menahan navigasi setelah login.
+  const cached = getCachedAccounts()
+  if (cached.length > 0) return cached.some((u) => u.role === 'cashier' && u.active)
   try {
     const users = await apiListUsers()
+    setCachedAccounts(users)
     return users.some((u) => u.role === 'cashier' && u.active)
   } catch {
     return false

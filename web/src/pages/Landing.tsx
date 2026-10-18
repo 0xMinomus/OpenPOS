@@ -175,7 +175,10 @@ function AboutVisual() {
   // Profil live dari GitHub API; fallback statis bila offline/rate-limit.
   const [gh, setGh] = useState<GhProfile>(GH_FALLBACK)
   const [adrr, setAdrr] = useState<GhProfile>(GH_ADRR_FALLBACK)
+  const ref = useRef<HTMLDivElement>(null)
   useEffect(() => {
+    const el = ref.current
+    if (!el) return
     let dead = false
     const load = (login: string, fb: GhProfile, set: (p: GhProfile) => void) => {
       fetch(`https://api.github.com/users/${login}`)
@@ -183,12 +186,19 @@ function AboutVisual() {
         .then((d) => { if (!dead && d?.login) set(toGh(d, fb)) })
         .catch(() => {})
     }
-    load('0xMinomus', GH_FALLBACK, setGh)
-    load('adrr-dev', GH_ADRR_FALLBACK, setAdrr)
-    return () => { dead = true }
+    // Bagian ini ada di bawah fold: dua request lintas-domain baru dijalankan
+    // saat pengguna mendekatinya, bukan saat landing pertama dimuat.
+    const io = new IntersectionObserver((entries) => {
+      if (!entries.some((e) => e.isIntersecting)) return
+      io.disconnect()
+      load('0xMinomus', GH_FALLBACK, setGh)
+      load('adrr-dev', GH_ADRR_FALLBACK, setAdrr)
+    }, { rootMargin: '200px' })
+    io.observe(el)
+    return () => { dead = true; io.disconnect() }
   }, [])
   return (
-    <div className="reveal mx-auto grid w-full max-w-none items-start gap-5" data-delay="1">
+    <div ref={ref} className="reveal mx-auto grid w-full max-w-none items-start gap-5" data-delay="1">
       <GhCard user={gh} role="Frontend" cta={{ label: 'Lihat repo OpenPOS →', href: 'https://github.com/0xMinomus/OpenPOS' }} />
       <GhCard user={adrr} role="Backend" cta={{ label: 'Lihat repo API →', href: 'https://github.com/adrr-dev/openPOS' }} />
     </div>
@@ -213,6 +223,26 @@ export default function Landing() {
   // Tinggi virtual desktop diskala proporsional: 620 * 1440/1280 = 697.5 → 698,
   // sehingga tinggi render card tetap ≈ 620*demoW/1280 (selisih <0.5px).
   const demoViewH = demoW < 768 ? 640 : 698
+
+  // Iframe demo memuat seluruh aplikasi di dalamnya (≈1,4 MB JS). Jangan
+  // berebut dengan paint pertama landing: pasang setelah window load + idle.
+  const [demoReady, setDemoReady] = useState(false)
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout> | undefined
+    const arm = () => {
+      if (typeof window.requestIdleCallback === 'function') {
+        window.requestIdleCallback(() => setDemoReady(true), { timeout: 2500 })
+        return
+      }
+      timer = setTimeout(() => setDemoReady(true), 1200)
+    }
+    if (document.readyState === 'complete') arm()
+    else window.addEventListener('load', arm, { once: true })
+    return () => {
+      window.removeEventListener('load', arm)
+      clearTimeout(timer)
+    }
+  }, [])
 
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -271,12 +301,18 @@ export default function Landing() {
                 </Link>
               </div>
               <div ref={demoWrapRef} className="overflow-hidden bg-white" style={{ height: demoViewH * demoScale }}>
-                <iframe
-                  src="/demo?embed=1"
-                  title="Demo interaktif OpenPOS"
-                  loading="lazy"
-                  style={{ width: demoVirtual, height: demoViewH, border: 0, transform: `scale(${demoScale})`, transformOrigin: 'top left' }}
-                />
+                {demoReady ? (
+                  <iframe
+                    src="/demo?embed=1"
+                    title="Demo interaktif OpenPOS"
+                    loading="lazy"
+                    style={{ width: demoVirtual, height: demoViewH, border: 0, transform: `scale(${demoScale})`, transformOrigin: 'top left' }}
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center bg-cream font-mono text-xs text-steel">
+                    memuat demo…
+                  </div>
+                )}
               </div>
             </div>
             <p className="mt-4.5 text-center font-mono text-xs text-steel">

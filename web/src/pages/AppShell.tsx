@@ -61,10 +61,12 @@ export default function AppShell() {
   }, [s])
 
   // Heartbeat presence tiap 30 dtk selagi sesi ada (kontrak presence).
+  // Tab yang tidak dilihat tidak ikut memanggil API — hemat request boot.
   useEffect(() => {
     if (!s) return
-    apiHeartbeat()
-    const timer = setInterval(apiHeartbeat, 30_000)
+    const beat = () => { if (!document.hidden) apiHeartbeat() }
+    beat()
+    const timer = setInterval(beat, 30_000)
     return () => clearInterval(timer)
   }, [s?.id, s?.role])
 
@@ -74,7 +76,13 @@ export default function AppShell() {
   }, [loc.pathname])
 
   if (!s) {
-    if (hasToken() && !boot) return null
+    // Ada token, masih cek /auth/me: tampilkan sesuatu, jangan layar kosong.
+    if (hasToken() && !boot)
+      return (
+        <div className="flex min-h-screen items-center justify-center text-sm opacity-60">
+          Memuat…
+        </div>
+      )
     return <Navigate to="/masuk" replace />
   }
 
@@ -178,6 +186,9 @@ function UserMenu() {
 
   useEffect(() => {
     if (s.role !== 'admin') return
+    // Cache dari login/PilihAkun sudah cukup untuk isi menu; refetch hanya
+    // bila cache kosong (menu tetap ikut segar lewat event op:accounts-changed).
+    if (getCachedAccounts().length > 0) return
     apiListUsers()
       .then((users) => { setAccounts(users); setCachedAccounts(users) })
       .catch(() => {})

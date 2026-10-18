@@ -111,17 +111,19 @@ export function NotifBell() {
 
   // Batas 10 per jenis: hapus kelebihan terlama. Best-effort client;
   // enforcement beneran di server (kontrak §9).
+  //
+  // Dipanggil tertunda dari idle (lihat effect di bawah), dan sengaja hanya
+  // satu halaman: versi sebelumnya menembak sampai 5 halaman berurutan saat
+  // shell baru mount, dan itu ikut menghambat boot halaman /app.
+  // ponytail: pemangkasan hanya menyisir 200 notifikasi terbaru; server yang
+  // menegakkan batas sebenarnya.
   async function enforceCap() {
     if (cleaning.current) return
     cleaning.current = true
     try {
-      // ponytail: scan max 5 halaman (1000 item); volume UMKM jauh di bawah.
       const pool: Notification[] = []
-      for (let page = 1; page <= 5; page++) {
-        const d = await apiListNotifications({ page, limit: 200 })
-        pool.push(...d.items)
-        if (d.items.length === 0 || pool.length >= d.total) break
-      }
+      const d = await apiListNotifications({ page: 1, limit: 200 })
+      pool.push(...d.items)
       pool.sort((a, b) => +new Date(b.created_at) - +new Date(a.created_at))
       const kept = new Map<string, number>()
       const del: (number | string)[] = []
@@ -145,13 +147,24 @@ export function NotifBell() {
     }
   }
 
-  // Badge unread, poll 60 dtk (bukan realtime).
+  // Sweep pemangkasan: ditunda 12 dtk supaya tidak berebut dengan boot /app.
+  useEffect(() => {
+    if (!isAdmin) return
+    const t = setTimeout(() => { enforceCap() }, 12_000)
+    return () => clearTimeout(t)
+  }, [isAdmin])
+
+  // Badge unread, poll 60 dtk (bukan realtime). Tab tersembunyi: lewati
+  // request, cukup jadwalkan ulang.
   useEffect(() => {
     if (!isAdmin) return
     let dead = false
-    enforceCap()
     let timer: ReturnType<typeof setTimeout>
     const poll = () => {
+      if (document.hidden) {
+        timer = setTimeout(poll, 60_000)
+        return
+      }
       apiGetNotifUnreadCount()
         .then((c) => { if (!dead) setUnread(c) })
         .catch(() => {})

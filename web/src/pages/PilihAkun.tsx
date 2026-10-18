@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { ApiError, apiListUsers, apiLogout, apiMe, apiSwitchAccount, hasToken, type User } from '../lib/api'
+import { ApiError, apiListUsers, apiLogout, apiMe, apiSwitchAccount, getCachedAccounts, hasToken, type User } from '../lib/api'
 import { setSession, toSession, useDB } from '../lib/store'
 import { DMA, PJS } from './login-icons'
 import { LoginStory } from './login-story'
@@ -34,7 +34,10 @@ export default function PilihAkun() {
           setSession(s)
         }
         if (s.role !== 'admin') { nav('/app', { replace: true }); return }
-        const list = await apiListUsers()
+        // Login baru saja mengisi cache akun; pakai itu agar tidak ada
+        // GET /users kedua berturut-turut di jalur masuk.
+        const cached = getCachedAccounts()
+        const list = cached.length > 0 ? cached : await apiListUsers()
         if (dead) return
         if (!list.some((u) => u.role === 'cashier' && u.active)) { nav('/app', { replace: true }); return }
         setUsers(list)
