@@ -8,8 +8,9 @@ import {
   type Page, type StoreHours, type StoreSettings, type Trx, type User,
 } from './mock-api'
 import { PageHeader } from './PageHeader'
-import { useCache } from '../lib/cache'
-import { fmtDate, fmtRp, fmtTime, getSession, setSession, useDB } from '../lib/store'
+import { useDemoCache } from './demo-cache'
+import { getDemoSession, setDemoSession, useDemoDB } from './demo-session'
+import { fmtDate, fmtRp, fmtTime } from '../lib/store'
 import { Button, Input, Modal, NumInput, Pill } from '../lib/ui'
 import { Receipt } from '../lib/receipt'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -177,15 +178,15 @@ const SAMPLE_ITEMS = [
 
 export default function Pengaturan() {
   const nav = useNavigate()
-  const { session } = useDB()
+  const { session } = useDemoDB()
   const today = todayStr()
   const [tab, setTab] = useState<TabId>('akun')
   const [form, setForm] = useState<StoreSettings | null>(null)
   const [saved, setSaved] = useState<StoreSettings | null>(null)
   const [loadErr, setLoadErr] = useState('')
-  const accountList = useCache<User[]>(`users:${session?.id}`, () => apiListUsers())
+  const accountList = useDemoCache<User[]>(`users:${session?.id}`, () => apiListUsers())
   const users = accountList.data ?? []
-  const todayTrx = useCache<Page<Trx>>(`pengaturan-trx:${session?.id}:${today}`, () => apiListTransactions({ date: today, limit: 200, page: 1 }))
+  const todayTrx = useDemoCache<Page<Trx>>(`pengaturan-trx:${session?.id}:${today}`, () => apiListTransactions({ date: today, limit: 200, page: 1 }))
 
   const [msg, setMsg] = useState('')
   const [err, setErr] = useState('')
@@ -247,8 +248,8 @@ export default function Pengaturan() {
     try {
       const s = await apiUpdateSettings(form)
       setForm(s); setSaved(s)
-      const cur = getSession()
-      if (cur && cur.store !== s.storeName) setSession({ ...cur, store: s.storeName })
+      const cur = getDemoSession()
+      if (cur && cur.store !== s.storeName) setDemoSession({ ...cur, store: s.storeName })
       setMsg('Pengaturan berhasil disimpan.')
     } catch (e) {
       setErr(e instanceof Error ? e.message : 'Gagal menyimpan perubahan. Coba lagi.')
@@ -327,7 +328,7 @@ export default function Pengaturan() {
       await apiResetPassword(email, otp, newPw)
       setNewPw(''); setNewPw2(''); setOtp(''); setOtpSent(false)
       await apiLogout()
-      setSession(null)
+      setDemoSession(null)
       nav('/demo', { replace: true })
     } catch (x) {
       if (x instanceof ApiError && (x.status === 410 || x.status === 429)) setCooldown(0)
@@ -341,7 +342,7 @@ export default function Pengaturan() {
   async function keluar() {
     setBusy(true)
     await apiLogout()
-    setSession(null)
+    setDemoSession(null)
     nav('/demo', { replace: true })
   }
 

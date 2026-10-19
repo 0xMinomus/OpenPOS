@@ -10,7 +10,8 @@ import {
   type NotifCategory,
   type Notification,
 } from './mock-api'
-import { fmtDate, useDB } from '../lib/store'
+import { useDemoDB } from './demo-session'
+import { fmtDate } from '../lib/store'
 import { Skeleton } from '@/components/ui/skeleton'
 
 export type NotifTab = 'all' | NotifCategory
@@ -90,7 +91,7 @@ const EMPTY_SUB: Record<NotifTab, string> = {
 }
 
 export function NotifBell() {
-  const { session } = useDB()
+  const { session } = useDemoDB()
   const nav = useNavigate()
   const [open, setOpen] = useState(false)
   const [tab, setTab] = useState<NotifTab>('all')

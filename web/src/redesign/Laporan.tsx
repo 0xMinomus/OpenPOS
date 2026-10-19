@@ -3,7 +3,7 @@ import { Link } from 'react-router'
 import { Banknote, BarChart3, Boxes, ChevronDown, ChevronUp, CircleCheck, Loader2, OctagonX, Package, ReceiptText, Sigma, TriangleAlert, TrendingUp, Wallet } from 'lucide-react'
 import { apiGetReport, apiListMovements, apiListProducts, apiListTransactions, fetchAll, type Movement, type Product, type ReportBundle, type Trx } from './mock-api'
 import { PageHeader } from './PageHeader'
-import { useCache } from '../lib/cache'
+import { useDemoCache } from './demo-cache'
 import { exportCSV, exportExcel, fmtDate, fmtInv, fmtRp, fmtShort, fmtTime } from '../lib/store'
 import { DatePicker, ExportMenu, Pill, SkeletonRows, StatusPill, Td, Th } from '../lib/ui'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -158,13 +158,13 @@ export default function Laporan() {
     const t = setTimeout(() => setAnimate(false), 900)
     return () => clearTimeout(t)
   }, [])
-  const rep = useCache<ReportBundle>(`report:${date || period}`, () => apiGetReport(date ? 'today' : period, date || undefined), 'Gagal memuat laporan.')
+  const rep = useDemoCache<ReportBundle>(`report:${date || period}`, () => apiGetReport(date ? 'today' : period, date || undefined), 'Gagal memuat laporan.')
   const data = rep.data
   const err = rep.err
   // Pembanding "kemarin" hanya terdefinisi untuk periode hari ini (API tak punya
   // periode lalu untuk kemarin/minggu/bulan/semua) — dipakai tab sales & profit.
   const needPrev = (tab === 'sales' || tab === 'profit') && (period === 'today' || date)
-  const prevRep = useCache<ReportBundle | null>(
+  const prevRep = useDemoCache<ReportBundle | null>(
     `reportprev:${tab}:${date || period}`,
     () => (needPrev ? apiGetReport('yesterday', date || undefined) : Promise.resolve(null)),
   )
@@ -172,12 +172,12 @@ export default function Laporan() {
   // Kata pembanding mengikuti mode: periode = "kemarin", tanggal kustom = "sebelumnya" (H-1).
   const banding = date ? 'sebelumnya' : 'kemarin'
   // Katalog untuk join kategori + hitung produk aktif (tab Produk & Stok).
-  const catRep = useCache<Product[] | null>(
+  const catRep = useDemoCache<Product[] | null>(
     `lapcats:${tab}`,
     () => (tab === 'products' || tab === 'stock' ? fetchAll<Product>((pg) => apiListProducts({ page: pg, limit: 200 })) : Promise.resolve(null)),
   )
   // Riwayat global 5 terbaru (API tak dukung filter periode) — tab Stok saja.
-  const movRep = useCache<Movement[]>(
+  const movRep = useDemoCache<Movement[]>(
     `lapmov:${tab}`,
     () => (tab === 'stock' ? apiListMovements({ limit: 5 }).then((r) => r.items) : Promise.resolve([])),
   )
@@ -193,7 +193,7 @@ export default function Laporan() {
   // HPP per slot = Σ buy_price × qty per item (TrxItem existing).
   const needHourly = (tab === 'sales' || tab === 'profit') && (period === 'today' || period === 'yesterday' || date)
   const dayStr = date || (period === 'yesterday' ? localDayISO(1) : localDayISO(0))
-  const hourRep = useCache<Trx[] | null>(
+  const hourRep = useDemoCache<Trx[] | null>(
     `reporthour:${tab}:${date || period}:${dayStr}`,
     () => (needHourly
       ? fetchAll<Trx>((pg) => apiListTransactions({ date: dayStr, page: pg, limit: 200 }))
