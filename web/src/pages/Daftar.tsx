@@ -321,7 +321,7 @@ export default function Daftar() {
                     onChange={(e) => setGooglePin(e.target.value.replace(/\D/g, '').slice(0, 5))}
                     type="password" inputMode="numeric" autoFocus
                     placeholder="•••••"
-                    className="w-full h-[54px] rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] text-center font-mono text-lg tracking-[0.5em] text-[#102033] placeholder:text-[#98A2B3] bg-transparent"
+                    className="w-full h-[54px] rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] focus:outline-[#2F6FEB] focus:outline-2 focus-visible:outline-[#2F6FEB] focus-visible:outline-2 text-center font-mono text-lg tracking-[0.5em] text-[#102033] placeholder:text-[#98A2B3] bg-transparent"
                   />
                 </label>
                 <div className="flex gap-3">
@@ -348,7 +348,7 @@ export default function Daftar() {
                   <input
                     value={name} onChange={(e) => setName(e.target.value)}
                     type="text" autoComplete="name" placeholder="Nama pemilik toko"
-                    className={`w-full h-[50px] rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] px-4 text-[14px]/[19px] text-[#102033] ${PJS} font-medium placeholder:text-[#98A2B3] bg-transparent focus:outline-[#2F6FEB]`}
+                    className={`w-full h-[50px] rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] focus:outline-[#2F6FEB] focus:outline-2 focus-visible:outline-[#2F6FEB] focus-visible:outline-2 px-4 text-[14px]/[19px] text-[#102033] ${PJS} font-medium placeholder:text-[#98A2B3] bg-transparent`}
                   />
                 </label>
                 <label className="w-full flex flex-col gap-[7px]">
@@ -358,7 +358,7 @@ export default function Daftar() {
                     <input
                       value={email} onChange={(e) => setEmail(e.target.value)}
                       type="email" autoComplete="email" placeholder="nama@tokosaya.com"
-                      className={`ml-3 flex-1 min-w-0 bg-transparent outline-none text-[14px]/[19px] text-[#102033] ${PJS} font-medium placeholder:text-[#98A2B3]`}
+                      className={`ml-3 flex-1 min-w-0 bg-transparent outline-none focus:outline-none focus-visible:outline-none text-[14px]/[19px] text-[#102033] ${PJS} font-medium placeholder:text-[#98A2B3]`}
                     />
                   </span>
                   <span className={`text-xs font-normal text-[#98A2B3] ${PJS}`}>Dipakai untuk masuk dan verifikasi kode OTP. Tidak dibagikan.</span>
@@ -370,7 +370,7 @@ export default function Daftar() {
                     <input
                       value={password} onChange={(e) => setPassword(e.target.value)}
                       type={showPw ? 'text' : 'password'} autoComplete="new-password" placeholder="Minimal 8 karakter"
-                      className={`flex-1 min-w-0 bg-transparent outline-none text-[14px]/[19px] text-[#102033] ${PJS} font-medium placeholder:text-[#98A2B3]`}
+                      className={`flex-1 min-w-0 bg-transparent outline-none focus:outline-none focus-visible:outline-none text-[14px]/[19px] text-[#102033] ${PJS} font-medium placeholder:text-[#98A2B3]`}
                     />
                     <button type="button" onClick={() => setShowPw((v) => !v)} aria-label={showPw ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'} className="shrink-0">
                       <LoginIcon name="eye" size={18} style={{ opacity: showPw ? 1 : 0.55 }} />
@@ -426,7 +426,7 @@ export default function Daftar() {
                     onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                     type="text" inputMode="numeric" autoComplete="one-time-code" autoFocus
                     placeholder="••••••"
-                    className="w-full h-[50px] rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] text-center font-mono text-xl tracking-[0.5em] text-[#102033] placeholder:text-[#98A2B3] bg-transparent"
+                    className="w-full h-[50px] rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] focus:outline-[#2F6FEB] focus:outline-2 focus-visible:outline-[#2F6FEB] focus-visible:outline-2 text-center font-mono text-xl tracking-[0.5em] text-[#102033] placeholder:text-[#98A2B3] bg-transparent"
                   />
                 </label>
                 <button
@@ -462,7 +462,7 @@ export default function Daftar() {
                         <input
                           value={store} onChange={(e) => setStore(e.target.value)}
                           type="text" placeholder="Contoh: Kedai Bu Ayu"
-                          className={`flex-1 min-w-0 bg-transparent outline-none text-[14px]/[19px] text-[#102033] ${PJS} font-medium placeholder:text-[#98A2B3]`}
+                          className={`flex-1 min-w-0 bg-transparent outline-none focus:outline-none focus-visible:outline-none text-[14px]/[19px] text-[#102033] ${PJS} font-medium placeholder:text-[#98A2B3]`}
                         />
                       </span>
                       <span className={`text-xs font-normal text-[#98A2B3] ${PJS}`}>Ditampilkan di struk dan dashboard.</span>
@@ -488,7 +488,7 @@ export default function Daftar() {
                         onChange={(e) => setPasscode(e.target.value.replace(/\D/g, '').slice(0, 5))}
                         type="password" inputMode="numeric" autoComplete="new-password" autoFocus
                         placeholder="•••••"
-                        className="w-full h-[50px] rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] text-center font-mono text-lg tracking-[0.5em] text-[#102033] placeholder:text-[#98A2B3] bg-transparent"
+                        className="w-full h-[50px] rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] focus:outline-[#2F6FEB] focus:outline-2 focus-visible:outline-[#2F6FEB] focus-visible:outline-2 text-center font-mono text-lg tracking-[0.5em] text-[#102033] placeholder:text-[#98A2B3] bg-transparent"
                       />
                     </label>
                     <label className="w-full flex flex-col gap-[7px]">
@@ -498,7 +498,7 @@ export default function Daftar() {
                         onChange={(e) => setConfirm(e.target.value.replace(/\D/g, '').slice(0, 5))}
                         type="password" inputMode="numeric" autoComplete="new-password"
                         placeholder="•••••"
-                        className="w-full h-[50px] rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] text-center font-mono text-lg tracking-[0.5em] text-[#102033] placeholder:text-[#98A2B3] bg-transparent"
+                        className="w-full h-[50px] rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] focus:outline-[#2F6FEB] focus:outline-2 focus-visible:outline-[#2F6FEB] focus-visible:outline-2 text-center font-mono text-lg tracking-[0.5em] text-[#102033] placeholder:text-[#98A2B3] bg-transparent"
                       />
                     </label>
                     <button
