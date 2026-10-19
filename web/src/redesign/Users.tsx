@@ -13,8 +13,9 @@ import {
   setCachedAccounts, type ActivityItem, type Page, type ReportBundle, type Trx, type User,
 } from './mock-api'
 import { PageHeader } from './PageHeader'
-import { useCache } from '../lib/cache'
-import { exportCSV, exportExcel, fmtDate, fmtInv, fmtRp, fmtTime, useDB } from '../lib/store'
+import { useDemoCache } from './demo-cache'
+import { useDemoDB } from './demo-session'
+import { exportCSV, exportExcel, fmtDate, fmtInv, fmtRp, fmtTime } from '../lib/store'
 import { Button, ExportMenu, Input, Modal, Pager, Pill, Td, Th } from '../lib/ui'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -65,17 +66,17 @@ function todayStr() {
 }
 
 export default function Users() {
-  const db = useDB()
+  const db = useDemoDB()
   const s = db.session!
   const today = todayStr()
 
-  const list = useCache<User[]>(`users:${s.id}`, () => apiListUsers(), 'Gagal memuat pengguna.')
-  const todayRep = useCache<ReportBundle>(`users-today:${s.id}`, () => apiGetReport('today'))
-  const allRep = useCache<ReportBundle>(`users-all:${s.id}`, () => apiGetReport('all'))
-  const actRep = useCache<Page<ActivityItem> | null>(`users-activity:${s.id}`, () => apiListActivity({ page: 1, limit: 20 }))
+  const list = useDemoCache<User[]>(`users:${s.id}`, () => apiListUsers(), 'Gagal memuat pengguna.')
+  const todayRep = useDemoCache<ReportBundle>(`users-today:${s.id}`, () => apiGetReport('today'))
+  const allRep = useDemoCache<ReportBundle>(`users-all:${s.id}`, () => apiGetReport('all'))
+  const actRep = useDemoCache<Page<ActivityItem> | null>(`users-activity:${s.id}`, () => apiListActivity({ page: 1, limit: 20 }))
   // Transaksi terbaru: sumber jam presisi (`created_at`) untuk kolom Aktivitas
   // Terakhir + feed — laporan hanya menyimpan tanggal, tanpa jam.
-  const recentTrx = useCache<Page<Trx>>(`users-trx:${s.id}`, () => apiListTransactions({ page: 1, limit: 200 }))
+  const recentTrx = useDemoCache<Page<Trx>>(`users-trx:${s.id}`, () => apiListTransactions({ page: 1, limit: 200 }))
   const data = list.data ?? null
 
   const [q, setQ] = useState('')

@@ -5,8 +5,9 @@ import { Link } from 'react-router'
 import { Banknote, ReceiptText, Trophy, UsersRound } from 'lucide-react'
 import { apiGetReport, apiListUsers, type ReportBundle, type User } from './mock-api'
 import { PageHeader } from './PageHeader'
-import { useCache } from '../lib/cache'
-import { exportCSV, exportExcel, fmtDate, fmtInv, fmtRp, fmtShort, useDB } from '../lib/store'
+import { useDemoCache } from './demo-cache'
+import { useDemoDB } from './demo-session'
+import { exportCSV, exportExcel, fmtDate, fmtInv, fmtRp, fmtShort } from '../lib/store'
 import { DatePicker, Empty, ExportMenu, Td, Th } from '../lib/ui'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -33,16 +34,16 @@ function initials(name: string) {
 }
 
 export default function Karyawan() {
-  const db = useDB()
+  const db = useDemoDB()
   const s = db.session!
   const [period, setPeriod] = useState<Period>('today')
   const [metric, setMetric] = useState<'omzet' | 'trx' | 'avg'>('omzet')
   // Tanggal kustom ('' = ikut periode). Data hari itu 00:00–23:59, pembanding
   // = H-1-nya. Kontrak live: docs/API-CONTRACT-DASHBOARD-DATE.md.
   const [date, setDate] = useState('')
-  const rep = useCache<ReportBundle>(`report:${date || period}`, () => apiGetReport(date ? 'today' : period, date || undefined), 'Gagal memuat laporan.')
-  const usersRep = useCache<User[]>(`karyawan-users:${s.id}`, () => apiListUsers(), 'Gagal memuat kasir.')
-  const prevRep = useCache<ReportBundle | null>(
+  const rep = useDemoCache<ReportBundle>(`report:${date || period}`, () => apiGetReport(date ? 'today' : period, date || undefined), 'Gagal memuat laporan.')
+  const usersRep = useDemoCache<User[]>(`karyawan-users:${s.id}`, () => apiListUsers(), 'Gagal memuat kasir.')
+  const prevRep = useDemoCache<ReportBundle | null>(
     `reportprev:karyawan:${date || period}`,
     () => ((period === 'today' || date) ? apiGetReport('yesterday', date || undefined) : Promise.resolve(null)),
   )
