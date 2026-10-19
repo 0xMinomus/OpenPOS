@@ -8,7 +8,10 @@ import type {
   Role, StoreHours, StoreSettings, Trx, TrxItem, User,
 } from '../lib/api'
 
-export { ApiError, fetchAll, getCachedAccounts, hasToken, setCachedAccounts } from '../lib/api'
+// Hanya ApiError + fetchAll yang dipakai bersama aplikasi asli; cache akun
+// TIDAK di-re-export (sandbox punya cache in-memory sendiri — lihat bagian
+// sesi & akun di bawah).
+export { ApiError, fetchAll } from '../lib/api'
 export type {
   ActivityItem, Category, DashboardAdmin, DashboardCashier, Movement,
   NotifCategory, Notification, Page, PayMethod, Product, ProductFilter, ReportBundle,
@@ -16,7 +19,7 @@ export type {
 }
 
 import { ApiError } from '../lib/api'
-import { getSession } from '../lib/store'
+import { getDemoSession } from './demo-session'
 import { buildDB, type SandboxDB } from './fixtures'
 
 let db: SandboxDB = buildDB()
@@ -52,7 +55,7 @@ function paginate<T>(items: T[], page = 1, limit = 20): Page<T> {
 }
 
 function authed(): User {
-  const s = getSession()
+  const s = getDemoSession()
   return db.users.find((u) => u.id === s?.id) ?? db.users[0]
 }
 
@@ -544,6 +547,21 @@ export async function apiListActivity(_f: { page?: number; limit?: number } = {}
 }
 
 // ── sesi & akun (sandbox: tanpa token beneran) ─────────────────────
+
+// Cache akun sandbox: sengaja in-memory (variabel modul, tanpa sessionStorage)
+// agar akun mock tak pernah muncul di alur aplikasi asli — /pilih-akun,
+// sidebar /app, dan apiHasActiveCashiers().
+let cachedAccounts: User[] = []
+
+export function getCachedAccounts(): User[] {
+  return cachedAccounts
+}
+
+export function setCachedAccounts(users: User[]) {
+  cachedAccounts = users
+  // Sinkronkan menu ganti akun sandbox tanpa reload halaman (pola lib/api).
+  window.dispatchEvent(new Event('op:accounts-changed'))
+}
 
 export async function apiMe() {
   await wait()

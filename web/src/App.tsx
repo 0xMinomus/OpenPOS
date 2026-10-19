@@ -4,6 +4,7 @@ import { Navigate, Route, Routes, useLocation } from 'react-router'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import ErrorBoundary from './lib/ErrorBoundary'
 import { useDB } from './lib/store'
+import { useDemoDB } from './redesign/demo-session'
 // Jalur auth tetap eager: halaman ini harus tampil secepat mungkin, dan tidak
 // ikut menyeret Recharts + halaman /app ke unduhan pertama.
 import Landing from './pages/Landing'
@@ -49,6 +50,14 @@ function RouteFallback() {
 function AdminOnly({ children }: { children: ReactNode }) {
   const { session } = useDB()
   if (session && session.role !== 'admin') return <Navigate to="/app" replace />
+  return <>{children}</>
+}
+
+// Penjaga rute sandbox: memakai sesi demo, bukan sesi aplikasi, supaya /demo
+// tak pernah melempar/mengambil pengguna ke/dari /app.
+function DemoAdminOnly({ children }: { children: ReactNode }) {
+  const { session } = useDemoDB()
+  if (session && session.role !== 'admin') return <Navigate to="/demo" replace />
   return <>{children}</>
 }
 
@@ -101,13 +110,13 @@ export default function App() {
         <Route path="/demo" element={<RedesignShell />}>
           <Route index element={<RedesignDashboard />} />
           <Route path="pos" element={<RedesignPos />} />
-          <Route path="produk" element={<AdminOnly><RedesignProduk /></AdminOnly>} />
-          <Route path="stok" element={<AdminOnly><RedesignStok /></AdminOnly>} />
+          <Route path="produk" element={<DemoAdminOnly><RedesignProduk /></DemoAdminOnly>} />
+          <Route path="stok" element={<DemoAdminOnly><RedesignStok /></DemoAdminOnly>} />
           <Route path="transaksi" element={<RedesignTransaksi />} />
-          <Route path="laporan" element={<AdminOnly><RedesignLaporan /></AdminOnly>} />
-          <Route path="karyawan" element={<AdminOnly><RedesignKaryawan /></AdminOnly>} />
-          <Route path="users" element={<AdminOnly><RedesignUsers /></AdminOnly>} />
-          <Route path="pengaturan" element={<AdminOnly><RedesignPengaturan /></AdminOnly>} />
+          <Route path="laporan" element={<DemoAdminOnly><RedesignLaporan /></DemoAdminOnly>} />
+          <Route path="karyawan" element={<DemoAdminOnly><RedesignKaryawan /></DemoAdminOnly>} />
+          <Route path="users" element={<DemoAdminOnly><RedesignUsers /></DemoAdminOnly>} />
+          <Route path="pengaturan" element={<DemoAdminOnly><RedesignPengaturan /></DemoAdminOnly>} />
         </Route>
         <Route path="/redesign/*" element={<DemoMoved />} />
         <Route path="*" element={<Navigate to="/" replace />} />
