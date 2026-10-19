@@ -6,8 +6,10 @@ import {
 } from 'lucide-react'
 import './classic.css'
 import { ApiError, apiHeartbeat, apiListUsers, apiLogout, apiSwitchAccount, getCachedAccounts, resetSandbox, setCachedAccounts, type User } from './mock-api'
-import { clearCache } from '../lib/cache'
-import { getSession, setSession, toSession, useDB, useTheme } from '../lib/store'
+import { clearDemoCache } from './demo-cache'
+import { MOCK_ADMIN, getDemoSession, setDemoSession, useDemoDB } from './demo-session'
+import { restoreAppTheme, useDemoTheme } from './demo-theme'
+import { toSession } from '../lib/store'
 import { NotifBell } from './notifications'
 import { Logo } from '../lib/ui'
 
@@ -41,15 +43,10 @@ function isMenuActive(pathname: string, to: string) {
   return pathname === to || (to !== '/demo' && pathname.startsWith(to))
 }
 
-// Sandbox redesign: sesi mock seeded lokal, tak menyentuh backend/token asli.
-// Keluar dari /demo mengembalikan setSession(null) saat unmount agar
-// sesi mock tak bocor ke /app.
-const MOCK_ADMIN = { id: 'preview-admin', email: 'owner@tokopreview.id', name: 'Pemilik Preview', role: 'admin' as const, store: 'Toko Preview' }
-
 export default function RedesignShell() {
-  const db = useDB()
+  const db = useDemoDB()
   const loc = useLocation()
-  const [theme, setTheme] = useTheme()
+  const [theme, setTheme] = useDemoTheme()
   // Embed landing (iframe): selalu light + tanpa toggle tema.
   // Terdeteksi via window.self !== window.top agar tahan pindah halaman
   // di dalam iframe (query ?embed=1 hilang setelah navigasi internal).
@@ -61,7 +58,7 @@ export default function RedesignShell() {
   const s = db.session
 
   useEffect(() => {
-    if (!getSession()) setSession(MOCK_ADMIN)
+    if (!getDemoSession()) setDemoSession(MOCK_ADMIN)
   }, [s])
 
   useEffect(() => {
@@ -71,16 +68,16 @@ export default function RedesignShell() {
     document.head.appendChild(meta)
     // Masuk /demo: mulai dari datum murni (cache sesi lama dibuang).
     resetSandbox()
-    clearCache()
-    try { sessionStorage.removeItem('op_accounts') } catch { /* abaikan */ }
+    clearDemoCache()
     return () => {
       meta.remove()
       // Keluar dari /demo: data mock kembali ke awal (statis), cache +
       // sisa sesi mock dibersihkan agar refresh mulai dari datum murni.
       resetSandbox()
-      clearCache()
-      try { sessionStorage.removeItem('op_accounts') } catch { /* abaikan */ }
-      setSession(null)
+      clearDemoCache()
+      setDemoSession(null)
+      // Tema dikembalikan ke preferensi aplikasi asli (tanpa menulis localStorage).
+      restoreAppTheme()
     }
   }, [])
 
@@ -100,7 +97,7 @@ export default function RedesignShell() {
     try {
       await apiLogout()
     } catch { /* best-effort */ }
-    setSession(null)
+    setDemoSession(null)
     if (isEmbed && typeof window !== 'undefined' && window.top && window.self !== window.top) {
       window.top.location.href = '/'
     } else {
@@ -126,13 +123,13 @@ export default function RedesignShell() {
           <h1 className="mt-3 tracking-tight text-jet">Toko Preview</h1>
           <p className="mt-2 text-sm text-muted">Mock session. No backend calls.</p>
           <button
-            onClick={() => setSession(MOCK_ADMIN)}
+            onClick={() => setDemoSession(MOCK_ADMIN)}
             className="mt-6 w-full rounded-md bg-jet py-3 text-[15px] font-medium text-paper hover:opacity-85"
           >
             Masuk sandbox
           </button>
           <button
-            onClick={() => { resetSandbox(); setSession({ ...MOCK_ADMIN }) }}
+            onClick={() => { resetSandbox(); setDemoSession({ ...MOCK_ADMIN }) }}
             className="mt-2 w-full rounded-md border border-dove py-3 text-[15px] font-medium text-jet hover:border-jet"
           >
             Reset data mock
@@ -242,7 +239,7 @@ function initials(name: string) {
 }
 
 function UserMenu({ isEmbed = false }: { isEmbed?: boolean }) {
-  const db = useDB()
+  const db = useDemoDB()
   const nav = useNavigate()
   const s = db.session!
   const [open, setOpen] = useState(false)
@@ -278,7 +275,7 @@ function UserMenu({ isEmbed = false }: { isEmbed?: boolean }) {
     try {
       await apiLogout()
     } catch { /* best-effort */ }
-    setSession(null)
+    setDemoSession(null)
     // Keluar dari demo = kembali ke landing page awal.
     // Dari iframe embed: navigasi tab utama agar tak terjebak di dalam preview.
     if (isEmbed && typeof window !== 'undefined' && window.top && window.self !== window.top) {
@@ -294,7 +291,7 @@ function UserMenu({ isEmbed = false }: { isEmbed?: boolean }) {
     setBusy(true)
     try {
       const r = await apiSwitchAccount(u.id, undefined, u.role)
-      setSession(toSession(r.user))
+      setDemoSession(toSession(r.user))
       resetMenu()
       nav('/demo')
     } catch (x) {
@@ -315,7 +312,7 @@ function UserMenu({ isEmbed = false }: { isEmbed?: boolean }) {
     setBusy(true)
     try {
       const r = await apiSwitchAccount(pending.id, passcode, pending.role)
-      setSession(toSession(r.user))
+      setDemoSession(toSession(r.user))
       resetMenu()
       nav('/demo')
     } catch (x) {
