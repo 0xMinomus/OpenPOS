@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { BarChart3, House, Package, ReceiptText, ShoppingBag, TriangleAlert } from 'lucide-react'
 import { apiGetDashboard, apiListTransactions, type DashboardAdmin, type Trx } from './mock-api'
-import { useCache } from '../lib/cache'
-import { fmtDate, fmtRp, fmtShort, fmtTime, useDB } from '../lib/store'
+import { useDemoCache } from './demo-cache'
+import { useDemoDB } from './demo-session'
+import { fmtDate, fmtRp, fmtShort, fmtTime } from '../lib/store'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
@@ -40,7 +41,7 @@ function dayLabel(iso: string): string {
 }
 
 export default function Dashboard() {
-  const db = useDB()
+  const db = useDemoDB()
   const s = db.session!
   // Animasi chart hidup hanya saat mount; refresh data tak me-restartnya.
   const [animate, setAnimate] = useState(true)
@@ -53,8 +54,8 @@ export default function Dashboard() {
   // Tanggal pilihan ('' = hari ini). Key cache ikut tanggal agar kisaran
   // berbeda tak tertukar; kontrak live: docs/API-CONTRACT-DASHBOARD-DATE.md.
   const [date, setDate] = useState('')
-  const dash = useCache(`dash:${sessionKey}:${date || 'today'}`, () => apiGetDashboard(date || undefined), 'Gagal memuat dashboard.')
-  const recent = useCache(`recent5:${sessionKey}:${date || 'today'}`, () => apiListTransactions({ limit: 5, date: date || undefined }))
+  const dash = useDemoCache(`dash:${sessionKey}:${date || 'today'}`, () => apiGetDashboard(date || undefined), 'Gagal memuat dashboard.')
+  const recent = useDemoCache(`recent5:${sessionKey}:${date || 'today'}`, () => apiListTransactions({ limit: 5, date: date || undefined }))
   const data = dash.data
   const err = dash.err
   const recentTrx = recent.data ? recent.data.items : recent.err ? [] : null

@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import { apiCheckout, apiGetSettings, apiListProducts, fetchAll, type PayMethod, type Product, type StoreSettings, type Trx } from './mock-api'
 import { PageHeader } from './PageHeader'
-import { useCache } from '../lib/cache'
-import { fmtRp, useDB } from '../lib/store'
+import { useDemoCache } from './demo-cache'
+import { useDemoDB } from './demo-session'
+import { fmtRp } from '../lib/store'
 import { Receipt } from '../lib/receipt'
 import { NumInput, Button, Modal } from '../lib/ui'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -20,12 +21,12 @@ const METHODS: PayMethod[] = ['Cash', 'Bank Transfer', 'QRIS', 'E-Wallet', 'Card
 interface CartLine { product: Product; qty: number }
 
 export default function Pos() {
-  const { session } = useDB()
+  const { session } = useDemoDB()
   const [q, setQ] = useState('')
   const [cat, setCat] = useState('Semua')
-  const prod = useCache<Product[]>(`pos-products:${session?.id}`, () => fetchAll<Product>((page) => apiListProducts({ active: true, page, limit: 200 })))
+  const prod = useDemoCache<Product[]>(`pos-products:${session?.id}`, () => fetchAll<Product>((page) => apiListProducts({ active: true, page, limit: 200 })))
   const products = prod.data
-  const setq = useCache<StoreSettings>(`settings:${session?.id}`, () => apiGetSettings())
+  const setq = useDemoCache<StoreSettings>(`settings:${session?.id}`, () => apiGetSettings())
   const settings = setq.data
   const [cart, setCart] = useState<CartLine[]>([])
   const [discount, setDiscount] = useState(0)

@@ -4,8 +4,9 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { FolderPlus, Pencil, Plus, Power, Search, Trash2 } from 'lucide-react'
 import { apiCreateCategory, apiCreateProduct, apiDeleteCategory, apiDeleteProduct, apiListCategories, apiListProducts, apiSetProductActive, apiUpdateProduct, fetchAll, type Category, type Product } from './mock-api'
 import { PageHeader } from './PageHeader'
-import { useCache } from '../lib/cache'
-import { exportCSV, exportExcel, fmtRp, parseImportFile, useDB } from '../lib/store'
+import { useDemoCache } from './demo-cache'
+import { useDemoDB } from './demo-session'
+import { exportCSV, exportExcel, fmtRp, parseImportFile } from '../lib/store'
 import { NumInput, Button, Empty, ExportMenu, ImportMenu, Input, Modal, Pager, Pill, SkeletonRows, Td, Th } from '../lib/ui'
 import { Skeleton } from '@/components/ui/skeleton'
 
@@ -33,14 +34,14 @@ const CHIP_BASE = 'flex max-w-full items-center gap-2 rounded-lg border bg-paper
 const chipCls = (on: boolean) => `${CHIP_BASE} ${on ? 'border-jet font-medium' : 'border-dove hover:border-jet'}`
 
 export default function Produk() {
-  const { session } = useDB()
+  const { session } = useDemoDB()
   const who = `${session?.id}:${session?.role}`
   const [q, setQ] = useState('')
   const [catFilter, setCatFilter] = useState('')
   const [page, setPage] = useState(0)
-  const prod = useCache<Product[]>(`products:${who}:${q.trim()}`, () => fetchAll<Product>((page) => apiListProducts({ q: q.trim() || undefined, page, limit: 200 })), 'Gagal memuat produk.')
+  const prod = useDemoCache<Product[]>(`products:${who}:${q.trim()}`, () => fetchAll<Product>((page) => apiListProducts({ q: q.trim() || undefined, page, limit: 200 })), 'Gagal memuat produk.')
   const products = prod.data
-  const catq = useCache<Category[]>(`cats:${who}`, () => apiListCategories())
+  const catq = useDemoCache<Category[]>(`cats:${who}`, () => apiListCategories())
   const cats = catq.data ?? []
   const catsReady = !catq.loading
   const [err, setErr] = useState('')
