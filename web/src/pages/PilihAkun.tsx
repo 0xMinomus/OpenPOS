@@ -172,7 +172,7 @@ export default function PilihAkun() {
                   onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 5))}
                   type="text" inputMode="numeric" autoComplete="one-time-code" autoFocus
                   placeholder="•••••" aria-label="Passcode 5 angka"
-                  className="w-full h-[54px] rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] text-center font-mono text-lg tracking-[0.5em] text-[#102033] placeholder:text-[#98A2B3] bg-transparent"
+                  className="w-full h-[54px] rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] text-center font-mono text-lg tracking-[0.5em] text-[#102033] placeholder:text-[#98A2B3] bg-transparent focus:outline-[#2F6FEB] focus:outline-2 focus-visible:outline-[#2F6FEB] focus-visible:outline-2"
                 />
                 <div className="flex gap-3">
                   <button
