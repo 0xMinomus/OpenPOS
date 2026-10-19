@@ -369,7 +369,7 @@ export default function Masuk() {
                       <input
                         value={email} onChange={(e) => setEmail(e.target.value)}
                         type="text" autoComplete="username" placeholder="nama@tokosaya.com"
-                        className={`ml-3 flex-1 min-w-0 bg-transparent outline-none text-[14px]/[19px] text-[#102033] ${PJS} font-medium placeholder:text-[#98A2B3]`}
+                        className={`ml-3 flex-1 min-w-0 bg-transparent outline-none focus:outline-none focus-visible:outline-none text-[14px]/[19px] text-[#102033] ${PJS} font-medium placeholder:text-[#98A2B3]`}
                       />
                     </span>
                   </label>
@@ -385,7 +385,7 @@ export default function Masuk() {
                       <input
                         value={password} onChange={(e) => setPassword(e.target.value)}
                         type={showPw ? 'text' : 'password'} autoComplete="current-password" placeholder="••••••••"
-                        className={`flex-1 min-w-0 bg-transparent outline-none text-[14px]/[19px] text-[#102033] ${PJS} font-medium placeholder:text-[#98A2B3] ${showPw ? '' : 'tracking-[2px] font-semibold text-[15px]/[20px]'}`}
+                        className={`flex-1 min-w-0 bg-transparent outline-none focus:outline-none focus-visible:outline-none text-[14px]/[19px] text-[#102033] ${PJS} font-medium placeholder:text-[#98A2B3] ${showPw ? '' : 'tracking-[2px] font-semibold text-[15px]/[20px]'}`}
                       />
                       <button type="button" onClick={() => setShowPw((v) => !v)} aria-label={showPw ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'} className="shrink-0">
                         <LoginIcon name="eye" size={18} style={{ opacity: showPw ? 1 : 0.55 }} />
@@ -474,7 +474,7 @@ function CodeBody({ title, desc, value, setValue, len, label, err, busy, submit,
             onChange={(e) => setValue(e.target.value.replace(/\D/g, '').slice(0, len))}
             type="text" inputMode="numeric" autoComplete="one-time-code" autoFocus
             placeholder={len === 5 ? '•••••' : '••••••'}
-            className={`w-full h-[54px] rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] focus-within:outline-[#2F6FEB] text-center font-mono ${len === 5 ? 'text-lg' : 'text-xl'} tracking-[0.5em] text-[#102033] placeholder:text-[#98A2B3] bg-transparent`}
+            className={`w-full h-[54px] rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] focus:outline-[#2F6FEB] focus:outline-2 focus-visible:outline-[#2F6FEB] focus-visible:outline-2 text-center font-mono ${len === 5 ? 'text-lg' : 'text-xl'} tracking-[0.5em] text-[#102033] placeholder:text-[#98A2B3] bg-transparent`}
           />
         </label>
         <div className="flex gap-3">
@@ -533,7 +533,7 @@ function ForgotBody({ fStep, fEmail, setFEmail, fOtp, setFOtp, fPw1, setFPw1, fP
               <input
                 value={fEmail} onChange={(e) => setFEmail(e.target.value)}
                 type="text" autoComplete="username" autoFocus placeholder="nama@tokosaya.com"
-                className={`ml-3 flex-1 min-w-0 bg-transparent outline-none text-[14px]/[19px] text-[#102033] ${PJS} font-medium placeholder:text-[#98A2B3]`}
+                className={`ml-3 flex-1 min-w-0 bg-transparent outline-none focus:outline-none focus-visible:outline-none text-[14px]/[19px] text-[#102033] ${PJS} font-medium placeholder:text-[#98A2B3]`}
               />
             </span>
           </label>
@@ -545,18 +545,18 @@ function ForgotBody({ fStep, fEmail, setFEmail, fOtp, setFOtp, fPw1, setFPw1, fP
               onChange={(e) => setFOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
               type="text" inputMode="numeric" autoComplete="one-time-code" autoFocus
               placeholder="••••••"
-              className="w-full h-[54px] rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] text-center font-mono text-xl tracking-[0.5em] text-[#102033] placeholder:text-[#98A2B3] bg-transparent"
+              className="w-full h-[54px] rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] focus:outline-[#2F6FEB] focus:outline-2 focus-visible:outline-[#2F6FEB] focus-visible:outline-2 text-center font-mono text-xl tracking-[0.5em] text-[#102033] placeholder:text-[#98A2B3] bg-transparent"
             />
           </label>
         ) : fStep === 'newpw' && !fDone ? (
           <>
             <label className="w-full flex flex-col gap-[8px]">
               <span className={`text-[13px]/[18px] text-[#102033] ${PJS} font-bold whitespace-nowrap`}>Kata sandi baru</span>
-              <input value={fPw1} onChange={(e) => setFPw1(e.target.value)} type="password" autoComplete="new-password" autoFocus placeholder="Minimal 8 karakter" className={`w-full h-[54px] rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] px-4 text-[14px]/[19px] text-[#102033] ${PJS} font-medium placeholder:text-[#98A2B3] bg-transparent`} />
+              <input value={fPw1} onChange={(e) => setFPw1(e.target.value)} type="password" autoComplete="new-password" autoFocus placeholder="Minimal 8 karakter" className={`w-full h-[54px] rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] focus:outline-[#2F6FEB] focus:outline-2 focus-visible:outline-[#2F6FEB] focus-visible:outline-2 px-4 text-[14px]/[19px] text-[#102033] ${PJS} font-medium placeholder:text-[#98A2B3] bg-transparent`} />
             </label>
             <label className="w-full flex flex-col gap-[8px]">
               <span className={`text-[13px]/[18px] text-[#102033] ${PJS} font-bold whitespace-nowrap`}>Konfirmasi kata sandi baru</span>
-              <input value={fPw2} onChange={(e) => setFPw2(e.target.value)} type="password" autoComplete="new-password" placeholder="Ulangi kata sandi baru" className={`w-full h-[54px] rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] px-4 text-[14px]/[19px] text-[#102033] ${PJS} font-medium placeholder:text-[#98A2B3] bg-transparent`} />
+              <input value={fPw2} onChange={(e) => setFPw2(e.target.value)} type="password" autoComplete="new-password" placeholder="Ulangi kata sandi baru" className={`w-full h-[54px] rounded-[14px] outline outline-1 outline-[#DDD7CB] outline-offset-[-0.5px] focus:outline-[#2F6FEB] focus:outline-2 focus-visible:outline-[#2F6FEB] focus-visible:outline-2 px-4 text-[14px]/[19px] text-[#102033] ${PJS} font-medium placeholder:text-[#98A2B3] bg-transparent`} />
             </label>
           </>
         ) : null}
