@@ -4,8 +4,9 @@ import { useMemo, useState } from 'react'
 import { Banknote, CalendarDays, ReceiptText, Search, Sigma } from 'lucide-react'
 import { apiGetDashboard, apiListTransactions, apiRefundTransaction, fetchAll, type Trx } from './mock-api'
 import { PageHeader } from './PageHeader'
-import { useCache } from '../lib/cache'
-import { exportCSV, exportExcel, fmtDate, fmtRp, fmtTime, useDB } from '../lib/store'
+import { useDemoCache } from './demo-cache'
+import { useDemoDB } from './demo-session'
+import { exportCSV, exportExcel, fmtDate, fmtRp, fmtTime } from '../lib/store'
 import { NumInput, Button, DatePicker, Empty, ExportMenu, Modal, Pager, SkeletonRows, StatusPill, Td, Th, TrxItems } from '../lib/ui'
 import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -16,7 +17,7 @@ const METHODS = ['Semua', 'Cash', 'Bank Transfer', 'QRIS', 'E-Wallet', 'Card']
 const fmtInv = (id: string) => (isNaN(Number(id)) ? `#${id}` : `#TRX-${String(Number(id)).padStart(5, '0')}`)
 
 export default function Transaksi() {
-  const db = useDB()
+  const db = useDemoDB()
   const s = db.session!
   const [q, setQ] = useState('')
   const [method, setMethod] = useState('Semua')
@@ -27,7 +28,7 @@ export default function Transaksi() {
     method: method === 'Semua' ? undefined : method,
     date: date || undefined,
   }
-  const list = useCache(
+  const list = useDemoCache(
     `trx:${s.id}:${s.role}:${q.trim()}:${method}:${date}:${page}`,
     () => apiListTransactions({ ...f, page: page + 1, limit: PAGE }),
     'Gagal memuat transaksi.',
@@ -36,12 +37,12 @@ export default function Transaksi() {
   const total = list.data?.total ?? 0
   const loading = list.loading
   // Ringkasan mengikuti filter aktif (fetch-all, pola sama seperti Export).
-  const agg = useCache(
+  const agg = useDemoCache(
     `trxagg:${s.id}:${s.role}:${q.trim()}:${method}:${date}`,
     () => fetchAll<Trx>((pg) => apiListTransactions({ ...f, page: pg, limit: 200 })),
     'Gagal memuat ringkasan.',
   )
-  const dash = useCache(`dashtrx:${s.id}:${s.role}`, apiGetDashboard)
+  const dash = useDemoCache(`dashtrx:${s.id}:${s.role}`, apiGetDashboard)
   const [err, setErr] = useState('')
   const [detail, setDetail] = useState<Trx | null>(null)
   const [refundFor, setRefundFor] = useState<Trx | null>(null)

@@ -5,8 +5,9 @@ import { useSearchParams } from 'react-router'
 import { Check, ChevronDown, CircleCheck, OctagonX, Package, Search, TriangleAlert } from 'lucide-react'
 import { apiAdjustStock, apiListCategories, apiListMovements, apiListProducts, fetchAll, type Category, type Movement, type Product } from './mock-api'
 import { PageHeader } from './PageHeader'
-import { useCache } from '../lib/cache'
-import { fmtDate, fmtTime, useDB } from '../lib/store'
+import { useDemoCache } from './demo-cache'
+import { useDemoDB } from './demo-session'
+import { fmtDate, fmtTime } from '../lib/store'
 import { NumInput, Button, Empty, Input, Modal, Pager, Pill, SkeletonRows, Td, Th } from '../lib/ui'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -22,13 +23,13 @@ const PAGE_SIZE = 10
 const isLow = (stock: number) => stock > 0 && stock <= 5
 
 export default function Stok() {
-  const { session } = useDB()
+  const { session } = useDemoDB()
   const who = `${session?.id}:${session?.role}`
-  const prod = useCache<Product[]>(`stock-products:${who}`, () => fetchAll<Product>((page) => apiListProducts({ page, limit: 200 })), 'Gagal memuat stok.')
+  const prod = useDemoCache<Product[]>(`stock-products:${who}`, () => fetchAll<Product>((page) => apiListProducts({ page, limit: 200 })), 'Gagal memuat stok.')
   const products = prod.data
-  const mov = useCache<Movement[]>(`movements:${who}`, () => apiListMovements({ limit: 50 }).then((r) => r.items))
+  const mov = useDemoCache<Movement[]>(`movements:${who}`, () => apiListMovements({ limit: 50 }).then((r) => r.items))
   const movements = mov.data
-  const catq = useCache<Category[]>(`cats:${who}`, () => apiListCategories())
+  const catq = useDemoCache<Category[]>(`cats:${who}`, () => apiListCategories())
   const cats = (catq.data ?? []).filter((c) => c.active)
 
   const [err, setErr] = useState('')
