@@ -57,3 +57,9 @@ TODO.md
 # Secrets (broader than the .env.*.local rules above)
 .env.*
 !.env.example
+
+# Tauri build output
+web/src-tauri/target/
+web/src-tauri/gen/
+web/dist-lite/
+web/release-out-lite/
