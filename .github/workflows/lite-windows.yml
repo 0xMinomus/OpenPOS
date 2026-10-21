@@ -1,0 +1,46 @@
+name: Lite Windows Build
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'web/**'
+      - '.github/workflows/lite-windows.yml'
+  pull_request:
+    paths:
+      - 'web/**'
+      - '.github/workflows/lite-windows.yml'
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Setup Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: web
+
+      - name: Build Tauri NSIS installer
+        run: npx tauri build --target x86_64-pc-windows-msvc --bundles nsis
+        working-directory: web
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: openpos-lite-windows-nsis
+          path: web/src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe
+          if-no-files-found: error
