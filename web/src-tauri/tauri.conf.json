@@ -3,6 +3,7 @@
   "productName": "OpenPOS Lite",
   "version": "0.1.0",
   "identifier": "com.openpos.lite",
+  "mainBinaryName": "OpenPOS Lite",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:5173/offline-lite.html",
