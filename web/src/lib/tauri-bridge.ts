@@ -2,7 +2,11 @@ import { invoke } from '@tauri-apps/api/core'
 
 export function installTauriBridge(): void {
   if (!('__TAURI_INTERNALS__' in window)) return
+  if (window.offline) return
 
+  window.addEventListener('contextmenu', (e) => {
+    e.preventDefault()
+  })
   window.offline = {
     isElectron: false,
     close: () => {
