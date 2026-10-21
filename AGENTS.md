@@ -172,6 +172,26 @@ components must match these.
   `/index.html`, hardening headers, and a download rule for `/openpos.apk`
   (`web/vercel.json`).
 
+## Repository identity
+
+- GitHub account / repository owner: **0xMinomus**
+- Repository: https://github.com/0xMinomus/OpenPOS
+- Correct git author and committer: `Andika Putra <zikopaak@gmail.com>`
+- Before committing, verify the identity and fix it if needed:
+
+  ```bash
+  git config user.name "Andika Putra"
+  git config user.email "zikopaak@gmail.com"
+  git log -1 --format='%an <%ae>'
+  ```
+
+- **Never** author or commit as `andikaputra`, `andikaputra@users.noreply.github.com`,
+  or `andikaputra@192.168.1.22`. Those identities caused commits to be attributed
+  to the wrong GitHub account; they are not the repository owner.
+- If an AI tool, sandbox, or another machine reports a different `user.email`,
+  stop and correct it before committing or pushing.
+- Publish releases and release assets only under `0xMinomus/OpenPOS`.
+
 ## Testing & QA
 
 There is **no unit or E2E test framework** and no CI/hooks. The only tests in
