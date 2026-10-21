@@ -3,5 +3,8 @@
   "identifier": "default",
   "description": "Capability untuk window utama OpenPOS Lite",
   "windows": ["main"],
-  "permissions": ["core:default"]
+  "permissions": [
+    "core:default",
+    "dialog:default"
+  ]
 }
