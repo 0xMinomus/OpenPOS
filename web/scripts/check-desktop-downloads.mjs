@@ -86,11 +86,17 @@ async function main() {
   const releases = await fetchReleases()
   if (!releases) return
 
-  // Draft releases never ship to users. GitHub returns releases newest first,
-  // so the first matching asset per need is the newest one.
-  const tauriReleases = releases.filter(
-    (release) => !release.draft && TAURI_TAG.test(release.tag_name ?? ''),
-  )
+  // Draft releases never ship to users. Sort explicitly because cached API
+  // responses are not guaranteed newest-first.
+  const tauriReleases = releases
+    .filter((release) => !release.draft && TAURI_TAG.test(release.tag_name ?? ''))
+    // API dapat mengembalikan urutan cache yang bukan newest-first; samakan
+    // dengan halaman unduh: rilis terbaru menang.
+    .sort((a, b) => {
+      const ta = Date.parse(a.published_at ?? '')
+      const tb = Date.parse(b.published_at ?? '')
+      return (Number.isFinite(tb) ? tb : 0) - (Number.isFinite(ta) ? ta : 0)
+    })
 
   if (tauriReleases.length === 0) {
     fail('tidak ada release Tauri (tag lite-v* / desktop-v*)')
