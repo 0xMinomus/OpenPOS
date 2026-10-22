@@ -46,10 +46,10 @@ type DesktopAssets = Record<DownloadFormat, string | null>
 // ponytail: tautan rilis terakhir yang diketahui, dipakai hanya bila API GitHub
 // gagal/kosong. Perbarui saat rilis Desktop baru; API tetap sumber utama.
 const FALLBACK_ASSETS: DesktopAssets = {
-  windows: 'https://github.com/0xMinomus/OpenPOS/releases/download/lite-v0.1.0-beta.1/OpenPOS.Lite_0.1.0_x64-setup.exe',
-  deb: 'https://github.com/0xMinomus/OpenPOS/releases/download/lite-v0.1.0-linux.1/OpenPOS-Lite_0.1.0_amd64.deb',
-  rpm: 'https://github.com/0xMinomus/OpenPOS/releases/download/lite-v0.1.0-linux.1/OpenPOS-Lite-0.1.0-1.x86_64.rpm',
-  appimage: 'https://github.com/0xMinomus/OpenPOS/releases/download/lite-v0.1.0-linux.1/OpenPOS-Lite_0.1.0_amd64.AppImage',
+  windows: 'https://github.com/0xMinomus/OpenPOS/releases/download/desktop-v0.1.0/OpenPOS.Desktop_0.1.0_x64-setup.exe',
+  deb: 'https://github.com/0xMinomus/OpenPOS/releases/download/desktop-v0.1.0/OpenPOS-Desktop_0.1.0_amd64.deb',
+  rpm: 'https://github.com/0xMinomus/OpenPOS/releases/download/desktop-v0.1.0/OpenPOS-Desktop-0.1.0-1.x86_64.rpm',
+  appimage: 'https://github.com/0xMinomus/OpenPOS/releases/download/desktop-v0.1.0/OpenPOS-Desktop_0.1.0_amd64.AppImage',
 }
 
 function withFallback(assets: DesktopAssets): DesktopAssets {
