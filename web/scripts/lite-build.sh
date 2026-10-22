@@ -41,7 +41,7 @@ case "$(uname -s)" in
     ;;
 esac
 
-echo "Building OpenPOS Lite NSIS installer..."
+echo "Building OpenPOS Desktop NSIS installer..."
 if [ "$IS_WINDOWS" -eq 1 ]; then
   npx tauri build --bundles nsis
 else

@@ -1,7 +1,7 @@
 [package]
 name = "openpos-lite"
 version = "0.1.0"
-description = "OpenPOS Lite - aplikasi kasir offline untuk Windows"
+description = "OpenPOS Desktop - aplikasi kasir offline untuk Windows dan Linux"
 authors = ["OpenPOS"]
 edition = "2021"
 rust-version = "1.77.2"

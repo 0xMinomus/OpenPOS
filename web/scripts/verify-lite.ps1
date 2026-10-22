@@ -1,12 +1,12 @@
 <#
 .SYNOPSIS
-    Windows acceptance and smoke verification script for OpenPOS Lite (Tauri 2).
+    Windows acceptance and smoke verification script for OpenPOS Desktop (Tauri 2).
 .DESCRIPTION
     Validates installer artifact, launches headless/smoke check, confirms WebView2
     data isolation, and guides tester through manual hardware and route acceptance.
     Compatible with Windows PowerShell 5.1+ and PowerShell Core 7+.
 .PARAMETER ExePath
-    Explicit path to OpenPOS Lite.exe binary. If omitted, standard install paths are searched.
+    Explicit path to OpenPOS Desktop.exe binary (legacy OpenPOS Lite.exe is also searched).
 .PARAMETER InstallerPath
     Explicit path to the NSIS installer executable. If omitted, release-out-lite is searched.
 .PARAMETER TimeoutSeconds
@@ -30,7 +30,7 @@ $script:SmokePassed = $false
 $script:HasErrors = $false
 
 Write-Host "========================================================" -ForegroundColor Cyan
-Write-Host "      OpenPOS Lite — Windows Acceptance & Smoke Test    " -ForegroundColor Cyan
+Write-Host "      OpenPOS Desktop — Windows Acceptance & Smoke Test " -ForegroundColor Cyan
 Write-Host "========================================================" -ForegroundColor Cyan
 Write-Host ""
 
@@ -50,9 +50,11 @@ if ($InstallerPath -and (Test-Path $InstallerPath)) {
     )
     foreach ($dir in $searchDirs) {
         if (Test-Path $dir) {
-            $candidates = Get-ChildItem -Path $dir -Filter "*setup*.exe" -File -ErrorAction SilentlyContinue
-            if ($candidates -and $candidates.Count -gt 0) {
-                $resolvedInstaller = $candidates[0].FullName
+            # Accept both "OpenPOS Desktop" and legacy "OpenPOS Lite" installer names; prefer Desktop.
+            $candidates = @(Get-ChildItem -Path $dir -Filter "*setup*.exe" -File -ErrorAction SilentlyContinue)
+            if ($candidates.Count -gt 0) {
+                $desktopInstallers = @($candidates | Where-Object { $_.Name -like "*OpenPOS Desktop*" })
+                $resolvedInstaller = if ($desktopInstallers.Count -gt 0) { $desktopInstallers[0].FullName } else { $candidates[0].FullName }
                 break
             }
         }
@@ -78,35 +80,40 @@ Write-Host ""
 # -----------------------------------------------------------------------------
 # 2. Executable Discovery
 # -----------------------------------------------------------------------------
-Write-Host ">>> [2/5] Locating OpenPOS Lite Executable..." -ForegroundColor Yellow
+Write-Host ">>> [2/5] Locating OpenPOS Desktop Executable..." -ForegroundColor Yellow
 
 $resolvedExe = $null
 if ($ExePath -and (Test-Path $ExePath)) {
     $resolvedExe = (Get-Item $ExePath).FullName
 } else {
-    $candidatePaths = @(
-        (Join-Path $env:LOCALAPPDATA "Programs\OpenPOS Lite\OpenPOS Lite.exe"),
-        (Join-Path $env:LOCALAPPDATA "OpenPOS Lite\OpenPOS Lite.exe"),
-        (Join-Path $env:ProgramFiles "OpenPOS Lite\OpenPOS Lite.exe"),
-        (Join-Path ${env:ProgramFiles(x86)} "OpenPOS Lite\OpenPOS Lite.exe"),
-        (Join-Path $PSScriptRoot "..\src-tauri\target\release\OpenPOS Lite.exe"),
-        (Join-Path $PSScriptRoot "..\release-out-lite\OpenPOS Lite.exe")
-    )
+    # OpenPOS Desktop first; fall back to legacy OpenPOS Lite installs.
+    $candidatePaths = @()
+    foreach ($appName in @("OpenPOS Desktop", "OpenPOS Lite")) {
+        $exeName = "$appName.exe"
+        $candidatePaths += @(
+            (Join-Path $env:LOCALAPPDATA "Programs\$appName\$exeName"),
+            (Join-Path $env:LOCALAPPDATA "$appName\$exeName"),
+            (Join-Path $env:ProgramFiles "$appName\$exeName"),
+            (Join-Path ${env:ProgramFiles(x86)} "$appName\$exeName"),
+            (Join-Path $PSScriptRoot "..\src-tauri\target\release\$exeName"),
+            (Join-Path $PSScriptRoot "..\release-out-lite\$exeName")
+        )
+    }
 
-    foreach ($path in $candidatePaths) {
-        if ($path -and (Test-Path $path)) {
-            $resolvedExe = (Get-Item $path).FullName
+    foreach ($candidate in $candidatePaths) {
+        if ($candidate -and (Test-Path $candidate)) {
+            $resolvedExe = (Get-Item $candidate).FullName
             break
         }
     }
 }
 
 if (-not $resolvedExe -or -not (Test-Path $resolvedExe)) {
-    Write-Host "  ERROR: Could not locate 'OpenPOS Lite.exe' in candidate locations:" -ForegroundColor Red
-    Write-Host "    - `$env:LOCALAPPDATA\Programs\OpenPOS Lite\OpenPOS Lite.exe" -ForegroundColor Gray
-    Write-Host "    - `$env:LOCALAPPDATA\OpenPOS Lite\OpenPOS Lite.exe" -ForegroundColor Gray
-    Write-Host "    - `$env:ProgramFiles\OpenPOS Lite\OpenPOS Lite.exe" -ForegroundColor Gray
-    Write-Host "  Please install OpenPOS Lite or specify -ExePath '<path-to-exe>'" -ForegroundColor Red
+    Write-Host "  ERROR: Could not locate 'OpenPOS Desktop.exe' (or legacy 'OpenPOS Lite.exe') in candidate locations:" -ForegroundColor Red
+    Write-Host "    - `$env:LOCALAPPDATA\Programs\OpenPOS Desktop\OpenPOS Desktop.exe" -ForegroundColor Gray
+    Write-Host "    - `$env:LOCALAPPDATA\OpenPOS Desktop\OpenPOS Desktop.exe" -ForegroundColor Gray
+    Write-Host "    - `$env:ProgramFiles\OpenPOS Desktop\OpenPOS Desktop.exe" -ForegroundColor Gray
+    Write-Host "  Please install OpenPOS Desktop or specify -ExePath '<path-to-exe>'" -ForegroundColor Red
     $script:HasErrors = $true
 } else {
     Write-Host "  Executable located: $resolvedExe" -ForegroundColor Green
@@ -116,7 +123,7 @@ Write-Host ""
 # -----------------------------------------------------------------------------
 # 3. Headless Smoke Verification (--smoke)
 # -----------------------------------------------------------------------------
-Write-Host ">>> [3/5] Executing Smoke Run (OpenPOS Lite.exe --smoke)..." -ForegroundColor Yellow
+Write-Host ">>> [3/5] Executing Smoke Run (OpenPOS Desktop.exe --smoke)..." -ForegroundColor Yellow
 
 if ($resolvedExe -and (Test-Path $resolvedExe)) {
     Write-Host "  Launching: `"$resolvedExe`" --smoke (timeout: ${TimeoutSeconds}s)" -ForegroundColor Gray
@@ -177,6 +184,7 @@ Write-Host ">>> [4/5] Checking WebView2 Data Directory..." -ForegroundColor Yell
 $webView2Locations = @(
     (Join-Path $env:LOCALAPPDATA "com.openpos.lite"),
     (Join-Path $env:LOCALAPPDATA "com.openpos.lite\EBWebView"),
+    (Join-Path $env:LOCALAPPDATA "OpenPOS Desktop\EBWebView"),
     (Join-Path $env:LOCALAPPDATA "OpenPOS Lite\EBWebView")
 )
 
@@ -202,7 +210,7 @@ Write-Host ""
 Write-Host ">>> [5/5] Manual Acceptance Checklist" -ForegroundColor Yellow
 Write-Host "  [NOTE: Thermal printer is NOT automated by this script; test manually]" -ForegroundColor DarkYellow
 Write-Host ""
-Write-Host "  Checklist items to verify in running UI:" -ForegroundColor Cyan
+Write-Host "  Checklist items to verify in running OpenPOS Desktop UI:" -ForegroundColor Cyan
 Write-Host "    [ ] 1. Thermal Printing: 58 mm receipt prints cleanly from POS checkout"
 Write-Host "    [ ] 2. Excel/CSV Export: File dialog opens, files saved in Produk/Transaksi/Laporan"
 Write-Host "    [ ] 3. Backup & Restore: Download JSON backup, restore into clean session"

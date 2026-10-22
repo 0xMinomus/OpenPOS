@@ -19,5 +19,5 @@ pub fn run() {
             Ok(())
         })
         .run(tauri::generate_context!())
-        .expect("error while running OpenPOS Lite");
+        .expect("error while running OpenPOS Desktop");
 }

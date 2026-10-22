@@ -1,4 +1,4 @@
-name: Lite Linux Build
+name: OpenPOS Desktop Linux Build
 
 on:
   workflow_dispatch:
@@ -51,7 +51,7 @@ jobs:
       - name: Upload Linux bundles
         uses: actions/upload-artifact@v4
         with:
-          name: openpos-lite-linux
+          name: openpos-desktop-linux
           path: |
             web/src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb
             web/src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/rpm/*.rpm

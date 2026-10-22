@@ -110,28 +110,42 @@ try {
   recordCheck('APK Drop', false, `error checking openpos.apk: ${err.message}`)
 }
 
-// Check 5: Assert Lite HTML title is OpenPOS Lite and source entry is lite-main.tsx
+// Check 5: Assert HTML title is OpenPOS Desktop (legacy 'OpenPOS Lite' accepted during rename) and source entry is lite-main.tsx
+const ACCEPTED_TITLES = ['OpenPOS Desktop', 'OpenPOS Lite']
 const sourceHtmlPath = path.resolve(webDir, 'offline-lite.html')
+
+function readTitle(html) {
+  const match = /<title>([^<]*)<\/title>/.exec(html)
+  return match ? match[1].trim() : null
+}
+
 try {
   const sourceHtml = fs.readFileSync(sourceHtmlPath, 'utf8')
-  const hasLiteTitle = /<title>OpenPOS Lite<\/title>/.test(sourceHtml)
+  const sourceTitle = readTitle(sourceHtml)
+  const hasTitle = ACCEPTED_TITLES.includes(sourceTitle)
   const hasLiteEntry = /src=["']\/src\/lite-main\.tsx["']|src=["']src\/lite-main\.tsx["']|src=["']\.\/src\/lite-main\.tsx["']/.test(
     sourceHtml,
   )
 
+  let distTitle = null
   let distTitleMatch = true
   if (fs.existsSync(distHtmlPath)) {
     const distHtml = fs.readFileSync(distHtmlPath, 'utf8')
-    distTitleMatch = /<title>OpenPOS Lite<\/title>/.test(distHtml)
+    distTitle = readTitle(distHtml)
+    distTitleMatch = ACCEPTED_TITLES.includes(distTitle)
   }
 
-  if (hasLiteTitle && hasLiteEntry && distTitleMatch) {
-    recordCheck('Entry & Title', true, "offline-lite.html title is 'OpenPOS Lite' and source entry is 'lite-main.tsx'")
+  if (hasTitle && hasLiteEntry && distTitleMatch) {
+    recordCheck(
+      'Entry & Title',
+      true,
+      `offline-lite.html title is '${sourceTitle}' (OpenPOS Desktop; 'OpenPOS Lite' accepted for transition) and source entry is 'lite-main.tsx'`,
+    )
   } else {
     const details = []
-    if (!hasLiteTitle) details.push("source title is not 'OpenPOS Lite'")
+    if (!hasTitle) details.push(`source title is '${sourceTitle ?? 'missing'}', expected 'OpenPOS Desktop' or 'OpenPOS Lite'`)
     if (!hasLiteEntry) details.push("source entry does not point to 'lite-main.tsx'")
-    if (!distTitleMatch) details.push("dist title is not 'OpenPOS Lite'")
+    if (!distTitleMatch) details.push(`dist title is '${distTitle ?? 'missing'}', expected 'OpenPOS Desktop' or 'OpenPOS Lite'`)
     recordCheck('Entry & Title', false, details.join(', '))
   }
 } catch (err) {

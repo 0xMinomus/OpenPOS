@@ -1,18 +1,23 @@
-# OpenPOS Lite — Parity & Acceptance Specification
+# OpenPOS Desktop — Parity & Acceptance Specification
 
-This document defines the 1:1 parity acceptance criteria between OpenPOS Electron (the legacy offline Windows desktop app) and OpenPOS Lite (the lightweight Tauri 2 + WebView2 Windows desktop app).
+This document defines the 1:1 parity acceptance criteria between the legacy
+OpenPOS Electron desktop app (offline, Windows only) and OpenPOS Desktop (the
+Tauri 2 offline app for Windows and Linux).
+
+Scripts, paths, and generated binaries keep their historical `lite` names; see
+[`DESKTOP.md`](DESKTOP.md) for the naming map.
 
 ---
 
 ## 1. Route Parity Matrix
 
-OpenPOS Lite operates under a single client-side `HashRouter` bootstrap seeded with a local administrative session. All eight offline routes and the fallback catch-all must render with identical behavior to the Electron offline package:
+OpenPOS Desktop operates under a single client-side `HashRouter` bootstrap seeded with a local administrative session. All eight offline routes and the fallback catch-all must render with identical behavior to the Electron offline package:
 
 | Route | Screen | Component | Critical Actions | Expected 1:1 Behavior |
 |---|---|---|---|---|
 | `#/` | Dashboard | `Dashboard.tsx` | View store metrics, revenue cards, low stock alerts, sales charts | Renders summary cards (Omzet, Total Transaksi, Rata-rata Keranjang), Recharts revenue breakdown, and low stock table seeded from local storage without network requests. |
 | `#/pos` | Kasir POS | `OfflinePos.tsx` | Search product, category filter, cart mutation, cash/QRIS checkout, receipt modal | Instant item addition to cart, subtotal/tax/discount calculations, quick cash nominal buttons, checkout confirmation modal, automatic receipt dialog prompt. |
-| `#/produk` | Produk | `OfflineProduk.tsx` | Add/edit/delete product, category manager, CSV/Excel export, CSV/Excel import | CRUD operations persist immediately to `localStorage['op_offline_db']`. Export invokes native Windows Save dialog (`save_file`). Import parses file and updates product catalog. |
+| `#/produk` | Produk | `OfflineProduk.tsx` | Add/edit/delete product, category manager, CSV/Excel export, CSV/Excel import | CRUD operations persist immediately to `localStorage['op_offline_db']`. Export invokes the native Save dialog (`save_file`). Import parses file and updates product catalog. |
 | `#/stok` | Stok & Inventaris | `Stok.tsx` | Stock level monitoring, filter low stock, manual stock adjustments | Displays live inventory count, allows manual stock increment/decrement with reason audit, updates product stock count across POS and Dashboard. |
 | `#/transaksi` | Riwayat Transaksi | `OfflineTransaksi.tsx` | View transactions, filter by date/status, transaction detail modal, refund, export | Lists all recorded sales, displays invoice details with item breakdown, executes item refunds with stock return, exports transaction history to CSV/Excel. |
 | `#/laporan` | Laporan | `Laporan.tsx` | View revenue, COGS (HPP), profit margin, multi-tab analytics, report exports | Tabbed reports (Ringkasan, Penjualan, Produk, Kategori, Metode Pembayaran), graphical charts, and multi-sheet Excel / CSV exports via native Save dialog. |
@@ -81,13 +86,17 @@ OpenPOS Lite operates under a single client-side `HashRouter` bootstrap seeded w
 
 ---
 
-## 3. Manual Windows Acceptance Walkthrough
+## 3. Manual Desktop Acceptance Walkthrough (Windows)
+
+Linux bundles (`deb`, `rpm`, `AppImage`) use the same checklist; for the render
+step, substitute the `xvfb-run -a openpos-desktop --smoke` check documented in
+[`DESKTOP.md`](DESKTOP.md).
 
 ### 3.1 Installation & Startup
-1. Run the NSIS installer: `OpenPOS Lite-0.1.0-setup.exe`.
-2. Confirm the installer installs in `currentUser` mode under `%LOCALAPPDATA%\Programs\OpenPOS Lite\` (does not require UAC administrator privileges).
+1. Run the NSIS installer: `OpenPOS Desktop_0.1.0_x64-setup.exe`.
+2. Confirm the installer installs in `currentUser` mode under `%LOCALAPPDATA%\Programs\OpenPOS Desktop\` (does not require UAC administrator privileges). The verification script also accepts legacy `OpenPOS Lite` installs.
 3. Confirm desktop and Start Menu shortcuts are created.
-4. Launch `OpenPOS Lite.exe`. Confirm initial load time is < 1.5 seconds.
+4. Launch the app. Confirm initial load time is < 1.5 seconds.
 
 ### 3.2 Automated Smoke Test Verification
 Run the verification script from PowerShell on the target Windows test machine:
@@ -98,16 +107,16 @@ Verify the following output:
 - Installer detected in `release-out-lite` and size is <= 25 MB.
 - Executable located and launched with `--smoke`.
 - App executes headless DOM validation and returns exit code 0.
-- WebView2 data directory confirmed under `%LOCALAPPDATA%\com.openpos.lite`.
+- WebView2 data directory confirmed under `%LOCALAPPDATA%\com.openpos.lite` (identifier preserved from the beta builds).
 - Verification status displays `PASS`.
 
-### 3.3 Data Migration from Electron to Lite
-OpenPOS Lite maintains separate storage isolation from the Electron version. Follow this migration procedure to transfer existing store data:
+### 3.3 Data Migration from Electron to OpenPOS Desktop
+OpenPOS Desktop maintains separate storage isolation from the Electron version. Follow this migration procedure to transfer existing store data:
 1. Open the legacy **OpenPOS Electron** app.
 2. Go to navigation: **Backup** (`#/backup`).
 3. Click **Unduh Cadangan** and save `openpos-backup-YYYY-MM-DD.json`.
 4. Close OpenPOS Electron.
-5. Open **OpenPOS Lite**.
+5. Open **OpenPOS Desktop**.
 6. Go to navigation: **Backup** (`#/backup`).
 7. Click **Pilih File Cadangan**, select the exported JSON file, and confirm restore.
 8. Verify all products, past transactions, inventory counts, and store settings match the Electron instance 1:1.
@@ -115,7 +124,7 @@ OpenPOS Lite maintains separate storage isolation from the Electron version. Fol
 ### 3.4 Hardware Receipt Print Verification
 1. Connect a 58 mm USB or Bluetooth POS thermal printer to the Windows workstation.
 2. In Windows Settings, set the printer paper size to `58mm * 210mm` (or Roll Paper).
-3. In OpenPOS Lite, go to **Kasir** (`#/pos`).
+3. In OpenPOS Desktop, go to **Kasir** (`#/pos`).
 4. Add 2 products, select **Tunai**, enter exact cash, and click **Selesaikan Transaksi**.
 5. When the receipt preview dialog opens, click **Cetak Struk**.
 6. Verify physical receipt:
@@ -126,20 +135,20 @@ OpenPOS Lite maintains separate storage isolation from the Electron version. Fol
 
 ### 3.5 Restart & Persistence Check
 1. Make a manual stock adjustment on any item in **Stok** (`#/stok`).
-2. Close the OpenPOS Lite window (via window close button or `Alt+F4`).
-3. Re-launch `OpenPOS Lite.exe`.
+2. Close the OpenPOS Desktop window (via window close button or `Alt+F4`).
+3. Re-launch the app.
 4. Navigate to **Stok** (`#/stok`) and verify the updated stock quantity and history record remain intact.
 
 ---
 
 ## 4. Known Acceptable Differences
 
-| Aspect | OpenPOS Electron (Legacy) | OpenPOS Lite (Tauri 2) | Rationale / Mitigation |
+| Aspect | OpenPOS Electron (Legacy) | OpenPOS Desktop (Tauri 2) | Rationale / Mitigation |
 |---|---|---|---|
-| **Web Runtime Engine** | Bundled Chromium (~130 MB) | System Microsoft Edge WebView2 Evergreen | Drastically reduces installer size (< 10 MB vs ~85 MB) and idle memory usage (< 80 MB vs ~350 MB). |
-| **Data Directory** | `%APPDATA%\OpenPOS` | `%LOCALAPPDATA%\com.openpos.lite\EBWebView` | Different desktop shell frameworks maintain independent WebView profile partitions. Migration via Backup JSON is 1:1. |
+| **Web Runtime Engine** | Bundled Chromium (~130 MB) | System WebView: Microsoft Edge WebView2 on Windows, WebKitGTK on Linux | Drastically reduces installer size and idle memory usage. Windows NSIS output is under 10 MB versus ~85 MB for the Electron installer. |
+| **Data Directory** | `%APPDATA%\OpenPOS` | `%LOCALAPPDATA%\com.openpos.lite\EBWebView` (Windows) | Different desktop shell frameworks maintain independent WebView profile partitions. Migration via Backup JSON is 1:1. The `com.openpos.lite` identifier is kept so beta installs keep their data. |
 | **Context Menu & Zoom** | Chromium standard context menu enabled | Custom or disabled in production release | Prevents cashiers from inspecting element or accidentally zooming UI via pinch/wheel. |
-| **Application Packaging** | Electron-builder NSIS x64 | Tauri NSIS x64 (`currentUser`) | Both support per-user installation without admin rights. Tauri installer is ~8x smaller. |
+| **Application Packaging** | Electron-builder NSIS x64 | Tauri NSIS x64 (`currentUser`) plus Linux `deb`/`rpm`/AppImage | Windows supports per-user installation without admin rights; Tauri installer is ~8x smaller. |
 | **File Save Bridge** | `window.offline.saveFile` via Electron IPC (`ipcRenderer.invoke`) | `window.offline.saveFile` via Tauri IPC (`invoke('save_file')`) | Transparent frontend abstraction in `store.ts` (`downloadBlob`). Same native file dialog experience. |
 | **Window Close Bridge** | `window.offline.close` via Electron IPC | `window.offline.close` via Tauri IPC (`invoke('close_window')`) | Identical frontend contract in `window.offline.close`. |
 
@@ -152,6 +161,6 @@ OpenPOS Lite maintains separate storage isolation from the Electron version. Fol
 | **Static Route & Asset Parity** | Linux Build Host (Node ESM) | Automated (`lite-parity.mjs`) | 2026-10-21 | ________ | 8 routes, relative assets, bridge calls verified. |
 | **Automated Headless Smoke** | Windows 11 x64 (WebView2 111+) | Automated (`verify-lite.ps1`) | 2026-10-21 | ________ | `--smoke` flag exits with code 0. |
 | **NSIS Installer & Launch** | Windows 10/11 x64 Clean VM | Manual Tester | ____________ | ________ | Per-user installation, shortcuts, launch time < 2s. |
-| **Backup JSON Data Migration** | Windows 11 x64 | Manual Tester | ____________ | ________ | Electron backup restored into Lite without loss. |
+| **Backup JSON Data Migration** | Windows 11 x64 | Manual Tester | ____________ | ________ | Electron backup restored into OpenPOS Desktop without loss. |
 | **58 mm Thermal Print Test** | Windows 11 + USB POS Printer | Hardware QA | ____________ | ________ | Physical receipt alignment and print quality verified. |
 | **Final Release Acceptance** | Windows 11 x64 Production Build | Lead Engineer | ____________ | ________ | Approved for distribution. |

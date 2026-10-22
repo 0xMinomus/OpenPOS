@@ -15,7 +15,9 @@
 <p align="center">
   <a href="https://open-pos-deploy.vercel.app"><strong>Live demo</strong></a>
   ·
-  <a href="https://open-pos-deploy.vercel.app/unduh">Download (Windows &amp; Android)</a>
+  <a href="https://open-pos-deploy.vercel.app/unduh">Download (Windows, Linux &amp; Android)</a>
+  ·
+  <a href="https://github.com/0xMinomus/OpenPOS/releases">All releases</a>
   ·
   <a href="https://github.com/adrr-dev/openPOS">Backend API</a>
 </p>
@@ -32,7 +34,7 @@
   - [Environment variables](#environment-variables)
   - [Run the web app](#run-the-web-app)
   - [npm scripts](#npm-scripts)
-  - [Build the Windows desktop app](#build-the-windows-desktop-app)
+  - [Build the desktop app](#build-the-desktop-app)
   - [Build the Android app](#build-the-android-app)
 - [Project structure](#project-structure)
 - [Backend API](#backend-api)
@@ -52,13 +54,18 @@ One codebase in the `web/` workspace ships three products:
 | Product | Data | Distribution |
 |---|---|---|
 | **Cloud web app** | Go + PostgreSQL REST API | Vercel, deploys automatically on every push to `main` |
-| **Desktop app (Windows)** | Device-local, works fully offline | NSIS installer from [GitHub Releases](https://github.com/0xMinomus/OpenPOS/releases) |
+| **OpenPOS Desktop** | Device-local, works fully offline | Tauri 2: Windows installer and Linux `.deb`/`.rpm`/AppImage from [GitHub Releases](https://github.com/0xMinomus/OpenPOS/releases) |
 | **Android app** | Device-local, works fully offline | Sideloaded APK from the [Downloads page](https://open-pos-deploy.vercel.app/unduh) |
 
 The cloud app is the reference implementation: multi-account stores,
-role-based access, email OTP, and Google sign-in. The desktop and Android
-builds reuse the same UI against a local adapter, so they trade multi-device
-sync for working without internet.
+role-based access, email OTP, and Google sign-in. OpenPOS Desktop and the
+Android build reuse the same UI against a local adapter, so they trade
+multi-device sync for working without internet.
+
+OpenPOS Desktop is the Tauri app in `web/src-tauri/` built from
+`web/offline-lite.html`; see [web/DESKTOP.md](web/DESKTOP.md) for its build and
+packaging guide. The older Electron build in `web/electron/` stays in the
+repository as a legacy Windows desktop version and is not the desktop release.
 
 ## Features
 
@@ -92,7 +99,8 @@ sync for working without internet.
 |---|---|
 | UI | React 19, TypeScript 6, Tailwind CSS v4, shadcn/ui on Base UI, Recharts, lucide-react, Poppins |
 | Web tooling | Vite 8, React Router 8, oxlint |
-| Desktop | Electron 44 + electron-builder (NSIS installer) |
+| Desktop | Tauri 2 (Rust shell), Windows WebView2 and Linux WebKitGTK; NSIS, deb, rpm, AppImage bundles |
+| Legacy desktop | Electron 44 + electron-builder (NSIS installer) |
 | Mobile | Capacitor 8 (Android), same offline bundle, sideloaded APK |
 | Backend | Go (Gin + GORM), PostgreSQL, JWT, separate repo: [adrr-dev/openPOS](https://github.com/adrr-dev/openPOS) |
 | Hosting | Vercel (frontend auto-deploys on every push to `main`) |
@@ -104,7 +112,8 @@ sync for working without internet.
 | Requirement | Needed for |
 |---|---|
 | Node.js 22.12+ and npm | Everything: dev server, builds, Capacitor sync |
-| Windows x64 | `npm run electron:build` (installer) |
+| Rust stable (`rustup`) | `npx tauri build` for OpenPOS Desktop |
+| Windows x64, or Linux with WebKitGTK 4.1/GTK3 | OpenPOS Desktop installers and Linux packages; full dependency list in [web/DESKTOP.md](web/DESKTOP.md) |
 | Android SDK Platform 36 (compile/target SDK 36, min SDK 24) and JDK 21 | `npm run mobile:sync`, Gradle build, `adb install` |
 
 ### Environment variables
@@ -141,23 +150,52 @@ All commands run inside `web/`:
 |---|---|
 | `npm run dev` | Vite dev server |
 | `npm run build` | Type-check (`tsc -b`) + cloud bundle in `dist/` |
+| `npm run build:lite` | Desktop frontend bundle in `dist-lite/` (internal historical name) |
 | `npm run lint` | oxlint |
 | `npm run build:offline` | Offline bundle in `dist-offline/` |
-| `npm run electron:smoke` | Headless render test of the offline app |
-| `npm run electron:build` | Cloud + offline builds, then the Windows installer in `release-out/` |
+| `npm run electron:smoke` | Legacy Electron: headless render test of the offline app |
+| `npm run electron:build` | Legacy Electron: cloud + offline builds, then the Windows installer in `release-out/` |
 | `npm run mobile:sync` | Offline build + Capacitor sync for Android |
 
-### Build the Windows desktop app
+### Build the desktop app
+
+OpenPOS Desktop is the Tauri app; the full guide lives in
+[web/DESKTOP.md](web/DESKTOP.md). Script and output names still use the
+historical "lite" label (`build:lite`, `dist-lite`, `offline-lite.html`).
+
+Windows installer — from `web/`:
 
 ```bash
 cd web
-npm run electron:build
+bash scripts/lite-build.sh      # native Windows build, or cross-compile from Linux
+# or call the Tauri CLI directly
+npx tauri build --bundles nsis
 ```
 
-The installer lands in `web/release-out/`. Publish a release by uploading it to
+`lite-build.sh` copies the installer to `web/release-out-lite/`; a direct
+`npx tauri build` leaves it under `web/src-tauri/target/.../bundle/nsis/`.
+Linux packages:
+
+```bash
+cd web
+npx tauri build --target x86_64-unknown-linux-gnu --bundles deb,rpm,appimage
+```
+
+Publish the Windows installer and the Linux `.deb`/`.rpm`/AppImage to
 [GitHub Releases](https://github.com/0xMinomus/OpenPOS/releases); the
-[Downloads page](https://open-pos-deploy.vercel.app/unduh) always picks up the
-latest release.
+[Downloads page](https://open-pos-deploy.vercel.app/unduh) links Windows to the
+newest release that carries an `.exe` asset.
+
+The legacy Electron desktop build is still available and Windows-only:
+
+```bash
+cd web
+npm run electron:build          # legacy installer → release-out/
+```
+
+Older Electron installers (`OpenPOS.Setup.<version>.exe`) and the first
+OpenPOS Desktop releases remain published on GitHub Releases. Existing release
+tags and asset filenames keep the older `lite` label and are not renamed.
 
 ### Build the Android app
 
@@ -183,13 +221,18 @@ updates are manual by design, and the finished APK is published to
 │   │   ├── pages/          # cloud routes: Masuk, Daftar, Dashboard, Pos, ...
 │   │   ├── pages/offline/  # offline screens (HashRouter, local adapter)
 │   │   ├── redesign/       # standalone UI preview served at /demo (mock data)
-│   │   ├── lib/            # api.ts, local-api.ts, localdb.ts, store.ts, ui.tsx, ...
+│   │   ├── lib/            # api.ts, local-api.ts, localdb.ts, tauri-bridge.ts, ...
 │   │   ├── components/ui/  # shadcn/ui (Base UI) primitives
 │   │   ├── App.tsx         # cloud routes (/masuk, /daftar, /app/*, /unduh, /demo)
-│   │   └── offline-main.tsx
-│   ├── electron/           # desktop shell (main + preload)
+│   │   ├── offline-main.tsx
+│   │   └── lite-main.tsx   # desktop entry: installs the Tauri bridge, then offline-main
+│   ├── src-tauri/          # OpenPOS Desktop shell (Tauri 2 + Rust)
+│   ├── electron/           # legacy Electron shell (main + preload)
 │   ├── android/            # Capacitor Android project (com.openpos.mobile)
-│   ├── build/              # installer icon
+│   ├── scripts/            # desktop build + parity verification scripts
+│   ├── build/              # installer icon (legacy Electron)
+│   ├── offline.html        # offline entry for Electron and Android
+│   ├── offline-lite.html   # OpenPOS Desktop entry (Tauri)
 │   └── public/openpos.apk  # latest sideloadable APK, served from /unduh
 ├── SECURITY.md             # security policy and reporting scope
 └── LICENSE
@@ -221,9 +264,10 @@ sessions work here, and the reporting process. Report suspected vulnerabilities
 through [private vulnerability reporting](https://github.com/0xMinomus/OpenPOS/security/advisories/new),
 never a public issue.
 
-Note that the offline desktop and Android builds store all data in device-local
-storage without a login screen; anyone with physical access to the device can
-read that data. That is by design and out of scope for security reports.
+Note that the offline builds — OpenPOS Desktop, the legacy Electron app, and
+the Android app — store all data in device-local storage without a login
+screen; anyone with physical access to the device can read that data. That is by
+design and out of scope for security reports.
 
 ## License
 

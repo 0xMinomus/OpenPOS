@@ -1,7 +1,7 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Capability untuk window utama OpenPOS Lite",
+  "description": "Capability untuk window utama OpenPOS Desktop",
   "windows": ["main"],
   "permissions": [
     "core:default",

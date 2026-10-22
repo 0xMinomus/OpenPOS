@@ -1,9 +1,9 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "OpenPOS Lite",
+  "productName": "OpenPOS Desktop",
   "version": "0.1.0",
   "identifier": "com.openpos.lite",
-  "mainBinaryName": "OpenPOS Lite",
+  "mainBinaryName": "OpenPOS Desktop",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:5173/offline-lite.html",
@@ -15,7 +15,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "OpenPOS Lite",
+        "title": "OpenPOS Desktop",
         "url": "offline-lite.html",
         "width": 1280,
         "height": 800,

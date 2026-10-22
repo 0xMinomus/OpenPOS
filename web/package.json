@@ -11,6 +11,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
+    "check:downloads": "node scripts/check-desktop-downloads.mjs",
     "preview": "vite preview",
     "electron:smoke": "electron electron/main.cjs --smoke",
     "build:offline": "vite build --config vite.offline.config.ts",
