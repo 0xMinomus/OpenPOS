@@ -1,5 +1,8 @@
 # Repository Guidelines
 
+> **GitHub account.** The repository owner is **0xMinomus** (`zikopaak@gmail.com`).
+> Commit, tag, and publish only as this account — never as `andikaputra` or any variant.
+
 OpenPOS is a free point-of-sale app for Indonesian MSMEs (*UMKM*). One Vite
 workspace, `web/`, ships three targets from the same UI: a cloud SPA (Go +
 PostgreSQL REST API in a [separate repo](https://github.com/adrr-dev/openPOS)),
@@ -176,11 +179,11 @@ components must match these.
 
 - GitHub account / repository owner: **0xMinomus**
 - Repository: https://github.com/0xMinomus/OpenPOS
-- Correct git author and committer: `Andika Putra <zikopaak@gmail.com>`
+- Correct git author and committer: `0xMinomus <zikopaak@gmail.com>`
 - Before committing, verify the identity and fix it if needed:
 
   ```bash
-  git config user.name "Andika Putra"
+  git config user.name "0xMinomus"
   git config user.email "zikopaak@gmail.com"
   git log -1 --format='%an <%ae>'
   ```
