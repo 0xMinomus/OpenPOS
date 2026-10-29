@@ -29,6 +29,7 @@
 
 - [About](#about)
 - [Award](#award)
+- [Screenshots](#screenshots)
 - [Features](#features)
 - [Tech stack](#tech-stack)
 - [Getting started](#getting-started)
@@ -74,6 +75,16 @@ repository as a legacy Windows desktop version and is not the desktop release.
 
 OpenPOS won **1st place in the National Web Competition** organized by
 **Invention, Universitas Udayana**. See [AWARD.md](AWARD.md) for details.
+
+## Screenshots
+
+<p align="center">
+  <img src="web/public/screenshots/landing.png" alt="OpenPOS landing page" width="900" />
+</p>
+
+| Dashboard | POS |
+| --- | --- |
+| ![Dashboard](web/public/screenshots/dashboard.png) | ![POS](web/public/screenshots/pos.png) |
 
 ## Features
 
