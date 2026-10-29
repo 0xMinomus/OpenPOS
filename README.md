@@ -10,7 +10,7 @@
   <img src="https://img.shields.io/badge/vite-8-purple.svg" alt="Vite" />
   <img src="https://img.shields.io/badge/typescript-5-blue.svg" alt="TypeScript" />
   <img src="https://img.shields.io/badge/platform-web_%7C_desktop_%7C_android-black.svg" alt="Platforms" />
-  <a href="https://open-pos-deploy.vercel.app/prestasi"><img src="https://img.shields.io/badge/Juara_1-Lomba_Nasional_Web_Invention_%C2%B7_Universitas_Udayana-gold.svg" alt="Juara 1 Lomba Nasional Web — Invention, Universitas Udayana" /></a>
+  <a href="AWARD.md"><img src="https://img.shields.io/badge/Juara_1-Lomba_Nasional_Web_Invention_%C2%B7_Universitas_Udayana-gold.svg?logo=data:image/svg%2Bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2ZmZmZmZiI%2BPHBhdGggZD0iTTE4IDJINnYySDN2M2E1IDUgMCAwIDAgNSA1aC4zQTYgNiAwIDAgMCAxMSAxNS45VjE5SDh2Mmg4di0yaC0zdi0zLjFBNiA2IDAgMCAwIDE1LjcgMTJIMTZhNSA1IDAgMCAwIDUtNVY0aC0zVjJabS0yIDdhNCA0IDAgMCAxLTggMFY0aDh2NVpNNSA3VjZoMXYzYTQgNCAwIDAgMS0xLTJabTE0IDBhNCA0IDAgMCAxLTEgMlY2aDF2MVoiLz48L3N2Zz4%3D&logoColor=white" alt="Juara 1 Lomba Nasional Web — Invention, Universitas Udayana" /></a>
 </p>
 
 <p align="center">
@@ -73,8 +73,7 @@ repository as a legacy Windows desktop version and is not the desktop release.
 ## Award
 
 OpenPOS won **1st place in the National Web Competition** organized by
-**Invention, Universitas Udayana**. See the [award page](https://open-pos-deploy.vercel.app/prestasi)
-for details.
+**Invention, Universitas Udayana**. See [AWARD.md](AWARD.md) for details.
 
 ## Features
 
@@ -243,6 +242,7 @@ updates are manual by design, and the finished APK is published to
 │   ├── offline.html        # offline entry for Electron and Android
 │   ├── offline-lite.html   # OpenPOS Desktop entry (Tauri)
 │   └── public/openpos.apk  # latest sideloadable APK, served from /unduh
+├── AWARD.md                # competition award details
 ├── CONTRIBUTING.md         # contribution guide
 ├── CODE_OF_CONDUCT.md      # community standards
 ├── SECURITY.md             # security policy and reporting scope

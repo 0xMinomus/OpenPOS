@@ -18,7 +18,6 @@ export default function Footer() {
           <Link to="/daftar" className="text-sm hover:text-jet">Buat akun gratis</Link>
           <a href="#fitur" className="text-sm hover:text-jet">Fitur</a>
           <a href="#tentang" className="text-sm hover:text-jet">Tentang</a>
-          <Link to="/prestasi" className="text-sm hover:text-jet">Prestasi</Link>
         </nav>
         <div className="flex flex-col gap-1.5 text-right md:items-end">
           <span className="font-mono text-xs">© 2026 OpenPOS</span>

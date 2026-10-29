@@ -24,7 +24,6 @@ const Laporan = lazy(() => import('./pages/Laporan'))
 const Users = lazy(() => import('./pages/Users'))
 const Pengaturan = lazy(() => import('./pages/Pengaturan'))
 const Unduh = lazy(() => import('./pages/Unduh'))
-const Prestasi = lazy(() => import('./pages/Prestasi'))
 const RedesignShell = lazy(() => import('./redesign/RedesignShell'))
 const RedesignDashboard = lazy(() => import('./redesign/Dashboard'))
 const RedesignPos = lazy(() => import('./redesign/Pos'))
@@ -96,7 +95,6 @@ export default function App() {
         <Route path="/daftar" element={<Daftar />} />
         <Route path="/pilih-akun" element={<PilihAkun />} />
         <Route path="/unduh" element={<Unduh />} />
-        <Route path="/prestasi" element={<Prestasi />} />
         <Route path="/app" element={<AppShell />}>
           <Route index element={<Dashboard />} />
           <Route path="pos" element={<Pos />} />

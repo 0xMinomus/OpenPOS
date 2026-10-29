@@ -6,7 +6,6 @@ const SECTIONS = [
   { id: 'fitur', label: 'Fitur' },
   { id: 'cara-kerja', label: 'Cara Kerja' },
   { id: 'tentang', label: 'Tentang' },
-  { id: 'prestasi', label: 'Prestasi', to: '/prestasi' },
   { id: 'unduh', label: 'Unduh', to: '/unduh' },
 ]
 
