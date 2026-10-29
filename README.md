@@ -10,6 +10,7 @@
   <img src="https://img.shields.io/badge/vite-8-purple.svg" alt="Vite" />
   <img src="https://img.shields.io/badge/typescript-5-blue.svg" alt="TypeScript" />
   <img src="https://img.shields.io/badge/platform-web_%7C_desktop_%7C_android-black.svg" alt="Platforms" />
+  <a href="https://open-pos-deploy.vercel.app/prestasi"><img src="https://img.shields.io/badge/Juara_1-Lomba_Nasional_Web_Invention_%C2%B7_Universitas_Udayana-gold.svg" alt="Juara 1 Lomba Nasional Web — Invention, Universitas Udayana" /></a>
 </p>
 
 <p align="center">
@@ -27,6 +28,7 @@
 ## Table of contents
 
 - [About](#about)
+- [Award](#award)
 - [Features](#features)
 - [Tech stack](#tech-stack)
 - [Getting started](#getting-started)
@@ -39,6 +41,7 @@
 - [Project structure](#project-structure)
 - [Backend API](#backend-api)
 - [Contributing](#contributing)
+- [Code of Conduct](#code-of-conduct)
 - [Security](#security)
 - [License](#license)
 
@@ -66,6 +69,12 @@ OpenPOS Desktop is the Tauri app in `web/src-tauri/` built from
 `web/offline-lite.html`; see [web/DESKTOP.md](web/DESKTOP.md) for its build and
 packaging guide. The older Electron build in `web/electron/` stays in the
 repository as a legacy Windows desktop version and is not the desktop release.
+
+## Award
+
+OpenPOS won **1st place in the National Web Competition** organized by
+**Invention, Universitas Udayana**. See the [award page](https://open-pos-deploy.vercel.app/prestasi)
+for details.
 
 ## Features
 
@@ -234,6 +243,8 @@ updates are manual by design, and the finished APK is published to
 │   ├── offline.html        # offline entry for Electron and Android
 │   ├── offline-lite.html   # OpenPOS Desktop entry (Tauri)
 │   └── public/openpos.apk  # latest sideloadable APK, served from /unduh
+├── CONTRIBUTING.md         # contribution guide
+├── CODE_OF_CONDUCT.md      # community standards
 ├── SECURITY.md             # security policy and reporting scope
 └── LICENSE
 ```
@@ -247,7 +258,8 @@ backend maintainer, so the frontend and the API can ship independently.
 
 ## Contributing
 
-Issues and pull requests are welcome.
+Issues and pull requests are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md)
+for setup, conventions, and the review flow.
 
 - Keep business features backed by the real API; no local mock data for
   business flows (the `/demo` preview is the exception, it is a UI sandbox
@@ -256,6 +268,12 @@ Issues and pull requests are welcome.
 - Follow [Conventional Commits](https://www.conventionalcommits.org/) for
   commit messages, matching the existing history.
 - Never commit credentials, tokens, or `.env.local` files.
+
+## Code of Conduct
+
+This project follows the [Contributor Covenant](CODE_OF_CONDUCT.md). Be
+respectful, assume good faith, and report unacceptable behavior to the
+maintainer.
 
 ## Security
 
